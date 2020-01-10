@@ -1,0 +1,13 @@
+.containerStyle {
+  margin-top: 60px;
+  text-align: center;
+}
+.negative_message-style {
+  background-color: #e10101 !important;
+  color: white !important;
+}
+
+.positive_message-style {
+  background-color: #0f9500 !important;
+  color: white !important;
+}

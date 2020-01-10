@@ -1,4 +1,6 @@
 {
   "mongoURI": "mongodb+srv://waleed:waleed123@cluster0-03o81.mongodb.net/test?retryWrites=true&w=majority",
-  "jwtSecret": "_login_setupREACT45"
+  "jwtSecret": "_login_setupREACT45",
+  "senderEmail": "testd421@gmail.com",
+  "senderPassword": "Karachi#12"
 }
