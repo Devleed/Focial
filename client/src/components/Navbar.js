@@ -1,16 +1,15 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { NavLink } from 'react-router-dom';
+
 import '../styles/navbar.css';
-
 import { LOGOUT_SUCCESS } from '../helpers/actionTypes';
+import Search from './Search';
 
-const Home = () => {
+const Navbar = () => {
   const dispatch = useDispatch();
   const isLoggedin = useSelector(({ auth }) => auth.isAuthorized);
   const userLoading = useSelector(({ auth }) => auth.userLoading);
-
-  console.log(userLoading);
 
   const renderAuthButtons = () => {
     if (userLoading || userLoading === null) {
@@ -19,17 +18,13 @@ const Home = () => {
       return (
         <ul className="list_items">
           {isLoggedin ? (
-            <li onClick={() => dispatch({ type: LOGOUT_SUCCESS })}>
-              <NavLink to="/">Logout</NavLink>
-            </li>
+            <NavLink to="/" onClick={() => dispatch({ type: LOGOUT_SUCCESS })}>
+              Logout
+            </NavLink>
           ) : (
             <React.Fragment>
-              <li>
-                <NavLink to="/login">Login</NavLink>
-              </li>
-              <li>
-                <NavLink to="/register">Register</NavLink>
-              </li>
+              <NavLink to="/login">Login</NavLink>
+              <NavLink to="/register">Register</NavLink>
             </React.Fragment>
           )}
         </ul>
@@ -38,15 +33,12 @@ const Home = () => {
   };
 
   return (
-    <header className="nav">
-      <h1>
-        <NavLink to="/" className="logo">
-          Logo
-        </NavLink>
-      </h1>
-      <nav>{renderAuthButtons()}</nav>
-    </header>
+    <div className="navbar">
+      <h1 className="logo">Logo</h1>
+      <Search />
+      <div>{renderAuthButtons()}</div>
+    </div>
   );
 };
 
-export default Home;
+export default Navbar;

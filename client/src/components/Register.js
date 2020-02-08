@@ -4,8 +4,8 @@ import { Form, Header, Message, Container } from 'semantic-ui-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 
-import { registerUser, clearError, returnError } from '../helpers';
-import { REGISTER_FAIL } from '../helpers/actionTypes';
+import { registerUser, getAllEmails } from '../helpers';
+import { REGISTER_FAIL, LOADING } from '../helpers/actionTypes';
 
 // global emails variable
 let allEmails = [];
@@ -61,41 +61,27 @@ const Register = props => {
   const error = useSelector(({ error }) => error);
   const emails = useSelector(({ emails }) => emails);
   const isLoggedIn = useSelector(({ auth }) => auth.isAuthorized);
-
-  const [loading, setLoading] = useState(false);
+  const loading = useSelector(({ loading }) => loading);
 
   allEmails = emails;
 
   const onFormSubmit = values => {
-    setLoading(true);
-    registerUser(values)
-      .then(data => {
-        if (data.type === 'err') throw data.err;
-        else {
-          dispatch(data);
-          dispatch(clearError());
-          setLoading(false);
-          props.history.push('/');
-        }
-      })
-      .catch(e => {
-        setLoading(false);
-        dispatch(
-          returnError(e.response.data.msg, e.response.status, REGISTER_FAIL)
-        );
-      });
+    dispatch({ type: LOADING, payload: true });
+    dispatch(registerUser(values));
+    dispatch(getAllEmails());
+    props.history.push('/');
   };
-  if (isLoggedIn) {
-    return (
-      <Message warning style={{ marginTop: '60px ' }}>
-        Logout to register
-      </Message>
-    );
-  } else if (isLoggedIn === null) {
-    return null;
-  } else {
-    return (
-      <Container className="containerStyle">
+  const renderForm = () => {
+    if (isLoggedIn) {
+      return (
+        <Message warning style={{ marginTop: '60px ' }}>
+          Logout to register
+        </Message>
+      );
+    } else if (isLoggedIn === null) {
+      return null;
+    } else {
+      return (
         <Form
           loading={loading}
           onSubmit={props.handleSubmit(onFormSubmit)}
@@ -148,9 +134,11 @@ const Register = props => {
             Submit
           </button>
         </Form>
-      </Container>
-    );
-  }
+      );
+    }
+  };
+
+  return <Container className="containerStyle">{renderForm()}</Container>;
 };
 
 export default reduxForm({

@@ -19,6 +19,10 @@ const userSchema = new mongoose.Schema({
     required: true,
     default: Date.now()
   },
+  friends: {
+    type: Array,
+    default: []
+  },
   passwordResetToken: {
     type: String,
     default: null

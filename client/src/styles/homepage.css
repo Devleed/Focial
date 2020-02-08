@@ -1,0 +1,89 @@
+.cover {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-areas: 'lside postarea rside';
+  gap: 1rem;
+  align-items: flex-start;
+}
+.cover > div {
+  padding: 1rem;
+}
+.left_sidebar {
+  background-color: #f5f5f5;
+  grid-area: lside;
+  min-height: 500px;
+  position: fixed;
+  width: 18%;
+}
+.left_sidebar-options li {
+  padding: 5px 20px 5px 10px;
+  list-style-type: none;
+  transition: all 0.3s ease 0s;
+  cursor: pointer;
+  color: #343434;
+}
+.left_sidebar-options li:hover {
+  background-color: #e6e6e6;
+  color: black;
+}
+.post_area {
+  grid-area: postarea;
+  background-color: #f5f5f5;
+  padding-top: 0 !important;
+}
+.post_area > form span {
+  width: 100%;
+  padding: 10px;
+  background-color: #dfdfdf74;
+  text-align: left;
+  font-weight: bold;
+}
+.post_area > form,
+.post_form {
+  margin: auto;
+  text-align: center;
+  width: 100%;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  border: 1px solid rgba(214, 214, 214, 0.469);
+}
+.post_field {
+  width: 100%;
+  padding: 10px 30px;
+  display: flex;
+  flex-direction: row;
+  background-color: white;
+}
+.post_area textarea,
+.post_form textarea {
+  display: inline-block;
+  width: 100%;
+  height: 100px;
+  padding: 10px;
+  font-size: x-large;
+  border: none;
+  border-bottom: 1px solid rgba(214, 214, 214, 0.469);
+  resize: none;
+}
+.post_area textarea:focus,
+.post_form textarea:focus {
+  outline: none;
+}
+.post_form > button {
+  margin: 10px;
+  width: 96%;
+  background-color: #008ecc;
+  border: none;
+  color: white;
+  padding: 10px;
+  cursor: pointer;
+}
+.right_sidebar {
+  grid-area: rside;
+  background-color: #f5f5f5;
+  position: fixed;
+  width: 18%;
+  right: 13%;
+}

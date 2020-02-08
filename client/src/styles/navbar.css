@@ -19,8 +19,8 @@
   z-index: -1;
   border: none;
 } */
-#root {
-  height: 100%;
+#root > div {
+  margin-top: 100px;
 }
 li,
 a {
@@ -30,20 +30,17 @@ a {
   color: #edf0f1;
   text-decoration: none;
 }
-
+/*
 .nav {
-  /* height: 100px; */
+  height: 100px;
   display: flex;
-  /* justify-content: space-between; */
+  justify-content: space-between;
   flex-direction: column;
   align-items: center;
-  /* padding: 30px 10%; */
+  padding: 30px 10%;
   background-color: #24252a;
 }
-
-h1 {
-  margin-bottom: 0;
-}
+*/
 
 .logo {
   color: white;
@@ -54,20 +51,19 @@ h1 {
   font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
   font-size: 35px;
   transition: all 0.3s ease 0s;
-  z-index: 9999;
 }
 .logo:hover {
   color: aqua;
 }
 
-.list_items {
+/* .list_items {
   display: flex;
   flex-direction: column;
   list-style: none;
   text-align: center;
-}
+} */
 
-.list_items li {
+/* .list_items li {
   padding: 0px 20px;
   margin: 10px 0;
 }
@@ -78,17 +74,18 @@ h1 {
 
 .list_items li a:hover {
   color: aqua;
-}
+} */
 
 .button {
   padding: 9px 25px;
-  background-color: #24252a;
+  background-color: #008ecc;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   margin-top: 20px;
 }
+/*
 .showcase {
   display: flex;
   flex-direction: column;
@@ -101,7 +98,7 @@ h1 {
   background: wheat;
   color: #24252a;
   padding: 1rem;
-}
+} */
 
 @media only screen and (min-width: 1000px) {
   body {
@@ -124,14 +121,14 @@ h1 {
     text-decoration: none;
   }
 
-  .nav {
-    height: 100px;
+  /* .nav {
+    height: 60px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
     padding: 20px 10%;
-  }
+  } */
 
   .logo {
     margin-right: 70px;
@@ -140,12 +137,10 @@ h1 {
     cursor: pointer;
   }
   .logo:hover {
-    margin-right: 0px;
-    margin-bottom: 0px;
     color: aqua;
     font-size: 50px;
   }
-  .list_items {
+  /* .list_items {
     display: block;
     list-style: none;
   }
@@ -161,23 +156,66 @@ h1 {
 
   .list_items li a:hover {
     color: #0088a9;
-  }
+  } */
 
-  .container {
+  /* .container {
     display: grid;
     grid-template-rows: repeat(6, 200px);
-  }
-  .showcase {
+  } */
+  /* .showcase {
     display: flex;
     flex-direction: column;
     align-items: center;
     grid-row: 2 / span 1;
     color: black;
-  }
+  } */
   .btn {
     border: 0;
     background: #24252a;
     color: wheat;
     padding: 1rem;
   }
+}
+
+/*================================================================================*/
+/* The navigation bar */
+.navbar {
+  overflow: hidden;
+  background-color: #333;
+  position: fixed; /* Set the navbar to fixed position */
+  top: 0; /* Position the navbar at the top of the page */
+  left: 0;
+  right: 0;
+  padding: 0 200px;
+  box-shadow: 5px 5px 10px #96969684;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 60px;
+}
+.navbar > div {
+  float: right;
+}
+/* Links inside the navbar */
+.navbar a {
+  float: right;
+  /* display: block; */
+  color: #f2f2f2;
+  text-align: center;
+  padding: 10px 16px;
+  text-decoration: none;
+  transition: all 0.3s ease 0s;
+  flex: 1;
+}
+.search_form {
+  flex: 2;
+}
+.search_form > input {
+  width: 80%;
+  padding: 3px;
+  border: none;
+}
+/* Change background on mouse-over */
+.navbar a:hover {
+  color: #0088a9;
 }

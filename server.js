@@ -8,6 +8,8 @@ const app = express();
 
 // setting routes
 app.use('/api/user', require('./routes/api/user'));
+app.use('/api/request', require('./routes/api/request'));
+app.use('/api/post', require('./routes/api/post'));
 
 // setting middlewares
 app.use(express.json());

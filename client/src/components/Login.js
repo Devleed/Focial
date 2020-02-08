@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 
 import { reduxForm, Field } from 'redux-form';
-import { Form, Header, Message, Container } from 'semantic-ui-react';
+import { Form, Header, Message, Container, Loader } from 'semantic-ui-react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { loginUser, clearError, returnError } from '../helpers';
-import { LOGIN_FAIL } from '../helpers/actionTypes';
-import { Link } from 'react-router-dom';
+import { loginUser } from '../helpers';
+import { LOGIN_FAIL, LOADING } from '../helpers/actionTypes';
+import { Link, Redirect } from 'react-router-dom';
 import '../styles/authStyle.css';
 
 let allEmails = [];
@@ -49,46 +49,21 @@ const Login = props => {
   const error = useSelector(({ error }) => error);
   const emails = useSelector(({ emails }) => emails);
   const isLoggedIn = useSelector(({ auth }) => auth.isAuthorized);
-  const [loading, setLoading] = useState(false);
+  const loading = useSelector(({ loading }) => loading);
+  const userLoading = useSelector(({ auth }) => auth.userLoading);
 
   allEmails = emails;
 
   const onFormSubmit = values => {
-    setLoading(true);
-    loginUser(values)
-      .then(data => {
-        if (data.type === 'err') throw data.err;
-        else {
-          dispatch(data);
-          dispatch(clearError());
-          setLoading(false);
-          props.history.push('/');
-        }
-      })
-      .catch(e => {
-        setLoading(false);
-        dispatch(
-          returnError(
-            e.response.data === 'Unauthorized'
-              ? 'Wrong password'
-              : e.response.data,
-            e.response.status,
-            LOGIN_FAIL
-          )
-        );
-      });
+    dispatch({ type: LOADING, payload: true });
+    dispatch(loginUser(values, props.history));
   };
-  if (isLoggedIn) {
-    return (
-      <Message positive style={{ marginTop: '60px ' }}>
-        Already logged in
-      </Message>
-    );
-  } else if (isLoggedIn === null) {
-    return null;
-  } else {
-    return (
-      <Container className="containerStyle">
+  const renderPage = () => {
+    if (isLoggedIn) return <Redirect to={{ pathname: '/' }} />;
+    if (userLoading) {
+      return <Loader active />;
+    } else {
+      return (
         <Form
           loading={loading}
           onSubmit={props.handleSubmit(onFormSubmit)}
@@ -97,11 +72,6 @@ const Login = props => {
           <Header as="h1" style={{ fontFamily: "'Noto Sans JP', sans-serif" }}>
             Login
           </Header>
-          {error.id === LOGIN_FAIL ? (
-            <Message negative>
-              <p>{error.msg}</p>
-            </Message>
-          ) : null}
           <Form.Field>
             <Field
               name="email"
@@ -118,6 +88,9 @@ const Login = props => {
               placeholder="password"
             />
           </Form.Field>
+          {error.id === LOGIN_FAIL ? (
+            <Message className="negative_message-style">Wrong Password</Message>
+          ) : null}
           <Link to="/forget-password" className="authLinkStyle">
             Forgot your password?
           </Link>
@@ -134,9 +107,10 @@ const Login = props => {
             create account
           </Link>
         </Form>
-      </Container>
-    );
-  }
+      );
+    }
+  };
+  return <Container className="containerStyle">{renderPage()}</Container>;
 };
 
 export default reduxForm({

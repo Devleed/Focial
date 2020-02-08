@@ -14,26 +14,49 @@ const User = require('../../models/User');
 router.use(express.json());
 
 const generateError = (res, status, msg) => {
-  return res.status(status).json({ msg });
+  return res.status(status).json({ msg, test: ' testing' });
 };
 
+router.get(
+  '/search',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res) => {
+    try {
+      let results = await User.find({ name: req.query.name }).select(
+        '-password -register_date -passwordResetToken'
+      );
+      results = results.filter(user => user.id !== req.user.id);
+      res.json({ searchResults: results });
+    } catch (err) {
+      return res.status(500).json({ msg: 'server error' });
+    }
+  }
+);
+
+// 5e29a72d73c5b26e0806e3b4
+// 5e29a6bd73c5b26e0806e3b3
 router.post(
   '/login',
   passport.authenticate('login', {
     session: false
   }),
   (req, res) => {
-    jwt.sign({ id: req.user.id }, config.get('jwtSecret'), (err, token) => {
-      if (err) generateError(res, 500, 'server error, try again later');
-      res.json({
-        token: `Bearer ${token}`,
-        user: {
-          id: req.user.id,
-          name: req.user.name,
-          email: req.user.email
-        }
+    if (req.user) {
+      jwt.sign({ id: req.user.id }, config.get('jwtSecret'), (err, token) => {
+        if (err) generateError(res, 500, 'server error, try again later');
+        res.json({
+          token: `Bearer ${token}`,
+          user: {
+            friends: req.user.friends,
+            _id: req.user.id,
+            name: req.user.name,
+            email: req.user.email
+          }
+        });
       });
-    });
+    } else {
+      return res.status(401).json({ msg: 'wrong password' });
+    }
   }
 );
 
@@ -46,7 +69,8 @@ router.post(
       res.json({
         token: `Bearer ${token}`,
         user: {
-          id: req.user.id,
+          friends: req.user.friends,
+          _id: req.user.id,
           name: req.user.name,
           email: req.user.email
         }
@@ -157,13 +181,25 @@ router.post('/forget-password', async (req, res) => {
 
 router.get(
   '/',
-  passport.authenticate('jwt', { session: false }),
+  passport.authenticate('jwt', {
+    session: false,
+    failureRedirect: '/api/user/loadUserFail'
+  }),
   async (req, res) => {
-    const user = await User.findById(req.user.id).select('-password');
-    if (!user) generateError(res, 401, 'Unauthorized');
-    res.json({ user });
+    res.json({
+      user: {
+        _id: req.user.id,
+        name: req.user.name,
+        email: req.user.email,
+        friends: req.user.friends
+      }
+    });
   }
 );
+
+router.get('/loadUserFail', (req, res) => {
+  return res.status(401).json({ msg: 'failed to load user' });
+});
 
 router.get('/getEmails', async (req, res) => {
   try {
@@ -175,4 +211,35 @@ router.get('/getEmails', async (req, res) => {
   }
 });
 
+router.get('/:id', async (req, res) => {
+  const user = await User.findById(req.params.id).select(
+    'id name email friends register_date'
+  );
+  if (!user) generateError(res, 404, 'No user found');
+  res.json(user);
+});
+
+router.post('/unfriend', async (req, res) => {
+  try {
+    const visitedUser = await User.findById(req.body.visitedUserID);
+    const loggedUser = await User.findById(req.body.loggedUserID);
+
+    console.log(visitedUser.friends);
+    console.log(loggedUser.friends);
+
+    loggedUser.friends = loggedUser.friends.filter(
+      friend => friend !== req.body.visitedUserID
+    );
+    visitedUser.friends = visitedUser.friends.filter(
+      friend => friend !== req.body.loggedUserID
+    );
+
+    await loggedUser.save();
+    await visitedUser.save();
+
+    return res.json({ msg: 'success' });
+  } catch (err) {
+    return res.status(500).json({ msg: 'server error, try again later' });
+  }
+});
 module.exports = router;
