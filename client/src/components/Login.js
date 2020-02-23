@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import { reduxForm, Field } from 'redux-form';
 import { Form, Header, Message, Container, Loader } from 'semantic-ui-react';
@@ -89,7 +89,7 @@ const Login = props => {
             />
           </Form.Field>
           {error.id === LOGIN_FAIL ? (
-            <Message className="negative_message-style">Wrong Password</Message>
+            <Message className="negative_message-style">{error.msg}</Message>
           ) : null}
           <Link to="/forget-password" className="authLinkStyle">
             Forgot your password?

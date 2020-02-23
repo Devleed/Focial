@@ -1,46 +1,47 @@
-import React from 'react';
-import { Icon } from 'semantic-ui-react';
-import { Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import React, { useRef } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 
+import PostPlaceholder from './PostPlaceholder';
 import PostActions from './PostActions';
 import '../../../styles/post.css';
+import PostContent from './PostContent';
 
-const Posts = () => {
-  const posts = useSelector(({ posts }) => posts);
+const Posts = props => {
+  const posts = useSelector(({ postsData }) => postsData.posts);
+  const postLoading = useSelector(({ postsData }) => postsData.postLoading);
 
   posts.sort((a, b) => new Date(b.date_created) - new Date(a.date_created));
 
+  const postJsx = post => {
+    return (
+      <div key={post._id}>
+        <PostContent post={post} />
+        <PostActions
+          likes={post.likes}
+          comments={post.comments}
+          id={post._id}
+        />
+      </div>
+    );
+  };
+
   const displayPosts = () => {
-    return posts.map(post => {
+    if (postLoading) {
       return (
-        <div key={post._id}>
-          <div className="post_display">
-            <div className="post_meta">
-              <Icon
-                name="user"
-                size="big"
-                color="grey"
-                style={{ marginTop: '5px' }}
-              />
-              <div className="post_info">
-                <Link to="!#" className="post_author">
-                  {post.author_name}
-                </Link>
-                <br />
-                <span className="post_date">{post.date_created}</span>
-              </div>
-            </div>
-            <div className="post_content">{post.body}</div>
-          </div>
-          <PostActions
-            likes={post.likes}
-            comments={post.comments}
-            id={post._id}
-          />
-        </div>
+        <React.Fragment>
+          <PostPlaceholder />
+          <PostPlaceholder />
+          <PostPlaceholder />
+        </React.Fragment>
       );
-    });
+    } else if (props.posts) {
+      return props.posts.map(post => {
+        return postJsx(post);
+      });
+    } else
+      return posts.map(post => {
+        return postJsx(post);
+      });
   };
 
   return <div>{displayPosts()}</div>;

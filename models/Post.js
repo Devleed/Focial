@@ -5,13 +5,14 @@ const postSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  author_name: {
-    type: String,
-    required: true
-  },
   body: {
     type: String,
     required: true
+  },
+  post_image: {
+    url: { type: String, default: null },
+    width: Number,
+    height: Number
   },
   date_created: {
     type: Date,
@@ -24,7 +25,6 @@ const postSchema = new mongoose.Schema({
   comments: [
     {
       author: String,
-      author_name: String,
       content: String
     }
   ]

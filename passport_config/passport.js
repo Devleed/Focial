@@ -22,9 +22,9 @@ module.exports = passport => {
       async (username, password, done) => {
         try {
           const user = await User.findOne({ email: username });
-          if (!user) return done(null, false, { msg: 'no user found' });
+          if (!user) return done(null, false);
           const isMatch = await bcrypt.compare(password, user.password);
-          if (!isMatch) return done(null, false, { msg: 'wrong password' });
+          if (!isMatch) return done(null, false);
           return done(null, user);
         } catch (error) {
           return done(error);
@@ -68,7 +68,9 @@ module.exports = passport => {
     'jwt',
     new JWTstrategy(opts, async (jwt_payload, done) => {
       try {
-        const user = await User.findById(jwt_payload.id);
+        const user = await User.findById(jwt_payload.id).select(
+          'name email friends'
+        );
         if (!user) done(null, false);
         else done(null, user);
       } catch (error) {

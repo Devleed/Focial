@@ -33,32 +33,19 @@ router.get(
   }
 );
 
-// 5e29a72d73c5b26e0806e3b4
-// 5e29a6bd73c5b26e0806e3b3
-router.post(
-  '/login',
-  passport.authenticate('login', {
-    session: false
-  }),
-  (req, res) => {
-    if (req.user) {
-      jwt.sign({ id: req.user.id }, config.get('jwtSecret'), (err, token) => {
-        if (err) generateError(res, 500, 'server error, try again later');
-        res.json({
-          token: `Bearer ${token}`,
-          user: {
-            friends: req.user.friends,
-            _id: req.user.id,
-            name: req.user.name,
-            email: req.user.email
-          }
-        });
+router.post('/login', (req, res, next) => {
+  passport.authenticate('login', { session: false }, (err, user, info) => {
+    if (err) next(err);
+    if (!user) generateError(res, 401, 'email or password is incorrect');
+    jwt.sign({ id: user.id }, config.get('jwtSecret'), (err, token) => {
+      if (err) generateError(res, 500, 'server error, try again later');
+      res.json({
+        token: `Bearer ${token}`,
+        user
       });
-    } else {
-      return res.status(401).json({ msg: 'wrong password' });
-    }
-  }
-);
+    });
+  })(req, res, next);
+});
 
 router.post(
   '/register',
@@ -179,31 +166,23 @@ router.post('/forget-password', async (req, res) => {
   }
 });
 
-router.get(
-  '/',
-  passport.authenticate('jwt', {
-    session: false,
-    failureRedirect: '/api/user/loadUserFail'
-  }),
-  async (req, res) => {
-    res.json({
-      user: {
-        _id: req.user.id,
-        name: req.user.name,
-        email: req.user.email,
-        friends: req.user.friends
-      }
-    });
-  }
-);
-
-router.get('/loadUserFail', (req, res) => {
-  return res.status(401).json({ msg: 'failed to load user' });
+router.get('/', (req, res, next) => {
+  passport.authenticate(
+    'jwt',
+    {
+      session: false
+    },
+    (err, user, info) => {
+      if (err) return next(err);
+      if (!user) return res.status(401).json({ msg: "your're not logged in" });
+      return res.json(user);
+    }
+  )(req, res, next);
 });
 
 router.get('/getEmails', async (req, res) => {
   try {
-    let allUsers = await User.find({});
+    let allUsers = await User.find({}).select('email -_id');
     allUsers = allUsers.map(user => user.email);
     res.json(allUsers);
   } catch (error) {
@@ -223,9 +202,6 @@ router.post('/unfriend', async (req, res) => {
   try {
     const visitedUser = await User.findById(req.body.visitedUserID);
     const loggedUser = await User.findById(req.body.loggedUserID);
-
-    console.log(visitedUser.friends);
-    console.log(loggedUser.friends);
 
     loggedUser.friends = loggedUser.friends.filter(
       friend => friend !== req.body.visitedUserID

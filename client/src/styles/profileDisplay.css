@@ -1,0 +1,27 @@
+.profile_display {
+  width: 100%;
+  min-height: 500px;
+  margin: 20px auto;
+}
+.cover_photo {
+  width: 100%;
+  height: 400px;
+}
+.profile_content {
+  background-color: white;
+  width: 100%;
+  padding: 1.5rem;
+}
+.profile_content > span {
+  color: rgba(39, 39, 39, 0.551);
+}
+.profile_user {
+  margin-top: 20px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+.user_content {
+  background-color: white;
+}

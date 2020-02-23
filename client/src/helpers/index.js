@@ -23,8 +23,26 @@ import {
   CREATE_POST,
   LIKE_POST,
   UNLIKE_POST,
-  COMMENT_POST
+  COMMENT_POST,
+  POST_LOADING,
+  COMMENT_LOADED,
+  SEND_REQUEST,
+  REQUEST_ACCEPTED,
+  REQUEST_REJECTED,
+  CANCEL_REQUEST,
+  DELETE_POST,
+  EDIT_POST
 } from './actionTypes';
+
+export const loadComments = (id, setCommentLoading) => async dispatch => {
+  try {
+    const { data } = await Axios.get(`/api/post/comment/${id}`);
+    setCommentLoading(false);
+    dispatch({ type: COMMENT_LOADED, payload: data });
+  } catch (err) {
+    console.error(err);
+  }
+};
 
 export const commentPost = (id, comment) => async (dispatch, getState) => {
   try {
@@ -63,13 +81,54 @@ export const likePost = id => async (dispatch, getState) => {
   }
 };
 
-export const createPost = postBody => async (dispatch, getState) => {
+export const editPost = (id, body, setEditing, setLoading) => async (
+  dispatch,
+  getState
+) => {
   try {
-    const { data } = await Axios.post(
-      '/api/post',
-      { postBody },
+    const { data } = await Axios.put(
+      `/api/post/${id}`,
+      { postBody: body },
       getConfig(getState().auth.token)
     );
+    setLoading(false);
+    dispatch({ type: EDIT_POST, payload: data });
+    setEditing(false);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+export const deletePost = id => async (dispatch, getState) => {
+  try {
+    const { data } = await Axios.delete(
+      `/api/post/${id}`,
+      getConfig(getState().auth.token)
+    );
+    dispatch({ type: DELETE_POST, payload: data });
+  } catch (err) {
+    console.error(err.response);
+  }
+};
+
+export const createPost = ({ postField, postImageField }) => async (
+  dispatch,
+  getState
+) => {
+  const config = {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  };
+  if (getState().auth.token) {
+    config.headers['Authorization'] = getState().auth.token;
+  }
+  try {
+    const formData = new FormData();
+    formData.append('postBody', postField);
+    formData.append('photo', postImageField);
+
+    const { data } = await Axios.post('/api/post', formData, config);
     dispatch({ type: CREATE_POST, payload: data });
   } catch (err) {
     console.error(err);
@@ -83,19 +142,27 @@ export const getPost = () => async (dispatch, getState) => {
       getConfig(getState().auth.token)
     );
     dispatch({ type: GET_POST, payload: data });
+    dispatch({ type: POST_LOADING, payload: false });
   } catch (err) {
     console.error(err.response);
+    dispatch({ type: POST_LOADING, payload: false });
   }
 };
 
-export const unfriendUser = async (visitedUserID, loggedUserID) => {
+export const unfriendUser = (visitedUserID, loggedUserID, setLoading) => async (
+  dispatch,
+  getState
+) => {
   try {
     const { data } = await Axios.post('/api/user/unfriend', {
       visitedUserID,
       loggedUserID
     });
-    return data;
+    dispatch(loadUser(getState().auth.token));
+    dispatch(findUser(visitedUserID));
+    setLoading(false);
   } catch (err) {
+    setLoading(false);
     returnError();
   }
 };
@@ -119,60 +186,88 @@ export const checkRequest = () => async (dispatch, getState) => {
     dispatch({ type: REQUEST_RECIEVED, payload: data.requestRecieved });
     dispatch({ type: REQUEST_SENT, payload: data.requestSent });
   } catch (err) {
-    dispatch(
-      returnError(err.response.data, err.response.status, 'request_error')
-    );
+    console.log(err.response);
+    // dispatch(
+    //   returnError(err.response.data, err.response.status, 'request_error')
+    // );
   }
 };
 
-export const rejectRequest = async (visitedUserID, loggedUserID) => {
+export const rejectRequest = (
+  visitedUserID,
+  loggedUserID,
+  setLoading
+) => async dispatch => {
   try {
     const { data } = await Axios.post('/api/request/rejected', {
       visitedUserID,
       loggedUserID
     });
-    console.log(data);
+    dispatch(loadUser());
+    dispatch({ type: REQUEST_REJECTED, payload: data });
+    setLoading(false);
   } catch (err) {
+    setLoading(false);
     return returnError();
   }
 };
 
-export const acceptRequest = async (visitedUserID, loggedUserID) => {
+export const acceptRequest = (
+  visitedUserID,
+  loggedUserID,
+  setLoading
+) => async dispatch => {
   try {
     const { data } = await Axios.post('/api/request/accepted', {
       visitedUserID,
       loggedUserID
     });
-    console.log(data);
+    dispatch(loadUser());
+    dispatch({ type: REQUEST_ACCEPTED, payload: data });
+    setLoading(false);
   } catch (err) {
+    setLoading(false);
     return returnError();
   }
 };
 
-export const sendRequest = async (visitedUserID, loggedUserID) => {
+export const sendRequest = (
+  visitedUserID,
+  loggedUserID,
+  setLoading
+) => async dispatch => {
   try {
     const { data } = await Axios.post('/api/request', {
       visitedUserID,
       loggedUserID
     });
-    return data;
+    dispatch({ type: SEND_REQUEST, payload: data });
+    setLoading(false);
   } catch (err) {
-    return returnError(
-      err.response.msg,
-      err.response.status,
-      SEND_REQUEST_FAIL
-    );
+    setLoading(false);
+    console.log(err);
+    // return returnError(
+    //   err.response.msg,
+    //   err.response.status,
+    //   SEND_REQUEST_FAIL
+    // );
   }
 };
 
-export const deleteRequest = async (visitedUserID, loggedUserID) => {
+export const deleteRequest = (
+  visitedUserID,
+  loggedUserID,
+  setLoading
+) => async dispatch => {
   try {
     const { data } = await Axios.post('/api/request/cancel', {
       visitedUserID,
       loggedUserID
     });
-    console.log(data);
+    dispatch({ type: CANCEL_REQUEST, payload: data });
+    setLoading(false);
   } catch (err) {
+    setLoading(false);
     return returnError();
   }
 };
@@ -212,6 +307,7 @@ export const registerUser = ({ name, email, password }) => async dispatch => {
     });
     dispatch({ type: REGISTER_SUCCESS, payload: res.data });
     dispatch(checkRequest());
+    dispatch({ type: POST_LOADING, payload: true });
     dispatch(getPost());
     dispatch({ type: LOADING, payload: false });
   } catch (err) {
@@ -227,9 +323,10 @@ export const loadUser = () => async (dispatch, getState) => {
       '/api/user',
       getConfig(getState().auth.token)
     );
-    dispatch({ type: LOAD_USER, payload: data.user });
+    dispatch({ type: LOAD_USER, payload: data });
     dispatch({ type: USER_LOADING, payload: false });
     dispatch(checkRequest());
+    dispatch({ type: POST_LOADING, payload: true });
     dispatch(getPost());
   } catch (err) {
     dispatch({ type: USER_LOADING, payload: false });
@@ -245,14 +342,17 @@ export const loginUser = ({ email, password }, history) => async dispatch => {
     const res = await Axios.post('/api/user/login', { email, password });
     dispatch({ type: LOGIN_SUCCESS, payload: res.data });
     dispatch(checkRequest());
+    dispatch({ type: POST_LOADING, payload: true });
     dispatch(getPost());
     dispatch({ type: LOADING, payload: false });
-    dispatch(getAllEmails());
     dispatch(clearError());
     history.push('/');
   } catch (err) {
+    dispatch({ type: LOADING, payload: false });
     console.log(err.response);
-    // dispatch(returnError(err.response.data, err.response.status, LOGIN_FAIL));
+    // dispatch(
+    //   returnError(err.response.data.msg, err.response.status, LOGIN_FAIL)
+    // );
   }
 };
 

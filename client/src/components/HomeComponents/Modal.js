@@ -1,7 +1,9 @@
 import React from 'react';
 import reactDOM from 'react-dom';
-import { Field, reduxForm } from 'redux-form';
+import { Field, reduxForm, reset } from 'redux-form';
 import { Icon } from 'semantic-ui-react';
+
+import FieldFileInput from './Post Components/PostFileField';
 import '../../styles/modal.css';
 
 const renderPostField = ({ input }) => {
@@ -27,8 +29,8 @@ const Modal = props => {
   if (!props.show) {
     return null;
   }
-  const onFormSubmit = ({ postField }) => {
-    props.onCreatePost(postField);
+  const onFormSubmit = postContent => {
+    props.onCreatePost(postContent);
   };
   return reactDOM.createPortal(
     <div className="modal" onClick={() => props.setShowModal(false)}>
@@ -40,10 +42,11 @@ const Modal = props => {
           </div>
           <Field name="postField" component={renderPostField} />
           <div className="extra_content">
-            <button>
+            {/* <button>
               <Icon name="image" />
               Upload Photo
-            </button>
+            </button> */}
+            <Field name="postImageField" component={FieldFileInput} />
             <button>
               <Icon name="file alternate" />
               Upload File
@@ -67,4 +70,10 @@ const Modal = props => {
   );
 };
 
-export default reduxForm({ form: 'post area' })(Modal);
+const afterSubmit = (result, dispatch) => {
+  dispatch(reset('comment form'));
+};
+
+export default reduxForm({ form: 'post area', onSubmitSuccess: afterSubmit })(
+  Modal
+);

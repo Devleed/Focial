@@ -1,10 +1,17 @@
 const express = require('express');
-const mongoose = require('mongoose');
-const config = require('config');
 const path = require('path');
 const passport = require('passport');
+const mongoose = require('mongoose');
+const config = require('config');
+const cloudinary = require('cloudinary').v2;
 
 const app = express();
+
+cloudinary.config({
+  cloud_name: 'drhgwsxz0',
+  api_key: '269154181167999',
+  api_secret: 'kwgcJBhvxkcoDT53asrlm0w1VqE'
+});
 
 // setting routes
 app.use('/api/user', require('./routes/api/user'));
@@ -17,17 +24,17 @@ app.use(passport.initialize());
 
 require('./passport_config/passport')(passport);
 
-// setting up mongodb
+// setting up database
 const db = config.get('mongoURI');
 
 mongoose
   .connect(db, {
-    useNewUrlParser: true,
     useUnifiedTopology: true,
+    useNewUrlParser: true,
     useCreateIndex: true
   })
-  .then(() => console.log('db connect'))
-  .catch(e => console.log(`db error => ${e}`));
+  .then(() => console.log('database connected'))
+  .catch(e => console.log(`error => ${e}`));
 
 const port = process.env.PORT || 5000;
 
@@ -38,8 +45,14 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-app.get('/', (req, res) => {
-  res.send('hells');
+app.get('/test', async (req, res) => {
+  const file = req.files.photo;
+  try {
+    const result = await cloudinary.uploader.upload(file.tempFilePath);
+    res.json(result.url);
+  } catch (err) {
+    console.error(err);
+  }
 });
 
 app.listen(port, () => console.log(`listening on port ${port}`));

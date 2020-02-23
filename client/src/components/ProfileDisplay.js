@@ -1,15 +1,23 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Container, Placeholder } from 'semantic-ui-react';
 
 import { findUser } from '../helpers';
 import { VISITED_USER } from '../helpers/actionTypes';
-import { Container, Card, Image, Icon, Placeholder } from 'semantic-ui-react';
 import RequestButtons from './RequestButtons';
+import Navbar from './Navbar';
+import '../styles/profileDisplay.css';
+import Posts from './HomeComponents/Post Components/Posts';
 
 const ProfileDisplay = props => {
   const dispatch = useDispatch();
   const user = useSelector(({ visitedUser }) => visitedUser);
-
+  let posts = useSelector(({ postsData }) => postsData.posts);
+  if (user) {
+    posts = posts
+      .filter(post => post.author === user._id)
+      .sort((a, b) => new Date(b.date_created) - new Date(a.date_created));
+  }
   useEffect(() => {
     (() => {
       dispatch(findUser(props.match.params.id));
@@ -22,30 +30,31 @@ const ProfileDisplay = props => {
   const displayContent = () => {
     if (user) {
       return (
-        <React.Fragment>
-          <Image
+        <div className="profile_display">
+          <img
             src="https://homepages.cae.wisc.edu/~ece533/images/watch.png"
             alt="profile picture"
+            className="cover_photo"
           />
-          <Card.Content>
+          <div className="profile_content">
             <RequestButtons />
-            <Card.Header>{user.name}</Card.Header>
-            <Card.Meta>
-              <span className="date">
-                Joined in {user.register_date.split('-')[0]}
-              </span>
-            </Card.Meta>
-            <Card.Description>lorem ipsum dolor sit amet</Card.Description>
-          </Card.Content>
-          <Card.Content extra>
-            <Icon name="user" />
-            {user.friends.length} friends
-          </Card.Content>
-        </React.Fragment>
+            <h1 style={{ textTransform: 'capitalize', margin: '0' }}>
+              {user.name}
+            </h1>
+            <span className="date">
+              Joined in {user.register_date.split('-')[0]}
+            </span>
+            <p>lorem ipsum dolor sit amet</p>
+          </div>
+          <div className="profile_user">
+            <div className="user_content"></div>
+            <Posts posts={posts} />
+          </div>
+        </div>
       );
     } else {
       return (
-        <React.Fragment>
+        <Placeholder>
           <Placeholder>
             <Placeholder.Image style={{ width: '100%' }} />
           </Placeholder>
@@ -59,15 +68,16 @@ const ProfileDisplay = props => {
               <Placeholder.Line length="short" />
             </Placeholder.Paragraph>
           </Placeholder>
-        </React.Fragment>
+        </Placeholder>
       );
     }
   };
 
   return (
-    <Container style={{ marginTop: '60px' }}>
-      <Card style={{ width: '70%', margin: '0 auto' }}>{displayContent()}</Card>
-    </Container>
+    <div>
+      <Navbar />
+      <Container style={{ marginTop: '60px' }}>{displayContent()}</Container>
+    </div>
   );
 };
 

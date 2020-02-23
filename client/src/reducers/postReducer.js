@@ -3,23 +3,67 @@ import {
   CREATE_POST,
   LIKE_POST,
   COMMENT_POST,
-  UNLIKE_POST
+  UNLIKE_POST,
+  POST_LOADING,
+  COMMENT_LOADED,
+  RESET_POSTS,
+  DELETE_POST,
+  EDIT_POST
 } from '../helpers/actionTypes';
 
-export default (state = [], action) => {
+const INITIAL_STATE = {
+  posts: [],
+  postLoading: null
+};
+
+export default (state = INITIAL_STATE, action) => {
   switch (action.type) {
+    case POST_LOADING:
+      return { ...state, postLoading: action.payload };
     case GET_POST:
-      return action.payload;
+      return { ...state, posts: action.payload };
     case CREATE_POST:
-      return [...state, { ...action.payload }];
+      return { ...state, posts: [...state.posts, { ...action.payload }] };
     case COMMENT_POST:
     case UNLIKE_POST:
     case LIKE_POST:
-      return state.map(post => {
-        if (post._id === action.payload._id) {
-          return { ...action.payload };
-        } else return post;
-      });
+      return {
+        ...state,
+        posts: state.posts.map(post => {
+          if (post._id === action.payload._id) {
+            return { ...action.payload };
+          } else return post;
+        })
+      };
+    case COMMENT_LOADED:
+      return {
+        ...state,
+        posts: state.posts.map(post => {
+          if (post._id === action.payload._id)
+            return { ...post, comments: action.payload.comments };
+          else return post;
+        })
+      };
+    case DELETE_POST:
+      return {
+        ...state,
+        posts: state.posts.filter(post => post._id !== action.payload._id)
+      };
+    case EDIT_POST:
+      return {
+        ...state,
+        posts: state.posts.map(post => {
+          if (post._id === action.payload._id) {
+            return { ...post, body: action.payload.body };
+          }
+          return post;
+        })
+      };
+    case RESET_POSTS:
+      return {
+        posts: [],
+        postLoading: null
+      };
     default:
       return state;
   }

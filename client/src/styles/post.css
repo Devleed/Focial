@@ -9,6 +9,7 @@
   flex-direction: row;
   padding: 40px;
   padding-bottom: 0px;
+  position: relative;
 }
 .post_author {
   margin: 0 !important;
@@ -24,9 +25,14 @@
 .post_content {
   font-size: 24px;
   font-weight: bolder;
-  word-wrap: wrap;
+  word-wrap: break-word;
   overflow-wrap: break-word;
   padding: 40px;
+  line-height: 30px;
+}
+.post_content-long {
+  font-size: 14px;
+  font-weight: normal;
 }
 .post_actions {
   display: flex;
@@ -100,6 +106,11 @@
 .post-comments_section {
   padding: 20px 10px;
   background-color: white;
+  position: relative;
+  min-height: 100px;
+}
+.comment-loader {
+  top: 30%;
 }
 .comment {
   display: flex;
@@ -117,4 +128,22 @@
   border: none;
   border-radius: 30px;
   font-size: small;
+}
+.post_loader {
+  width: 0;
+  height: 3px;
+  padding: 0;
+  margin: 0;
+  transition: all 3s ease 0s;
+  background-color: #008ecc;
+}
+.post_loader-loaded {
+  width: 100%;
+}
+.nocomment_text {
+  text-align: center;
+  letter-spacing: 3px;
+  word-spacing: 10px;
+  color: #252525bf;
+  margin-top: 20px;
 }

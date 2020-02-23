@@ -14,9 +14,11 @@
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "cloudinary": "^1.19.0",
     "concurrently": "^5.0.2",
     "config": "^3.2.4",
     "express": "^4.17.1",
+    "express-fileupload": "^1.1.6",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.8.3",
     "nodemailer": "^6.4.2",

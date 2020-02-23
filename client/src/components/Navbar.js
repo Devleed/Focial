@@ -3,8 +3,13 @@ import { useSelector, useDispatch } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 
 import '../styles/navbar.css';
-import { LOGOUT_SUCCESS } from '../helpers/actionTypes';
+import {
+  LOGOUT_SUCCESS,
+  RESET_REQUESTS,
+  RESET_POSTS
+} from '../helpers/actionTypes';
 import Search from './Search';
+import RequestManager from './RequestManager';
 
 const Navbar = () => {
   const dispatch = useDispatch();
@@ -18,7 +23,14 @@ const Navbar = () => {
       return (
         <ul className="list_items">
           {isLoggedin ? (
-            <NavLink to="/" onClick={() => dispatch({ type: LOGOUT_SUCCESS })}>
+            <NavLink
+              to="/"
+              onClick={() => {
+                dispatch({ type: RESET_POSTS });
+                dispatch({ type: RESET_REQUESTS });
+                dispatch({ type: LOGOUT_SUCCESS });
+              }}
+            >
               Logout
             </NavLink>
           ) : (
@@ -34,9 +46,12 @@ const Navbar = () => {
 
   return (
     <div className="navbar">
-      <h1 className="logo">Logo</h1>
+      <NavLink to="/" className="logo">
+        Logo
+      </NavLink>
       <Search />
-      <div>{renderAuthButtons()}</div>
+      <RequestManager />
+      <div className="auth_buttons">{renderAuthButtons()}</div>
     </div>
   );
 };
