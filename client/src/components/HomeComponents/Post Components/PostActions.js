@@ -5,8 +5,8 @@ import { reduxForm, Field, reset } from 'redux-form';
 
 import PostComments from './PostComments';
 import LikePost from './LikePost';
-import { commentPost, loadComments } from '../../../helpers';
-import { COMMENT_LOADING } from '../../../helpers/actionTypes';
+import { commentPost, loadComments, sharePost } from '../../../helpers';
+import SharePost from './SharePost';
 
 const renderField = ({ input }) => {
   return <input {...input} placeholder="write a comment..." />;
@@ -67,10 +67,14 @@ const PostActions = props => {
           <Icon name="comment outline" />
           Comment
         </button>
-        <button className="post_actions-button">
-          <Icon name="share" />
-          Share
-        </button>
+        <SharePost
+          image={props.post_image}
+          id={props.id}
+          author={props.author}
+          author_name={props.author_name}
+          date_created={props.date_created}
+          body={props.body}
+        />
       </div>
       <div className="post_comment-section">{renderCommentSection()}</div>
     </React.Fragment>

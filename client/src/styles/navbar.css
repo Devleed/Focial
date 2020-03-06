@@ -43,17 +43,19 @@ a {
 */
 
 .logo {
-  color: white;
   padding: 10px 10px 0 10px;
   margin: 8px 0;
-  border-bottom: 1px solid black;
   cursor: pointer;
   font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-  font-size: 35px;
+  font-size: 20px;
   transition: all 0.3s ease 0s;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
-.logo:hover {
-  color: aqua;
+.logo i {
+  color: #008ecc !important;
+  font-size: 40px !important;
 }
 
 /* .list_items {
@@ -135,10 +137,7 @@ a {
     border: none;
     padding: 0px;
     cursor: pointer;
-  }
-  .logo:hover {
-    color: aqua;
-    font-size: 50px;
+    color: #7e7e7e;
   }
   /* .list_items {
     display: block;
@@ -181,18 +180,28 @@ a {
 /* The navigation bar */
 .navbar {
   overflow: visible;
-  background-color: #333;
+  background-color: rgb(255, 255, 255);
   position: fixed; /* Set the navbar to fixed position */
   top: 0; /* Position the navbar at the top of the page */
   left: 0;
   right: 0;
   padding: 0 200px;
-  box-shadow: 5px 5px 10px #96969684;
+  box-shadow: 5px 5px 10px #dadada84;
   display: flex;
   flex-direction: row;
   align-items: center;
   height: 60px;
-  z-index: 2;
+  z-index: 99;
+  color: #24252a;
+}
+.navbar i {
+  color: #7e7e7e;
+  font-size: large;
+  transition: color 0.3s ease 0s;
+  margin-right: 10px;
+}
+.navbar i:hover {
+  color: #008ecc;
 }
 .navbar > div {
   float: right;
@@ -201,7 +210,7 @@ a {
 .auth_buttons a {
   float: right;
   /* display: block; */
-  color: #f2f2f2;
+  color: #7e7e7e;
   text-align: center;
   padding: 10px 16px;
   text-decoration: none;
@@ -209,13 +218,18 @@ a {
   flex: 1;
 }
 .search_form {
-  flex: 2;
+  flex: 1;
 }
 .search_form > input {
-  width: 80%;
-  padding: 3px;
+  width: 40%;
+  padding: 6px;
   border: none;
+  border-bottom: 1px solid rgba(199, 199, 199, 0.796);
 }
+.search_form > input:focus {
+  outline: none;
+}
+
 /* Change background on mouse-over */
 .navbar a:hover {
   color: #0088a9;

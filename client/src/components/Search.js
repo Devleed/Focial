@@ -5,6 +5,10 @@ import { useHistory } from 'react-router-dom';
 
 import { searchUser } from '../helpers';
 
+const renderInput = ({ input, placeholder }) => {
+  return <input {...input} placeholder={placeholder} />;
+};
+
 const Search = props => {
   const store = useStore();
   const dispatch = useDispatch();
@@ -15,7 +19,7 @@ const Search = props => {
   };
   return (
     <form className="search_form" onSubmit={props.handleSubmit(onFormSubmit)}>
-      <Field name="search" component="input" />
+      <Field name="search" component={renderInput} placeholder="search..." />
     </form>
   );
 };

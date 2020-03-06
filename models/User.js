@@ -23,6 +23,10 @@ const userSchema = new mongoose.Schema({
     type: Array,
     default: []
   },
+  profile_picture: {
+    type: String,
+    default: ''
+  },
   passwordResetToken: {
     type: String,
     default: null

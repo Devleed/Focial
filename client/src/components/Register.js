@@ -61,13 +61,14 @@ const Register = props => {
   const error = useSelector(({ error }) => error);
   const emails = useSelector(({ emails }) => emails);
   const isLoggedIn = useSelector(({ auth }) => auth.isAuthorized);
-  const loading = useSelector(({ loading }) => loading);
+
+  const [loading, setLoading] = useState(false);
 
   allEmails = emails;
 
   const onFormSubmit = values => {
-    dispatch({ type: LOADING, payload: true });
-    dispatch(registerUser(values));
+    setLoading(true);
+    dispatch(registerUser(values, setLoading));
     dispatch(getAllEmails());
     props.history.push('/');
   };

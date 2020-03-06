@@ -1,26 +1,21 @@
 const express = require('express');
 const passport = require('passport');
-const { findUser } = require('../../helpers');
+const {
+  findUser,
+  arrayConverter,
+  commentsAuthorAtacher
+} = require('../../helpers');
 const cloudinary = require('cloudinary').v2;
 const fileUpload = require('express-fileupload');
 
 const router = express.Router();
 
+const User = require('../../models/User');
 const Post = require('../../models/Post');
+const PostShares = require('../../models/PostShares');
 
 router.use(fileUpload({ useTempFiles: true }));
 router.use(express.json());
-
-// updates the post user
-const updatePostComment = async savedPost => {
-  let post = await Post.findById(savedPost._id).lean();
-  post = await findUser(post, post.author, 'author_name');
-  post.comments = post.comments.map(async comment => {
-    return await findUser(comment, comment.author, 'author_name');
-  });
-  post.comments = await Promise.all(post.comments);
-  return post;
-};
 
 /**
  * Create Post
@@ -39,13 +34,17 @@ router.post(
         const result = await cloudinary.uploader.upload(
           req.files.photo.tempFilePath
         );
-        newPost.post_image.width = result.width;
-        newPost.post_image.height = result.height;
-        newPost.post_image.url = result.url;
+        newPost.post_image = {
+          url: result.url,
+          public_id: result.public_id,
+          width: result.width,
+          height: result.height
+        };
       }
       const savedPost = await newPost.save();
-      let post = await Post.findById(savedPost._id).lean();
+      let post = savedPost.toObject();
       post = await findUser(post, post.author, 'author_name');
+
       return res.json(post);
     } catch (err) {
       console.error(err);
@@ -77,23 +76,50 @@ router.get(
         .select('-comments');
       let allPosts = await Promise.all(posts);
 
-      // concatenate both posts
+      // get posts shared by logged in user
+      const sharesOfLoggedInUser = await PostShares.find({
+        shared_by: req.user.id
+      });
+      let sharedPosts = await Promise.all(
+        sharesOfLoggedInUser.map(async share => await makeSharePost(share))
+      );
+
+      // get posts shared by logged in user friends
+      let friendsShares = await arrayConverter(
+        await Promise.all(
+          req.user.friends.map(
+            async friend => await PostShares.find({ shared_by: friend })
+          )
+        )
+      );
+
+      let friendSharedPosts = await Promise.all(
+        friendsShares.map(async share => await makeSharePost(share))
+      );
+
+      // concatenate all posts
+      allPosts = await arrayConverter(allPosts);
       allPosts = allPosts
+        .concat(ownPosts)
+        .concat(friendSharedPosts)
+        .concat(sharedPosts)
         .reduce((result, post) => {
-          if (Array.isArray(post)) {
-            if (post.length !== 0) {
-              for (let p in post) result.push(post[p]);
-            }
-          } else result.push(post);
+          if (post) result.push(post);
           return result;
-        }, [])
-        .concat(ownPosts);
+        }, []);
 
       // find the authors of the post
-      allPosts = allPosts.map(async post => {
-        return await findUser(post, post.author, 'author_name');
-      });
-      allPosts = await Promise.all(allPosts);
+      allPosts = await Promise.all(
+        allPosts.map(async post => {
+          const author = await User.findById(post.author).select(
+            'name profile_picture friends'
+          );
+          post.author = author;
+          return post;
+        })
+      );
+
+      console.log(allPosts);
 
       // send response
       res.json(allPosts);
@@ -109,18 +135,50 @@ router.get(
  * Private
  */
 router.delete(
-  '/:id',
+  '/:id/:image_id',
   passport.authenticate('jwt', { session: false }),
   async (req, res) => {
     try {
       const post = await Post.findById(req.params.id);
+
+      if (!post) {
+        let share = await PostShares.findById(req.params.id);
+
+        if (share.shared_by !== req.user.id)
+          return res
+            .status(401)
+            .json({ msg: "You're not authenticate to delete the post" });
+
+        const deletedShare = await PostShares.findByIdAndRemove(
+          req.params.id,
+          req.body
+        );
+
+        return res.json(deletedShare);
+      }
+
       if (post.author !== req.user.id)
         return res
           .status(401)
           .json({ msg: "You're not authenticate to delete the post" });
+
+      if (req.params.image_id !== 'none')
+        await cloudinary.uploader.destroy(req.params.image_id);
+
       const deletedPost = await Post.findByIdAndRemove(req.params.id, req.body);
+
+      const deletedPosts = await PostShares.deleteMany(
+        {
+          post: deletedPost.id
+        },
+        req.body
+      );
+
+      console.log(deletedPosts);
+
       return res.json(deletedPost);
     } catch (err) {
+      console.error(err);
       return res.status(500).json({ msg: 'server error' });
     }
   }
@@ -160,9 +218,25 @@ router.get(
   async (req, res) => {
     try {
       let post = await Post.findById(req.params.id);
+
+      if (!post) {
+        let share = await PostShares.findById(req.params.id);
+        share.likes.push(req.user.id);
+
+        let savedShare = await share.save();
+        savedShare = savedShare.toObject();
+        savedShare.comments = await commentsAuthorAtacher(savedShare.comments);
+        const post = await makeSharePost(savedShare);
+
+        return res.json(post);
+      }
       post.likes.push(req.user.id);
+
       let savedPost = await post.save();
-      savedPost = await updatePostComment(savedPost);
+      savedPost = savedPost.toObject();
+      savedPost = await findUser(savedPost, savedPost.author, 'author_name');
+      savedPost.comments = await commentsAuthorAtacher(savedPost.comments);
+
       return res.json(savedPost);
     } catch (err) {
       console.error(err);
@@ -181,9 +255,27 @@ router.get(
   async (req, res) => {
     try {
       let post = await Post.findById(req.params.id);
+
+      if (!post) {
+        let share = await PostShares.findById(req.params.id);
+        share.likes = share.likes.filter(p => p !== req.user.id);
+
+        let savedShare = await share.save();
+        savedShare = savedShare.toObject();
+
+        savedShare.comments = await commentsAuthorAtacher(savedShare.comments);
+
+        const post = await makeSharePost(savedShare);
+
+        return res.json(post);
+      }
       post.likes = post.likes.filter(p => p !== req.user.id);
+
       let savedPost = await post.save();
-      savedPost = await updatePostComment(savedPost);
+      savedPost = savedPost.toObject();
+      savedPost = await findUser(savedPost, savedPost.author, 'author_name');
+      savedPost.comments = await commentsAuthorAtacher(savedPost.comments);
+
       return res.json(savedPost);
     } catch (err) {
       console.error(err);
@@ -192,20 +284,41 @@ router.get(
   }
 );
 
+/**
+ * post a comment
+ * private
+ */
 router.post(
   '/comment/:id',
   passport.authenticate('jwt', { session: false }),
   async (req, res) => {
     try {
-      let post = await Post.findById(req.params.id);
-      post.comments.push({
+      const comment = {
         author: req.user.id,
-        author_name: req.user.name,
         content: req.body.comment
-      });
+      };
+
+      let post = await Post.findById(req.params.id);
+
+      if (!post) {
+        let share = await PostShares.findById(req.params.id);
+        share.comments.push(comment);
+
+        let savedShare = await share.save();
+        savedShare = savedShare.toObject();
+        savedShare.comments = await commentsAuthorAtacher(savedShare.comments);
+        let sharePost = await makeSharePost(savedShare);
+
+        return res.json(sharePost);
+      }
+      post.comments.push(comment);
+
       let savedPost = await post.save();
-      savedPost = await updatePostComment(savedPost);
-      return res.json(savedPost);
+      savedPost = savedPost.toObject();
+      savedPost = await findUser(savedPost, savedPost.author, 'author_name');
+      savedPost.comments = await commentsAuthorAtacher(savedPost.comments);
+
+      res.json(savedPost);
     } catch (err) {
       console.error(err);
       return res.status(500).json({ msg: 'server error' });
@@ -213,20 +326,77 @@ router.post(
   }
 );
 
+/**
+ * get all comments
+ * public
+ */
 router.get('/comment/:id', async (req, res) => {
   try {
     let post = await Post.findById(req.params.id)
       .lean()
       .select('comments');
-    post.comments = post.comments.map(async comment => {
-      return await findUser(comment, comment.author, 'author_name');
-    });
-    post.comments = await Promise.all(post.comments);
-    return res.json(post);
+
+    if (!post) {
+      let share = await PostShares.findById(req.params.id).lean();
+
+      share.comments = await commentsAuthorAtacher(share.comments);
+
+      let sharePost = await makeSharePost(share);
+      return res.json(sharePost);
+    }
+
+    post.comments = await commentsAuthorAtacher(post.comments);
+
+    res.json(post);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: 'server error' });
   }
 });
+
+/**
+ * share post
+ * private
+ */
+router.put(
+  '/share/:id',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res) => {
+    try {
+      // find the post
+      const share = new PostShares({
+        shared_by: req.user.id,
+        post: req.params.id,
+        content: req.body.postContent
+      });
+
+      const savedShare = await share.save();
+
+      const post = await makeSharePost(savedShare);
+
+      res.json(post);
+    } catch (err) {
+      return res.status(500).json({ msg: 'server error' });
+    }
+  }
+);
+const makeSharePost = async savedShare => {
+  let post = await Post.findById(savedShare.post).lean();
+
+  if (post) {
+    post = await findUser(post, post.author, 'author_name');
+    post = await findUser(post, savedShare.shared_by, 'share_author');
+    post = {
+      ...post,
+      date_shared: savedShare.date_shared,
+      share_body: savedShare.content,
+      _id: savedShare._id,
+      likes: savedShare.likes,
+      comments: savedShare.comments,
+      shared_by: savedShare.shared_by
+    };
+  }
+  return post;
+};
 
 module.exports = router;

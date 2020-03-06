@@ -8,7 +8,8 @@ import {
   COMMENT_LOADED,
   RESET_POSTS,
   DELETE_POST,
-  EDIT_POST
+  EDIT_POST,
+  SHARE_POST
 } from '../helpers/actionTypes';
 
 const INITIAL_STATE = {
@@ -63,6 +64,11 @@ export default (state = INITIAL_STATE, action) => {
       return {
         posts: [],
         postLoading: null
+      };
+    case SHARE_POST:
+      return {
+        ...state,
+        posts: [...state.posts, action.payload]
       };
     default:
       return state;

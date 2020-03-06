@@ -1,17 +1,18 @@
 .modal {
   position: fixed;
-  z-index: 2;
+  z-index: 999;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.775);
+  overflow: scroll;
 }
 .modal-content {
   margin: 6.5% auto;
   border: 1px solid #888;
-  width: 34.5%;
   background-color: white;
+  overflow-y: initial !important;
 }
 .modal-content .head {
   width: 100% !important;
@@ -44,16 +45,29 @@
 }
 .extra_content {
   display: flex;
-  justify-content: space-around;
-  padding: 5px;
+  justify-content: space-between;
+  padding: 5px 20px;
   width: 100%;
+}
+.extra_content *:not(input) {
+  flex: 1;
 }
 .extra_content button {
   border: 0;
   padding: 7px;
+  margin-left: 12px;
   line-height: normal;
   font-size: medium;
   font-weight: normal;
   background-color: #008ecc;
   cursor: pointer;
+}
+.post_image-modal {
+  width: 100%;
+  height: 100%;
+}
+.image_modal {
+  width: 70%;
+  height: 70%;
+  position: relative;
 }

@@ -49,7 +49,14 @@ export const COMMENT_LOADED = 'comment_loaded';
 export const RESET_POSTS = 'reset_posts';
 export const DELETE_POST = 'delete_post';
 export const EDIT_POST = 'edit_post';
+export const SHARE_POST = 'share_post';
+export const LOAD_POST = 'load_post';
 
 export const PASSWORD_RESET_ERROR = 'password_reset_error';
 export const VISITED_USER = 'visited_user';
 export const LOADING = 'loading';
+
+// loading action types
+export const SHARING = 'sharing';
+export const POSTING = 'posting';
+export const DELETING = 'deleting';

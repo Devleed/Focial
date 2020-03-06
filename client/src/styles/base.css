@@ -1,6 +1,8 @@
-.containerStyle {
-  margin-top: 60px;
+.container_style {
   text-align: center;
+}
+button:focus {
+  outline: 0;
 }
 .negative_message-style {
   background-color: #e10101 !important;
@@ -13,4 +15,28 @@
 }
 body {
   background-color: #f5f5f5 !important;
+}
+.number {
+  z-index: 99;
+  width: 14px;
+  height: 14px;
+  padding: 7.4px 2px 1px 2px;
+  background-color: red;
+  position: absolute;
+  top: 14px;
+  border-radius: 2px;
+  right: 275px;
+  color: white;
+  font-size: 10px;
+  text-align: center;
+  line-height: 0.1px;
+}
+.small-picture {
+  width: 22px;
+  height: 22px;
+}
+.small-picture > img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
 }

@@ -14,9 +14,15 @@ const Leftsidebar = () => {
   return (
     <div className="left_sidebar">
       <ul className="left_sidebar-options">
-        <NavLink to="#" activeStyle={styles.navActiveStyle}>
+        <NavLink to={`/user/${user._id}`} activeStyle={styles.navActiveStyle}>
           <li>
-            <Icon name="user" />
+            {user.profile_picture ? (
+              <div className="small-picture">
+                <img src={user.profile_picture} />
+              </div>
+            ) : (
+              <Icon name="user" />
+            )}
             {user.name}
           </li>
         </NavLink>

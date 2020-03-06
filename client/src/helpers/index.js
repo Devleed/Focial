@@ -8,10 +8,8 @@ import {
   GET_EMAILS_FAIL,
   SEARCH_RESULTS,
   SEARCH_RESULTS_FAIL,
-  LOGIN_FAIL,
   USER_LOAD_FAIL,
   REGISTER_FAIL,
-  SEND_REQUEST_FAIL,
   LOAD_USER,
   PASSWORD_RESET_ERROR,
   REQUEST_RECIEVED,
@@ -31,8 +29,51 @@ import {
   REQUEST_REJECTED,
   CANCEL_REQUEST,
   DELETE_POST,
-  EDIT_POST
+  EDIT_POST,
+  SHARE_POST,
+  SHARING,
+  POSTING,
+  DELETING
 } from './actionTypes';
+
+export const updateProfilePicture = picture => async (dispatch, getState) => {
+  const config = {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  };
+  if (getState().auth.token) {
+    config.headers['Authorization'] = getState().auth.token;
+  }
+  try {
+    const formData = new FormData();
+    formData.append('photo', picture);
+
+    const { data } = await Axios.put(
+      '/api/user/update/profile/picture',
+      formData,
+      config
+    );
+    dispatch({ type: VISITED_USER, payload: data });
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+export const sharePost = (id, body) => async (dispatch, getState) => {
+  try {
+    const { data } = await Axios.put(
+      `/api/post/share/${id}`,
+      { postContent: body },
+      getConfig(getState().auth.token)
+    );
+    console.log(data);
+    dispatch({ type: SHARE_POST, payload: data });
+    dispatch({ type: SHARING, payload: false });
+  } catch (err) {
+    console.error(err);
+  }
+};
 
 export const loadComments = (id, setCommentLoading) => async dispatch => {
   try {
@@ -99,12 +140,14 @@ export const editPost = (id, body, setEditing, setLoading) => async (
   }
 };
 
-export const deletePost = id => async (dispatch, getState) => {
+export const deletePost = (id, image_id) => async (dispatch, getState) => {
   try {
+    console.log(image_id);
     const { data } = await Axios.delete(
-      `/api/post/${id}`,
+      `/api/post/${id}/${image_id}`,
       getConfig(getState().auth.token)
     );
+    dispatch({ type: DELETING, payload: false });
     dispatch({ type: DELETE_POST, payload: data });
   } catch (err) {
     console.error(err.response);
@@ -124,12 +167,14 @@ export const createPost = ({ postField, postImageField }) => async (
     config.headers['Authorization'] = getState().auth.token;
   }
   try {
+    console.log(postField);
     const formData = new FormData();
     formData.append('postBody', postField);
     formData.append('photo', postImageField);
 
     const { data } = await Axios.post('/api/post', formData, config);
     dispatch({ type: CREATE_POST, payload: data });
+    dispatch({ type: POSTING, payload: false });
   } catch (err) {
     console.error(err);
   }
@@ -298,18 +343,21 @@ export const getAllEmails = () => async dispatch => {
   }
 };
 
-export const registerUser = ({ name, email, password }) => async dispatch => {
+export const registerUser = (
+  { name, email, password },
+  setLoading
+) => async dispatch => {
   try {
     const res = await Axios.post('/api/user/register', {
       name,
       email,
       password
     });
+    setLoading(false);
     dispatch({ type: REGISTER_SUCCESS, payload: res.data });
     dispatch(checkRequest());
     dispatch({ type: POST_LOADING, payload: true });
     dispatch(getPost());
-    dispatch({ type: LOADING, payload: false });
   } catch (err) {
     dispatch(
       returnError(err.response.data, err.response.status, REGISTER_FAIL)
@@ -337,22 +385,25 @@ export const loadUser = () => async (dispatch, getState) => {
   }
 };
 
-export const loginUser = ({ email, password }, history) => async dispatch => {
+export const loginUser = (
+  { email, password },
+  history,
+  setLoading
+) => async dispatch => {
   try {
     const res = await Axios.post('/api/user/login', { email, password });
+    setLoading(false);
     dispatch({ type: LOGIN_SUCCESS, payload: res.data });
     dispatch(checkRequest());
     dispatch({ type: POST_LOADING, payload: true });
     dispatch(getPost());
-    dispatch({ type: LOADING, payload: false });
     dispatch(clearError());
     history.push('/');
   } catch (err) {
     dispatch({ type: LOADING, payload: false });
-    console.log(err.response);
-    // dispatch(
-    //   returnError(err.response.data.msg, err.response.status, LOGIN_FAIL)
-    // );
+    dispatch(
+      returnError(err.response.data.msg, err.response.status, LOGIN_FAIL)
+    );
   }
 };
 

@@ -8,16 +8,25 @@ import RequestButtons from './RequestButtons';
 import Navbar from './Navbar';
 import '../styles/profileDisplay.css';
 import Posts from './HomeComponents/Post Components/Posts';
+import ProfilePictureUpdater from './ProfilePictureUpdater';
+import { Redirect } from 'react-router-dom';
 
 const ProfileDisplay = props => {
   const dispatch = useDispatch();
   const user = useSelector(({ visitedUser }) => visitedUser);
+  const isLoggedIn = useSelector(({ auth }) => auth.isAuthorized);
+
   let posts = useSelector(({ postsData }) => postsData.posts);
   if (user) {
     posts = posts
       .filter(post => post.author === user._id)
-      .sort((a, b) => new Date(b.date_created) - new Date(a.date_created));
+      .sort(
+        (a, b) =>
+          new Date(b.date_shared ? b.date_shared : b.date_created) -
+          new Date(a.date_shared ? a.date_shared : a.date_created)
+      );
   }
+
   useEffect(() => {
     (() => {
       dispatch(findUser(props.match.params.id));
@@ -27,15 +36,20 @@ const ProfileDisplay = props => {
     };
   }, [dispatch]);
 
+  if (!isLoggedIn) {
+    return <Redirect to={{ pathname: '/login' }} />;
+  }
+
   const displayContent = () => {
     if (user) {
       return (
         <div className="profile_display">
           <img
             src="https://homepages.cae.wisc.edu/~ece533/images/watch.png"
-            alt="profile picture"
+            alt="cover photo"
             className="cover_photo"
           />
+          <ProfilePictureUpdater user={user} />
           <div className="profile_content">
             <RequestButtons />
             <h1 style={{ textTransform: 'capitalize', margin: '0' }}>

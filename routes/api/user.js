@@ -5,8 +5,12 @@ const config = require('config');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcryptjs');
+const cloudinary = require('cloudinary').v2;
+const fileUpload = require('express-fileupload');
 
 const router = express.Router();
+
+router.use(fileUpload({ useTempFiles: true }));
 
 // importing models
 const User = require('../../models/User');
@@ -192,7 +196,7 @@ router.get('/getEmails', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   const user = await User.findById(req.params.id).select(
-    'id name email friends register_date'
+    'id name email friends register_date profile_picture'
   );
   if (!user) generateError(res, 404, 'No user found');
   res.json(user);
@@ -218,4 +222,25 @@ router.post('/unfriend', async (req, res) => {
     return res.status(500).json({ msg: 'server error, try again later' });
   }
 });
+
+router.put(
+  '/update/profile/picture',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res) => {
+    try {
+      console.log(req.files.photo);
+      const { url } = await cloudinary.uploader.upload(
+        req.files.photo.tempFilePath
+      );
+      const user = await User.findById(req.user.id);
+      user.profile_picture = url;
+      const savedUser = await user.save();
+      res.json(savedUser);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ msg: 'internal server error' });
+    }
+  }
+);
+
 module.exports = router;

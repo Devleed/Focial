@@ -1,9 +1,18 @@
-import { LOADING } from '../helpers/actionTypes';
+import { SHARING, POSTING, DELETING } from '../helpers/actionTypes';
 
-export default (state = null, action) => {
+const INITIAL_STATE = {
+  key: null,
+  loading: null
+};
+
+export default (state = INITIAL_STATE, action) => {
   switch (action.type) {
-    case LOADING:
-      return action.payload;
+    case SHARING:
+      return { key: SHARING, loading: action.payload };
+    case POSTING:
+      return { key: POSTING, loading: action.payload };
+    case DELETING:
+      return { key: DELETING, loading: action.payload };
     default:
       return state;
   }

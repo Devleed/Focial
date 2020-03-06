@@ -61,15 +61,25 @@ const RequestManager = () => {
     });
   };
   return (
-    <Dropdown icon="user" floating className="icon">
-      <Dropdown.Menu
-        style={{ width: '300px', padding: '20px 10px' }}
-        className="left"
+    <Dropdown.Menu>
+      {requestsRecieved.length > 0 ? (
+        <p className="number">{requestsRecieved.length}</p>
+      ) : null}
+      <Dropdown
+        icon="user"
+        style={{ color: 'white' }}
+        floating
+        className="icon"
       >
-        <Dropdown.Header content="Friend Requests" />
-        {renderRequest()}
-      </Dropdown.Menu>
-    </Dropdown>
+        <Dropdown.Menu
+          style={{ width: '300px', paddingBottom: '10px', paddingRight: '5px' }}
+          className="left"
+        >
+          <Dropdown.Header content="Friend Requests" />
+          {renderRequest()}
+        </Dropdown.Menu>
+      </Dropdown>
+    </Dropdown.Menu>
   );
 };
 

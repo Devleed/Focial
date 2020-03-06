@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { reduxForm, Field } from 'redux-form';
-import { Form, Header, Message, Container, Loader } from 'semantic-ui-react';
+import { Form, Header, Message, Container } from 'semantic-ui-react';
 import { useDispatch, useSelector } from 'react-redux';
 
+import Loader from './Loader';
 import { loginUser } from '../helpers';
 import { LOGIN_FAIL, LOADING } from '../helpers/actionTypes';
 import { Link, Redirect } from 'react-router-dom';
@@ -49,19 +50,20 @@ const Login = props => {
   const error = useSelector(({ error }) => error);
   const emails = useSelector(({ emails }) => emails);
   const isLoggedIn = useSelector(({ auth }) => auth.isAuthorized);
-  const loading = useSelector(({ loading }) => loading);
   const userLoading = useSelector(({ auth }) => auth.userLoading);
+
+  const [loading, setLoading] = useState(false);
 
   allEmails = emails;
 
   const onFormSubmit = values => {
-    dispatch({ type: LOADING, payload: true });
-    dispatch(loginUser(values, props.history));
+    setLoading(true);
+    dispatch(loginUser(values, props.history, setLoading));
   };
   const renderPage = () => {
     if (isLoggedIn) return <Redirect to={{ pathname: '/' }} />;
     if (userLoading) {
-      return <Loader active />;
+      return <Loader />;
     } else {
       return (
         <Form
@@ -110,7 +112,7 @@ const Login = props => {
       );
     }
   };
-  return <Container className="containerStyle">{renderPage()}</Container>;
+  return <Container className="container_style">{renderPage()}</Container>;
 };
 
 export default reduxForm({
