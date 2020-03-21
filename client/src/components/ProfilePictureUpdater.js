@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateProfilePicture } from '../helpers';
 import Modal from './HomeComponents/Modal';
-import { Icon } from 'semantic-ui-react';
+import { Icon, Button } from 'semantic-ui-react';
 
 const ProfilePictureUpdater = ({ user }) => {
   const loggedInUser = useSelector(({ auth }) => auth.user);
   const [preview, setPreview] = useState(null);
   const [showModal, setShowModal] = useState(null);
   const [file, setFile] = useState(null);
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
 
   const onChange = e => {
@@ -24,12 +25,23 @@ const ProfilePictureUpdater = ({ user }) => {
     }
   };
 
+  const cancel = e => {
+    e.stopPropagation();
+    setPreview(null);
+    setFile(null);
+    setShowModal(false);
+  };
+
+  const afterUpload = () => {
+    setPreview(null);
+    setFile(null);
+    setShowModal(false);
+  };
+
   const onPictureChange = e => {
     e.stopPropagation();
-    setShowModal(false);
-    setPreview(null);
-    dispatch(updateProfilePicture(file));
-    setFile(null);
+    setLoading(true);
+    dispatch(updateProfilePicture(file, afterUpload));
   };
 
   if (user) {
@@ -70,8 +82,19 @@ const ProfilePictureUpdater = ({ user }) => {
                   <div className="image_preview">
                     <img src={preview} />
                   </div>
-                  <div className="head">
-                    <button onClick={onPictureChange}>Save</button>
+                  <div className="bottom">
+                    {/* <button onClick={onPictureChange}>Save</button> */}
+                    <Button
+                      floated="right"
+                      loading={loading}
+                      onClick={onPictureChange}
+                      primary
+                    >
+                      save
+                    </Button>
+                    <Button floated="right" negative onClick={cancel}>
+                      cancel
+                    </Button>
                   </div>
                 </>
               ) : null}

@@ -17,7 +17,7 @@ const loader = () => {
 
 const LoadingIndicator = props => {
   const loading = useSelector(({ loading }) => loading);
-  if (loading.loading)
+  if (loading.loading || props.loading)
     return ReactDOM.createPortal(
       <div className={`loading_indicator`}>
         {loader()}

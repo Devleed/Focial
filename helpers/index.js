@@ -3,9 +3,9 @@ const User = require('../models/User');
 const helpers = {
   findUser: async (obj, id, propName) => {
     const author = await User.findById(id)
-      .select('name -_id')
+      .select('name profile_picture')
       .lean();
-    obj[propName] = author.name;
+    obj[propName] = author;
     return obj;
   },
   arrayConverter: async arr => {
@@ -19,9 +19,17 @@ const helpers = {
   commentsAuthorAtacher: async comments => {
     return await Promise.all(
       comments.map(async comment => {
-        return await helpers.findUser(comment, comment.author, 'author_name');
+        return await helpers.findUser(comment, comment.author, 'author');
       })
     );
+  },
+  friendsFinder: async friends => {
+    const friendsData = await Promise.all(
+      friends.map(async friend => {
+        await User.findById(friend).select('name email profile_picture');
+      })
+    );
+    return friendsData;
   }
 };
 

@@ -15,12 +15,24 @@ const RequestManager = () => {
 
   const renderRequest = () => {
     return requestsRecieved.map(request => {
+      console.log(request.sender);
       return (
         <Dropdown.Item key={request._id} style={{ width: '100%' }}>
-          <NavLink to={`/user/${request.senderID}`} className="request_sender">
-            {request.sender_name}
+          <img
+            src={
+              request.sender.profile_picture ||
+              'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'
+            }
+            className="post_author-dp"
+            style={{ borderRadius: '60%', width: '30px' }}
+          />
+          <NavLink
+            to={`/user/${request.sender._id}`}
+            className="request_sender"
+          >
+            {request.sender.name}
           </NavLink>
-          {loggedInUser.friends.includes(request.senderID) ? (
+          {loggedInUser.friends.includes(request.sender._id) ? (
             <button className="request_button">Friends</button>
           ) : (
             <React.Fragment>
@@ -29,7 +41,7 @@ const RequestManager = () => {
                   e.stopPropagation();
                   dispatch(
                     acceptRequest(
-                      request.senderID,
+                      request.sender._id,
                       loggedInUser._id,
                       setLoading
                     )
@@ -44,7 +56,7 @@ const RequestManager = () => {
                   e.stopPropagation();
                   dispatch(
                     rejectRequest(
-                      request.senderID,
+                      request.sender._id,
                       loggedInUser._id,
                       setLoading
                     )
@@ -63,7 +75,7 @@ const RequestManager = () => {
   return (
     <Dropdown.Menu>
       {requestsRecieved.length > 0 ? (
-        <p className="number">{requestsRecieved.length}</p>
+        <p className="request-number number">{requestsRecieved.length}</p>
       ) : null}
       <Dropdown
         icon="user"
@@ -72,7 +84,7 @@ const RequestManager = () => {
         className="icon"
       >
         <Dropdown.Menu
-          style={{ width: '300px', paddingBottom: '10px', paddingRight: '5px' }}
+          style={{ width: '360px', paddingBottom: '10px', paddingRight: '5px' }}
           className="left"
         >
           <Dropdown.Header content="Friend Requests" />

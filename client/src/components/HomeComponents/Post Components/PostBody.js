@@ -49,6 +49,20 @@ const PostBody = props => {
     );
   };
 
+  const renderBody = text => {
+    let urlRegex = /(https?:\/\/[^\s]+)/g;
+    return text.split(urlRegex).map((t, index) => {
+      if (!t.match(urlRegex)) return t;
+      return (
+        <a key={index} href={t} target="_blank" style={{ color: '#008ecc' }}>
+          {t}
+        </a>
+      );
+    });
+  };
+
+  console.log(renderBody(props.body));
+
   const displayBody = () => {
     if (props.image) {
       return (
@@ -86,7 +100,7 @@ const PostBody = props => {
             props.body.length > 100 || props.shared ? 'post_content-long' : ''
           }`}
         >
-          {props.editing ? editForm() : props.body}
+          {props.editing ? editForm() : renderBody(props.body)}
         </div>
       );
   };

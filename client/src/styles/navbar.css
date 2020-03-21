@@ -44,7 +44,7 @@ a {
 
 .logo {
   padding: 10px 10px 0 10px;
-  margin: 8px 0;
+  margin: 8px 0 5px 40px;
   cursor: pointer;
   font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
   font-size: 20px;
@@ -53,11 +53,14 @@ a {
   flex-direction: row;
   align-items: center;
 }
-.logo i {
-  color: #008ecc !important;
-  font-size: 40px !important;
+.logo:hover {
+  color: var(--primary-color);
 }
-
+.logo_icon {
+  color: var(--primary-color) !important;
+  font-size: 40px !important;
+  margin: 0 !important;
+}
 /* .list_items {
   display: flex;
   flex-direction: column;
@@ -80,7 +83,7 @@ a {
 
 .button {
   padding: 9px 25px;
-  background-color: #008ecc;
+  background-color: var(--primary-color);
   color: white;
   border: none;
   border-radius: 5px;
@@ -186,13 +189,14 @@ a {
   left: 0;
   right: 0;
   padding: 0 200px;
-  box-shadow: 5px 5px 10px #dadada84;
+  box-shadow: 5px 5px 10px var(--primary-border-color);
   display: flex;
   flex-direction: row;
   align-items: center;
   height: 60px;
   z-index: 99;
   color: #24252a;
+  margin: 0 !important;
 }
 .navbar i {
   color: #7e7e7e;
@@ -201,11 +205,11 @@ a {
   margin-right: 10px;
 }
 .navbar i:hover {
-  color: #008ecc;
+  color: var(--primary-color);
 }
-.navbar > div {
+/* .navbar > div {
   float: right;
-}
+} */
 /* Links inside the navbar */
 .auth_buttons a {
   float: right;
@@ -217,19 +221,6 @@ a {
   transition: all 0.3s ease 0s;
   flex: 1;
 }
-.search_form {
-  flex: 1;
-}
-.search_form > input {
-  width: 40%;
-  padding: 6px;
-  border: none;
-  border-bottom: 1px solid rgba(199, 199, 199, 0.796);
-}
-.search_form > input:focus {
-  outline: none;
-}
-
 /* Change background on mouse-over */
 .navbar a:hover {
   color: #0088a9;
@@ -249,7 +240,7 @@ a {
 }
 .accept_request {
   right: 80px;
-  background-color: #008ecc;
+  background-color: var(--primary-color);
 }
 .reject_request {
   background-color: rgb(206, 0, 0);
@@ -263,4 +254,77 @@ a {
 .request_sender {
   color: black;
   transition: all 0.3s ease 0s;
+}
+.number {
+  z-index: 99;
+  width: 14px;
+  height: 14px;
+  padding: 7.4px 2px 1px 2px;
+  background-color: red;
+  position: absolute;
+  border-radius: 2px;
+  color: white;
+  font-size: 10px;
+  text-align: center;
+  line-height: 0.1px;
+}
+.request-number {
+  top: 14px;
+  right: 315px;
+}
+.search-div {
+  width: 50%;
+}
+.search_form {
+  flex: 1;
+}
+.search_form i {
+  font-size: 10px;
+}
+.search_form div {
+  width: 40%;
+  border-bottom: 1px solid rgba(199, 199, 199, 0.796);
+}
+.search_form input {
+  width: 90%;
+  padding: 6px;
+  border: none;
+  transition: all 0.3s ease 0s;
+}
+.search_form input:focus {
+  outline: none;
+  width: 50%;
+}
+.search_results {
+  min-height: 40px;
+  max-height: 500px;
+  width: 400px;
+  background-color: white;
+  color: black;
+  position: absolute;
+  top: 50px;
+  left: 380px;
+  z-index: 999;
+  padding: 10px;
+  box-shadow: 0 2px 4px 0 rgba(34, 36, 38, 0.12),
+    0 2px 10px 0 rgba(34, 36, 38, 0.15) !important;
+}
+.search_results .ui.loader.active {
+  top: 25px;
+}
+.search_results .ui.loader.active::after,
+.search_results .ui.loader.active::before {
+  width: 1.6rem;
+  height: 1.6rem;
+}
+.search_results a {
+  color: black;
+  display: flex;
+  padding: 10px;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.462);
+  cursor: pointer;
+  transition: all 0.3s ease 0s;
+}
+.search_results a:hover {
+  background-color: #ebebeb;
 }

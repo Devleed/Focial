@@ -21,21 +21,8 @@ const Posts = props => {
     return (
       <div key={i}>
         <PostContent post={post} />
-        <PostStats
-          likes={post.likes ? post.likes.length : 0}
-          comments={post.comments ? post.comments.length : 0}
-        />
-        <PostActions
-          likes={post.likes}
-          comments={post.comments}
-          id={post._id}
-          post_image={post.post_image}
-          shared={post.shared_by}
-          author={post.author}
-          author_name={post.author_name}
-          date_created={post.date_created}
-          body={post.body}
-        />
+        <PostStats stats={post.stats} />
+        <PostActions post={post} />
       </div>
     );
   };
@@ -59,7 +46,7 @@ const Posts = props => {
       });
   };
 
-  return <div>{displayPosts()}</div>;
+  return <div className="all-posts">{displayPosts()}</div>;
 };
 
 export default Posts;

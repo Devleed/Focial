@@ -7,6 +7,7 @@ const nodemailer = require('nodemailer');
 const bcrypt = require('bcryptjs');
 const cloudinary = require('cloudinary').v2;
 const fileUpload = require('express-fileupload');
+const { friendsFinder } = require('../../helpers/index');
 
 const router = express.Router();
 
@@ -26,8 +27,9 @@ router.get(
   passport.authenticate('jwt', { session: false }),
   async (req, res) => {
     try {
-      let results = await User.find({ name: req.query.name }).select(
-        '-password -register_date -passwordResetToken'
+      let regex = new RegExp(`${req.query.name}`, 'i');
+      let results = await User.find({ name: { $regex: regex } }).select(
+        'name profile_picture email friends register_date'
       );
       results = results.filter(user => user.id !== req.user.id);
       res.json({ searchResults: results });
@@ -36,6 +38,33 @@ router.get(
     }
   }
 );
+
+router.get('/fuzzy-search', async (req, res) => {
+  try {
+    let regex = new RegExp(`${req.query.term}`, 'i');
+    let results = [];
+
+    if (req.query.term) {
+      results = await User.find({ name: { $regex: regex } }).select(
+        'name profile_picture'
+      );
+      results.sort((a, b) => {
+        if (
+          a.name.toLowerCase().indexOf(req.query.term) !== -1 &&
+          b.name.toLowerCase().indexOf(req.query.term) !== -1
+        )
+          return (
+            a.name.toLowerCase().indexOf(req.query.term) -
+            b.name.toLowerCase().indexOf(req.query.term)
+          );
+      });
+    }
+
+    res.json(results);
+  } catch (err) {
+    console.error(err);
+  }
+});
 
 router.post('/login', (req, res, next) => {
   passport.authenticate('login', { session: false }, (err, user, info) => {
@@ -51,24 +80,37 @@ router.post('/login', (req, res, next) => {
   })(req, res, next);
 });
 
-router.post(
-  '/register',
-  passport.authenticate('register', { session: false }),
-  (req, res) => {
-    jwt.sign({ id: req.user.id }, config.get('jwtSecret'), (err, token) => {
+router.post('/register', async (req, res) => {
+  try {
+    const userExists = await User.findOne({ email: req.body.email });
+    if (userExists) generateError(res, 401, 'Email Already Taken!');
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(req.body.password, salt);
+
+    const newUser = new User({
+      name: req.body.name,
+      email: req.body.email,
+      password: hashedPassword
+    });
+    const savedUser = await newUser.save();
+
+    jwt.sign({ id: savedUser.id }, config.get('jwtSecret'), (err, token) => {
       if (err) generateError(res, 400, 'server error, try again later');
       res.json({
         token: `Bearer ${token}`,
         user: {
-          friends: req.user.friends,
-          _id: req.user.id,
-          name: req.user.name,
-          email: req.user.email
+          friends: savedUser.friends,
+          _id: savedUser.id,
+          name: savedUser.name,
+          email: savedUser.email
         }
       });
     });
+  } catch (error) {
+    generateError(res, 500, 'server error, try again later');
   }
-);
+});
 
 router.get('/reset', async (req, res) => {
   try {
@@ -97,7 +139,7 @@ router.put('/resetPasswordViaEmail', async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
-    if (!user) generateError(res, 401, 'no user to update');
+    if (!user) generateError(res, 401, 'No user found');
 
     // hash the given password
     const salt = await bcrypt.genSalt(10);
@@ -176,22 +218,13 @@ router.get('/', (req, res, next) => {
     {
       session: false
     },
-    (err, user, info) => {
+    async (err, user, info) => {
       if (err) return next(err);
       if (!user) return res.status(401).json({ msg: "your're not logged in" });
+      user.friends = await friendsFinder(user.friends);
       return res.json(user);
     }
   )(req, res, next);
-});
-
-router.get('/getEmails', async (req, res) => {
-  try {
-    let allUsers = await User.find({}).select('email -_id');
-    allUsers = allUsers.map(user => user.email);
-    res.json(allUsers);
-  } catch (error) {
-    generateError(res, 500, 'Server error');
-  }
 });
 
 router.get('/:id', async (req, res) => {
@@ -242,5 +275,30 @@ router.put(
     }
   }
 );
+router.get('/get-friends/:id/:limit', async (req, res) => {
+  try {
+    // find user
+    const user = await User.findById(req.params.id)
+      .limit(req.params.limit)
+      .select('friends')
+      .lean();
 
+    // if no user then send error
+    if (!user) generateError(res, 401, 'No user found');
+
+    // find friends information
+    const friends = await Promise.all(
+      user.friends.map(async friend => {
+        return await User.findById(friend).select('name email profile_picture');
+      })
+    );
+    user.friendsInfo = friends;
+
+    // send response
+    res.json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: 'internal server error' });
+  }
+});
 module.exports = router;

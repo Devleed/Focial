@@ -69,7 +69,7 @@ module.exports = passport => {
     new JWTstrategy(opts, async (jwt_payload, done) => {
       try {
         const user = await User.findById(jwt_payload.id).select(
-          '-password -passwordResetToken -register_date'
+          '-password -passwordResetToken'
         );
         if (!user) done(null, false);
         else done(null, user);

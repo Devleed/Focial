@@ -5,15 +5,7 @@ const requestSchema = new mongoose.Schema({
     type: String,
     isRequired: true
   },
-  senderName: {
-    type: String,
-    isRequired: true
-  },
   recieverID: {
-    type: String,
-    isRequired: true
-  },
-  senderName: {
     type: String,
     isRequired: true
   },

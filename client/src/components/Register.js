@@ -4,11 +4,8 @@ import { Form, Header, Message, Container } from 'semantic-ui-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 
-import { registerUser, getAllEmails } from '../helpers';
-import { REGISTER_FAIL, LOADING } from '../helpers/actionTypes';
-
-// global emails variable
-let allEmails = [];
+import { registerUser } from '../helpers';
+import { REGISTER_FAIL } from '../helpers/actionTypes';
 
 // render input fields
 const renderInput = ({
@@ -43,8 +40,6 @@ const validate = values => {
   if (!values.email) errors.email = 'Email is required';
   else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email))
     errors.email = 'Invalid email';
-  else if (allEmails.includes(values.email))
-    errors.email = 'Email already taken';
   if (!values.password) errors.password = 'Password is required';
   else if (values.password === values.name)
     errors.password = "You can't use your name as your password";
@@ -59,18 +54,14 @@ const validate = values => {
 const Register = props => {
   const dispatch = useDispatch();
   const error = useSelector(({ error }) => error);
-  const emails = useSelector(({ emails }) => emails);
   const isLoggedIn = useSelector(({ auth }) => auth.isAuthorized);
 
   const [loading, setLoading] = useState(false);
 
-  allEmails = emails;
-
   const onFormSubmit = values => {
     setLoading(true);
-    dispatch(registerUser(values, setLoading));
-    dispatch(getAllEmails());
-    props.history.push('/');
+    let opts = { setLoading, redirect: props.history.push };
+    dispatch(registerUser(values, opts));
   };
   const renderForm = () => {
     if (isLoggedIn) {
@@ -90,7 +81,7 @@ const Register = props => {
         >
           <Header as="h1">Register</Header>
           {error.id === REGISTER_FAIL ? (
-            <Message negative>
+            <Message negative className="negative_message-style">
               <p>{error.msg}</p>
             </Message>
           ) : null}
@@ -127,9 +118,12 @@ const Register = props => {
             />
           </Form.Field>
           <br />
-          <Link to="/login" className="authLinkStyle">
+          <button
+            className="authLinkStyle"
+            onClick={() => props.setLogin(true)}
+          >
             Sign in instead
-          </Link>
+          </button>
           <br />
           <button type="submit" className="button">
             Submit
@@ -139,7 +133,7 @@ const Register = props => {
     }
   };
 
-  return <Container className="containerStyle">{renderForm()}</Container>;
+  return renderForm();
 };
 
 export default reduxForm({

@@ -52,7 +52,13 @@ const Createpost = props => {
           >
             <div className="head">
               Create Post
-              <Icon name="cancel" onClick={() => setShowModal(false)} />
+              <Icon
+                name="cancel"
+                onClick={() => {
+                  setPreviewImage(null);
+                  setShowModal(false);
+                }}
+              />
             </div>
             <Field name="postField" component={renderPostField} />
             {previewImage ? (
@@ -60,28 +66,28 @@ const Createpost = props => {
                 <img src={previewImage} />
               </div>
             ) : null}
-            <div className="extra_content">
-              <FieldFileInput
-                files={files}
-                onFileSelect={setFiles}
-                setPreview={setPreviewImage}
-              />
-              <button>
-                <Icon name="file alternate" />
-                Upload File
-              </button>
-              <button onClick={e => e.stopPropagation()}>
-                <Icon name="video" />
-                Upload some thing else
+            <div className="head create_post-actions">
+              <div className="extra_content">
+                <FieldFileInput
+                  files={files}
+                  onFileSelect={setFiles}
+                  setPreview={setPreviewImage}
+                />
+                <button>
+                  <Icon name="file outline" />
+                </button>
+                <button onClick={e => e.stopPropagation()}>
+                  <Icon name="file video outline" />
+                </button>
+              </div>
+              <button
+                type="submit"
+                className="post_button"
+                onClick={e => e.stopPropagation()}
+              >
+                Post
               </button>
             </div>
-            <button
-              type="submit"
-              className="post_button"
-              onClick={e => e.stopPropagation()}
-            >
-              Post
-            </button>
           </form>
         </div>
       </Modal>
@@ -105,7 +111,7 @@ const Createpost = props => {
 };
 
 const afterSubmit = (result, dispatch) => {
-  dispatch(reset('post area'));
+  dispatch(reset('create post form'));
 };
 
 export default reduxForm({

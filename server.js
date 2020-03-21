@@ -17,6 +17,7 @@ cloudinary.config({
 app.use('/api/user', require('./routes/api/user'));
 app.use('/api/request', require('./routes/api/request'));
 app.use('/api/post', require('./routes/api/post'));
+app.use('/api/notification', require('./routes/api/notification'));
 
 // setting middlewares
 app.use(express.json());

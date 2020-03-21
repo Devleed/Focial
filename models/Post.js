@@ -19,16 +19,11 @@ const postSchema = new mongoose.Schema({
     type: Date,
     default: Date.now()
   },
-  likes: {
-    type: Array,
-    default: []
-  },
-  comments: [
-    {
-      author: String,
-      content: String
-    }
-  ]
+  stats: {
+    likes: { type: Number, default: 0 },
+    comments: { type: Number, default: 0 },
+    shares: { type: Number, default: 0 }
+  }
 });
 
 module.exports = Post = mongoose.model('post', postSchema);

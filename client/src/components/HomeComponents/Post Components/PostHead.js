@@ -1,13 +1,21 @@
 import React from 'react';
 import { Icon } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
+import { calculateDate } from '../../../helpers';
 
-const PostHead = ({ author, date, shared, children }) => {
+const PostHead = ({
+  author,
+  author_name,
+  profile_picture,
+  date,
+  shared,
+  children
+}) => {
   return (
     <div className="post_meta">
-      {author.profile_picture ? (
+      {profile_picture ? (
         <div className="post_author-dp">
-          <img src={author.profile_picture} />
+          <img src={profile_picture} />
         </div>
       ) : (
         <Icon
@@ -18,14 +26,12 @@ const PostHead = ({ author, date, shared, children }) => {
         />
       )}
       <div className="post_info">
-        <Link to={`/user/${author._id}`} className="post_author">
-          {author.name}
+        <Link to={`/user/${author}`} className="post_author">
+          {author_name}
         </Link>
         {shared ? ' shared a post' : null}
         <br />
-        <span className="post_date">
-          {new Date(date).toLocaleDateString('en-US')}
-        </span>
+        <span className="post_date">{calculateDate(date)}</span>
       </div>
       {children}
     </div>

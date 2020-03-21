@@ -12,15 +12,26 @@ router.use(express.json());
 
 router.post('/', async (req, res) => {
   try {
-    const user = await User.findById(req.body.visitedUserID);
-    const loggedUser = await User.findById(req.body.loggedUserID);
+    const user = await User.findById(req.body.visitedUserID).select(
+      'name email profile_picture'
+    );
+    const loggedUser = await User.findById(req.body.loggedUserID).select(
+      'name email profile_picture'
+    );
     const request = new Request({
       senderID: loggedUser.id,
       recieverID: user.id,
       status: 2
     });
-    await request.save();
-    return res.json(request);
+    let savedRequest = await request.save();
+    savedRequest = savedRequest.toObject();
+
+    savedRequest = {
+      sender: loggedUser,
+      reciever: user
+    };
+
+    res.json(savedRequest);
   } catch (err) {
     return res.status(500).json({ msg: 'server error, try again later' });
   }
@@ -35,13 +46,18 @@ router.get(
       let requestRecieved = await Request.find({
         recieverID: req.user.id
       }).lean();
-      let requestSent = await Request.find({ senderID: req.user.id });
+      let requestSent = await Request.find({ senderID: req.user.id }).lean();
 
-      let requestRecievedAuthors = requestRecieved.map(async request => {
-        return await findUser(request, request.senderID, 'sender_name');
-      });
-      requestRecieved = await Promise.all(requestRecievedAuthors);
-
+      requestRecieved = await Promise.all(
+        requestRecieved.map(async request => {
+          return await findUser(request, request.senderID, 'sender');
+        })
+      );
+      requestSent = await Promise.all(
+        requestSent.map(async request => {
+          return await findUser(request, request.recieverID, 'reciever');
+        })
+      );
       res.json({ requestRecieved, requestSent });
     } catch (err) {
       return res.status(500).json({ msg: 'server error, try again later' });
@@ -53,10 +69,13 @@ router.post('/accepted', async (req, res) => {
   try {
     const user = await User.findById(req.body.visitedUserID);
     const loggedUser = await User.findById(req.body.loggedUserID);
+
     user.friends.push(loggedUser.id);
     loggedUser.friends.push(user.id);
+
     await user.save();
     await loggedUser.save();
+
     const request = await Request.findOne({
       senderID: req.body.visitedUserID,
       recieverID: req.body.loggedUserID
@@ -65,6 +84,7 @@ router.post('/accepted', async (req, res) => {
       senderID: req.body.visitedUserID,
       recieverID: req.body.loggedUserID
     });
+
     res.json(request);
   } catch (err) {
     return res.status(500).json({ msg: 'server error, try again later' });

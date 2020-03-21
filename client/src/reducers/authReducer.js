@@ -6,7 +6,9 @@ import {
   LOGIN_SUCCESS,
   LOGOUT_SUCCESS,
   USER_LOADING,
-  USER_LOAD_FAIL
+  USER_LOAD_FAIL,
+  UPDATE_PROFILE,
+  GET_FRIENDS
 } from '../helpers/actionTypes';
 
 const INITIAL_STATE = {
@@ -50,6 +52,10 @@ export default (state = INITIAL_STATE, action) => {
         isAuthorized: true,
         userLoading: false
       };
+    case UPDATE_PROFILE:
+      return { ...state, user: action.payload };
+    case GET_FRIENDS:
+      return { ...state, user: { ...state.user, ...action.payload } };
     default:
       return state;
   }

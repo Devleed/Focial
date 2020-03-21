@@ -19,7 +19,7 @@ const ProfileDisplay = props => {
   let posts = useSelector(({ postsData }) => postsData.posts);
   if (user) {
     posts = posts
-      .filter(post => post.author === user._id)
+      .filter(post => post.author._id === user._id)
       .sort(
         (a, b) =>
           new Date(b.date_shared ? b.date_shared : b.date_created) -
@@ -34,7 +34,7 @@ const ProfileDisplay = props => {
     return () => {
       dispatch({ type: VISITED_USER, payload: null });
     };
-  }, [dispatch]);
+  }, [dispatch, props.match.params.id]);
 
   if (!isLoggedIn) {
     return <Redirect to={{ pathname: '/login' }} />;
@@ -51,7 +51,7 @@ const ProfileDisplay = props => {
           />
           <ProfilePictureUpdater user={user} />
           <div className="profile_content">
-            <RequestButtons />
+            <RequestButtons user={user} float="right" />
             <h1 style={{ textTransform: 'capitalize', margin: '0' }}>
               {user.name}
             </h1>

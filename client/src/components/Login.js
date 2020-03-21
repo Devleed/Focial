@@ -6,11 +6,9 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import Loader from './Loader';
 import { loginUser } from '../helpers';
-import { LOGIN_FAIL, LOADING } from '../helpers/actionTypes';
+import { LOGIN_FAIL } from '../helpers/actionTypes';
 import { Link, Redirect } from 'react-router-dom';
 import '../styles/authStyle.css';
-
-let allEmails = [];
 
 const renderInput = ({
   input,
@@ -40,7 +38,6 @@ const validate = values => {
   if (!values.email) errors.email = 'Enter email';
   else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email))
     errors.email = 'Invalid email';
-  else if (!allEmails.includes(values.email)) errors.email = 'No user found';
   if (!values.password) errors.password = 'Enter password';
   return errors;
 };
@@ -48,13 +45,10 @@ const validate = values => {
 const Login = props => {
   const dispatch = useDispatch();
   const error = useSelector(({ error }) => error);
-  const emails = useSelector(({ emails }) => emails);
   const isLoggedIn = useSelector(({ auth }) => auth.isAuthorized);
   const userLoading = useSelector(({ auth }) => auth.userLoading);
 
   const [loading, setLoading] = useState(false);
-
-  allEmails = emails;
 
   const onFormSubmit = values => {
     setLoading(true);
@@ -105,14 +99,17 @@ const Login = props => {
             Submit
           </button>
           <br />
-          <Link to="/register" className="authLinkStyle">
+          <button
+            className="authLinkStyle"
+            onClick={() => props.setLogin(false)}
+          >
             create account
-          </Link>
+          </button>
         </Form>
       );
     }
   };
-  return <Container className="container_style">{renderPage()}</Container>;
+  return renderPage();
 };
 
 export default reduxForm({

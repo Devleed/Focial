@@ -1,3 +1,14 @@
+:root {
+  --primary-color: #008ecc;
+  --primary-border-color: #3b3b3b84;
+  --div-shadows: 0 20px 40px 0 var(--primary-border-color),
+    0 2px 10px 0 var(--primary-border-color) !important;
+}
+* {
+  margin: 0;
+  padding: 0;
+  /* line-height: 0; */
+}
 .container_style {
   text-align: center;
 }
@@ -13,23 +24,22 @@ button:focus {
   background-color: #0f9500 !important;
   color: white !important;
 }
+/* body {
+  background-color: var(--primary-color) !important;
+  background: 
+  top, transparent red, faked with gradient linear-gradient(
+    rgba(41, 189, 253, 0.877),
+    rgba(41, 189, 253, 0.877)
+  );
+  bottom, image
+  url(../images/assorted-photos-and-notebook-2874998.jpg);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+} */
 body {
-  background-color: #f5f5f5 !important;
-}
-.number {
-  z-index: 99;
-  width: 14px;
-  height: 14px;
-  padding: 7.4px 2px 1px 2px;
-  background-color: red;
-  position: absolute;
-  top: 14px;
-  border-radius: 2px;
-  right: 275px;
-  color: white;
-  font-size: 10px;
-  text-align: center;
-  line-height: 0.1px;
+  transition: all 2s ease 0s;
 }
 .small-picture {
   width: 22px;

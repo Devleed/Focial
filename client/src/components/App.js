@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 
 import Login from './Login';
 import Register from './Register';
-import { loadUser, getAllEmails } from '../helpers';
+import { loadUser } from '../helpers';
 import ResetPasswordParent from './ResetPasswordParent';
 import ResetPassword from './ResetPassword';
 import { USER_LOADING } from '../helpers/actionTypes';
@@ -12,28 +12,42 @@ import Homepage from './Homepage';
 import '../styles/base.css';
 import SearchResults from './SearchResults';
 import ProfileDisplay from './ProfileDisplay';
+import PostDisplay from './HomeComponents/Post Components/PostDisplay';
+import Auth from './Auth';
 
 const App = () => {
   const dispatch = useDispatch();
 
+  let bodyInterval;
+
   useEffect(() => {
     (async () => {
-      dispatch(getAllEmails());
       dispatch({ type: USER_LOADING, payload: true });
       dispatch(loadUser());
+      let body = document.querySelector('body');
+      bodyInterval = setInterval(() => {
+        body.style.backgroundColor = `rgb(${Math.floor(
+          Math.random() * 255
+        )}, ${Math.floor(Math.random() * 255)}, ${Math.floor(
+          Math.random() * 255
+        )})`;
+      }, 2000);
     })();
+    () => clearInterval(bodyInterval);
   }, [dispatch]);
 
   return (
     <BrowserRouter>
       <Switch>
         <Route path="/" exact component={Homepage} />
-        <Route path="/login" exact component={Login} />
-        <Route path="/register" exact component={Register} />
+        <Route path="/auth" exact component={Auth} />
+        {/* <Route path="/login" exact component={Login} /> */}
+        {/* <Route path="/register" exact component={Register} /> */}
         <Route path="/forget-password" exact component={ResetPasswordParent} />
-        <Route path="/search" exact component={SearchResults} />
+        <Route path="/search/:term" exact component={SearchResults} />
         <Route path="/reset/:token" exact component={ResetPassword} />
         <Route path="/user/:id" exact component={ProfileDisplay} />
+        <Route path="/post/:id" exact component={PostDisplay} />
       </Switch>
     </BrowserRouter>
   );

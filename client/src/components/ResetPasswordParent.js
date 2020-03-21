@@ -5,8 +5,6 @@ import { useSelector } from 'react-redux';
 
 import { sendResetEmail } from '../helpers';
 
-let allEmails = [];
-
 const renderInput = ({
   input,
   type,
@@ -30,14 +28,12 @@ const validate = values => {
   if (!values.email) errors.email = 'Enter email';
   else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email))
     errors.email = 'Invalid email';
-  else if (!allEmails.includes(values.email)) errors.email = 'No user found';
   return errors;
 };
 
 const ResetPasswordParent = props => {
   const [msg, setMsg] = useState({ type: null, text: null });
   const [loading, setLoading] = useState(false);
-  allEmails = useSelector(({ emails }) => emails);
   const onFormSubmit = values => {
     setLoading(true);
     sendResetEmail(values.email)

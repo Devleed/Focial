@@ -9,6 +9,9 @@ export const LOGIN_FAIL = 'login_fail';
 export const LOGOUT_SUCCESS = 'logout_success';
 export const USER_LOADING = 'user_loading';
 
+// user actio types
+export const GET_FRIENDS = 'get_friends';
+
 // get emails and errors action types
 export const GET_ERRORS = 'get_errors';
 export const CLEAR_ERRORS = 'clear_errors';
@@ -51,12 +54,19 @@ export const DELETE_POST = 'delete_post';
 export const EDIT_POST = 'edit_post';
 export const SHARE_POST = 'share_post';
 export const LOAD_POST = 'load_post';
+export const UPDATE_STATS = 'update_stats';
+export const SELECTED_POST = 'selected_post';
+export const DESTROY_POST = 'destroy_post';
 
 export const PASSWORD_RESET_ERROR = 'password_reset_error';
 export const VISITED_USER = 'visited_user';
 export const LOADING = 'loading';
+export const UPDATE_PROFILE = 'update_profile';
 
 // loading action types
 export const SHARING = 'sharing';
 export const POSTING = 'posting';
 export const DELETING = 'deleting';
+
+// notificaion action types
+export const GET_NOTIFICATION = 'get_notification';

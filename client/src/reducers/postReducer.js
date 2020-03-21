@@ -9,12 +9,16 @@ import {
   RESET_POSTS,
   DELETE_POST,
   EDIT_POST,
-  SHARE_POST
+  SHARE_POST,
+  UPDATE_STATS,
+  SELECTED_POST,
+  DESTROY_POST
 } from '../helpers/actionTypes';
 
 const INITIAL_STATE = {
   posts: [],
-  postLoading: null
+  postLoading: null,
+  selectedPost: null
 };
 
 export default (state = INITIAL_STATE, action) => {
@@ -26,29 +30,68 @@ export default (state = INITIAL_STATE, action) => {
     case CREATE_POST:
       return { ...state, posts: [...state.posts, { ...action.payload }] };
     case COMMENT_POST:
+      return {
+        ...state,
+        posts: state.posts.map(post => {
+          if (post._id === action.payload.id) {
+            return {
+              ...post,
+              comments: [...post.comments, action.payload.comment],
+              stats: { ...post.stats, ...action.payload.stats }
+            };
+          } else return post;
+        }),
+        selectedPost: state.selectedPost
+          ? state.selectedPost._id === action.payload.id
+            ? {
+                ...state.selectedPost,
+                comments: [
+                  ...state.selectedPost.comments,
+                  action.payload.comment
+                ],
+                stats: { ...state.selectedPost.stats, ...action.payload.stats }
+              }
+            : state.selectedPost
+          : null
+      };
     case UNLIKE_POST:
     case LIKE_POST:
       return {
         ...state,
         posts: state.posts.map(post => {
           if (post._id === action.payload._id) {
-            return { ...action.payload };
+            return { ...post, ...action.payload };
           } else return post;
-        })
+        }),
+        selectedPost: state.selectedPost
+          ? state.selectedPost._id === action.payload.id
+            ? { ...state.selectedPost, ...action.payload }
+            : state.selectedPost
+          : null
       };
     case COMMENT_LOADED:
       return {
         ...state,
         posts: state.posts.map(post => {
-          if (post._id === action.payload._id)
+          if (post._id === action.payload.id)
             return { ...post, comments: action.payload.comments };
           else return post;
-        })
+        }),
+        selectedPost: state.selectedPost
+          ? state.selectedPost._id === action.payload.id
+            ? { ...state.selectedPost, comments: action.payload.comments }
+            : state.selectedPost
+          : null
       };
     case DELETE_POST:
       return {
         ...state,
-        posts: state.posts.filter(post => post._id !== action.payload._id)
+        posts: state.posts.filter(post => post._id !== action.payload._id),
+        selectedPost: state.selectedPost
+          ? state.selectedPost._id === action.payload._id
+            ? null
+            : state.selectedPost
+          : null
       };
     case EDIT_POST:
       return {
@@ -69,6 +112,36 @@ export default (state = INITIAL_STATE, action) => {
       return {
         ...state,
         posts: [...state.posts, action.payload]
+      };
+    case UPDATE_STATS:
+      return {
+        ...state,
+        posts: state.posts.map(post => {
+          if (post._id === action.payload.id) {
+            return {
+              ...post,
+              stats: { ...post.stats, ...action.payload.stats }
+            };
+          } else return post;
+        }),
+        selectedPost: state.selectedPost
+          ? state.selectedPost._id === action.payload.id
+            ? {
+                ...state.selectedPost,
+                stats: { ...state.selectedPost.stats, ...action.payload.stats }
+              }
+            : state.selectedPost
+          : null
+      };
+    case SELECTED_POST:
+      return {
+        ...state,
+        selectedPost: action.payload
+      };
+    case DESTROY_POST:
+      return {
+        ...state,
+        selectedPost: null
       };
     default:
       return state;

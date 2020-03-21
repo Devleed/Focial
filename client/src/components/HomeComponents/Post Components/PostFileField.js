@@ -27,8 +27,7 @@ const FieldFileInput = props => {
         htmlFor="file"
         className="btn-2"
       >
-        <Icon name="image" />
-        Add Image
+        <Icon name="images outline" />
       </label>
     </React.Fragment>
   );

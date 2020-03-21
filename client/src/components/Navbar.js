@@ -13,6 +13,7 @@ import Search from './Search';
 import RequestManager from './RequestManager';
 import { getPost } from '../helpers';
 import { Icon, Dropdown } from 'semantic-ui-react';
+import NotificationManager from './NotificationManager';
 
 const Navbar = () => {
   const dispatch = useDispatch();
@@ -58,8 +59,7 @@ const Navbar = () => {
           dispatch(getPost());
         }}
       >
-        <Icon name="accusoft" size="small" />
-        <p>vance</p>
+        <Icon name="fonticons" size="small" className="logo_icon" />
       </NavLink>
       <Search />
       <NavLink
@@ -69,19 +69,25 @@ const Navbar = () => {
           fontSize: '16px',
           padding: '0 20px',
           borderRight: '2px solid rgba(199, 199, 199, 0.796)',
-          marginRight: '20px'
+          margin: ' 0 20px 5px 0'
         }}
       >
-        <div className="small-picture" style={{ marginRight: '10px' }}>
-          <img src={user.profile_picture} />
-        </div>
+        {user.profile_picture ? (
+          <div className="small-picture" style={{ marginRight: '10px' }}>
+            <img src={user.profile_picture} />
+          </div>
+        ) : (
+          <Icon name="user" />
+        )}
         {user.name}
       </NavLink>
-      <Dropdown icon="bell"></Dropdown>
+      <NotificationManager />
       <Dropdown icon="facebook messenger"></Dropdown>
-      <RequestManager />
+      <RequestManager style={{ position: 'relative' }} />
       <Dropdown icon="cog"></Dropdown>
-      <div className="auth_buttons">{renderAuthButtons()}</div>
+      <div className="auth_buttons" style={{ float: 'right' }}>
+        {renderAuthButtons()}
+      </div>
     </div>
   );
 };

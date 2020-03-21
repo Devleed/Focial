@@ -6,7 +6,7 @@ import { sharePost } from '../../../helpers';
 import PostHead from './PostHead';
 
 import Modal from '../Modal';
-import { SHARING } from '../../../helpers/actionTypes';
+import { SHARING, UPDATE_STATS } from '../../../helpers/actionTypes';
 
 const renderPostField = ({ input }) => {
   return (
@@ -31,10 +31,10 @@ const SharePost = props => {
   const [showModal, setShowModal] = useState(false);
   const dispatch = useDispatch();
 
-  const onSharePost = values => {
-    console.log(values);
-    dispatch(sharePost(props.id, values[`sharePostField${props.id}`]));
-  };
+  // const onSharePost = values => {
+  //   console.log(values);
+  //   dispatch(sharePost(props.id, values[`sharePostField${props.id}`]));
+  // };
 
   return (
     <React.Fragment>

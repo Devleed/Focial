@@ -43,25 +43,6 @@
   text-decoration: none;
   cursor: pointer;
 }
-.extra_content {
-  display: flex;
-  justify-content: space-between;
-  padding: 5px 20px;
-  width: 100%;
-}
-.extra_content *:not(input) {
-  flex: 1;
-}
-.extra_content button {
-  border: 0;
-  padding: 7px;
-  margin-left: 12px;
-  line-height: normal;
-  font-size: medium;
-  font-weight: normal;
-  background-color: #008ecc;
-  cursor: pointer;
-}
 .post_image-modal {
   width: 100%;
   height: 100%;

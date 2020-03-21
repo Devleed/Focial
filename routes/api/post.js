@@ -13,6 +13,9 @@ const router = express.Router();
 const User = require('../../models/User');
 const Post = require('../../models/Post');
 const PostShares = require('../../models/PostShares');
+const PostComments = require('../../models/PostComments');
+const PostLikes = require('../../models/PostLikes');
+const Notification = require('../../models/Notification');
 
 router.use(fileUpload({ useTempFiles: true }));
 router.use(express.json());
@@ -43,7 +46,12 @@ router.post(
       }
       const savedPost = await newPost.save();
       let post = savedPost.toObject();
-      post = await findUser(post, post.author, 'author_name');
+      post.author = await User.findById(post.author).select(
+        'name profile_picture friends'
+      );
+      post.likes = (await PostLikes.find({ post: post._id })).map(
+        like => like.author
+      );
 
       return res.json(post);
     } catch (err) {
@@ -52,6 +60,33 @@ router.post(
     }
   }
 );
+
+/**
+ * get single post
+ */
+router.get('/:id', async (req, res) => {
+  try {
+    let post = await Post.findById(req.params.id).lean();
+    if (!post) {
+      let share = await PostShares.findById(req.params.id).lean();
+      share.likes = (await PostLikes.find({ post: share._id })).map(
+        like => like.author
+      );
+      share = await makeSharePost(share);
+      return res.json(share);
+    }
+    post.author = await User.findById(post.author).select(
+      'name friends profile_picture'
+    );
+    post.likes = (await PostLikes.find({ post: post._id })).map(
+      like => like.author
+    );
+    res.json(post);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: 'server error' });
+  }
+});
 
 /**
  * Get All Post
@@ -64,21 +99,16 @@ router.get(
     try {
       // get the posts of friends
       const posts = req.user.friends.map(
-        async friend =>
-          await Post.find({ author: friend })
-            .lean()
-            .select('-comments')
+        async friend => await Post.find({ author: friend }).lean()
       );
 
       // get the post of logged in user
-      const ownPosts = await Post.find({ author: req.user.id })
-        .lean()
-        .select('-comments');
+      const ownPosts = await Post.find({ author: req.user.id }).lean();
       let allPosts = await Promise.all(posts);
 
       // get posts shared by logged in user
       const sharesOfLoggedInUser = await PostShares.find({
-        shared_by: req.user.id
+        author: req.user.id
       });
       let sharedPosts = await Promise.all(
         sharesOfLoggedInUser.map(async share => await makeSharePost(share))
@@ -88,7 +118,7 @@ router.get(
       let friendsShares = await arrayConverter(
         await Promise.all(
           req.user.friends.map(
-            async friend => await PostShares.find({ shared_by: friend })
+            async friend => await PostShares.find({ author: friend })
           )
         )
       );
@@ -115,11 +145,12 @@ router.get(
             'name profile_picture friends'
           );
           post.author = author;
+          post.likes = (await PostLikes.find({ post: post._id })).map(
+            like => like.author
+          );
           return post;
         })
       );
-
-      console.log(allPosts);
 
       // send response
       res.json(allPosts);
@@ -144,7 +175,7 @@ router.delete(
       if (!post) {
         let share = await PostShares.findById(req.params.id);
 
-        if (share.shared_by !== req.user.id)
+        if (share.author !== req.user.id)
           return res
             .status(401)
             .json({ msg: "You're not authenticate to delete the post" });
@@ -153,6 +184,9 @@ router.delete(
           req.params.id,
           req.body
         );
+
+        await PostComments.deleteMany({ post: deletedShare.id });
+        await PostLikes.deleteMany({ post: deletedShare.id });
 
         return res.json(deletedShare);
       }
@@ -167,16 +201,10 @@ router.delete(
 
       const deletedPost = await Post.findByIdAndRemove(req.params.id, req.body);
 
-      const deletedPosts = await PostShares.deleteMany(
-        {
-          post: deletedPost.id
-        },
-        req.body
-      );
+      await PostComments.deleteMany({ post: deletedPost.id });
+      await PostLikes.deleteMany({ post: deletedPost.id });
 
-      console.log(deletedPosts);
-
-      return res.json(deletedPost);
+      res.json(deletedPost);
     } catch (err) {
       console.error(err);
       return res.status(500).json({ msg: 'server error' });
@@ -217,27 +245,29 @@ router.get(
   passport.authenticate('jwt', { session: false }),
   async (req, res) => {
     try {
+      let like = {
+        author: req.user.id,
+        post: req.params.id
+      };
+      let newLike = new PostLikes(like);
+
       let post = await Post.findById(req.params.id);
-
       if (!post) {
-        let share = await PostShares.findById(req.params.id);
-        share.likes.push(req.user.id);
-
-        let savedShare = await share.save();
-        savedShare = savedShare.toObject();
-        savedShare.comments = await commentsAuthorAtacher(savedShare.comments);
-        const post = await makeSharePost(savedShare);
-
-        return res.json(post);
+        post = await PostShares.findById(req.params.id);
       }
-      post.likes.push(req.user.id);
+      if (!post) res.json({ msg: 'no post found' });
+      post.stats.likes = ++post.stats.likes;
 
       let savedPost = await post.save();
-      savedPost = savedPost.toObject();
-      savedPost = await findUser(savedPost, savedPost.author, 'author_name');
-      savedPost.comments = await commentsAuthorAtacher(savedPost.comments);
+      let savedLike = (await newLike.save()).toObject();
 
-      return res.json(savedPost);
+      res.json({
+        _id: savedPost.id,
+        likes: (await PostLikes.find({ post: savedPost.id })).map(
+          like => like.author
+        ),
+        stats: post.stats
+      });
     } catch (err) {
       console.error(err);
       return res.status(500).json({ msg: 'server error' });
@@ -254,29 +284,33 @@ router.get(
   passport.authenticate('jwt', { session: false }),
   async (req, res) => {
     try {
+      await PostLikes.findOneAndDelete({
+        author: req.user.id,
+        post: req.params.id
+      });
+
       let post = await Post.findById(req.params.id);
-
       if (!post) {
-        let share = await PostShares.findById(req.params.id);
-        share.likes = share.likes.filter(p => p !== req.user.id);
-
-        let savedShare = await share.save();
-        savedShare = savedShare.toObject();
-
-        savedShare.comments = await commentsAuthorAtacher(savedShare.comments);
-
-        const post = await makeSharePost(savedShare);
-
-        return res.json(post);
+        post = await PostShares.findById(req.params.id);
       }
-      post.likes = post.likes.filter(p => p !== req.user.id);
+      await Notification.findOneAndDelete({
+        post: req.params.id,
+        by: req.user.id,
+        to: post.author,
+        type: 'like'
+      });
+
+      post.stats.likes = --post.stats.likes;
 
       let savedPost = await post.save();
-      savedPost = savedPost.toObject();
-      savedPost = await findUser(savedPost, savedPost.author, 'author_name');
-      savedPost.comments = await commentsAuthorAtacher(savedPost.comments);
 
-      return res.json(savedPost);
+      res.json({
+        _id: savedPost.id,
+        likes: (await PostLikes.find({ post: savedPost.id })).map(
+          like => like.author
+        ),
+        stats: post.stats
+      });
     } catch (err) {
       console.error(err);
       return res.status(500).json({ msg: 'server error' });
@@ -293,32 +327,33 @@ router.post(
   passport.authenticate('jwt', { session: false }),
   async (req, res) => {
     try {
-      const comment = {
+      const postComment = {
         author: req.user.id,
+        post: req.params.id,
         content: req.body.comment
       };
 
+      const comment = new PostComments(postComment);
+
       let post = await Post.findById(req.params.id);
+      if (!post) post = await PostShares.findById(req.params.id);
 
-      if (!post) {
-        let share = await PostShares.findById(req.params.id);
-        share.comments.push(comment);
+      post.stats.comments = ++post.stats.comments;
 
-        let savedShare = await share.save();
-        savedShare = savedShare.toObject();
-        savedShare.comments = await commentsAuthorAtacher(savedShare.comments);
-        let sharePost = await makeSharePost(savedShare);
+      await post.save();
 
-        return res.json(sharePost);
-      }
-      post.comments.push(comment);
+      let savedComment = await comment.save();
+      savedComment = savedComment.toObject();
 
-      let savedPost = await post.save();
-      savedPost = savedPost.toObject();
-      savedPost = await findUser(savedPost, savedPost.author, 'author_name');
-      savedPost.comments = await commentsAuthorAtacher(savedPost.comments);
+      savedComment.author = await User.findById(savedComment.author).select(
+        'name email profile_picture'
+      );
 
-      res.json(savedPost);
+      res.json({
+        comment: savedComment,
+        id: savedComment.post,
+        stats: post.stats
+      });
     } catch (err) {
       console.error(err);
       return res.status(500).json({ msg: 'server error' });
@@ -332,22 +367,16 @@ router.post(
  */
 router.get('/comment/:id', async (req, res) => {
   try {
-    let post = await Post.findById(req.params.id)
-      .lean()
-      .select('comments');
-
-    if (!post) {
-      let share = await PostShares.findById(req.params.id).lean();
-
-      share.comments = await commentsAuthorAtacher(share.comments);
-
-      let sharePost = await makeSharePost(share);
-      return res.json(sharePost);
-    }
-
-    post.comments = await commentsAuthorAtacher(post.comments);
-
-    res.json(post);
+    let comments = await PostComments.find({ post: req.params.id }).lean();
+    comments = await Promise.all(
+      comments.map(async comment => {
+        comment.author = await User.findById(comment.author).select(
+          'name email profile_picture'
+        );
+        return comment;
+      })
+    );
+    res.json({ comments, id: req.params.id });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: 'server error' });
@@ -363,40 +392,51 @@ router.put(
   passport.authenticate('jwt', { session: false }),
   async (req, res) => {
     try {
-      // find the post
       const share = new PostShares({
-        shared_by: req.user.id,
+        author: req.user.id,
         post: req.params.id,
         content: req.body.postContent
       });
 
-      const savedShare = await share.save();
+      let post = await Post.findById(req.params.id);
+      if (!post) post = await PostShares.findById(req.params.id);
 
-      const post = await makeSharePost(savedShare);
+      post.stats.shares = ++post.stats.shares;
 
-      res.json(post);
+      await post.save();
+
+      let savedShare = (await share.save()).toObject();
+      savedShare.likes = (await PostLikes.find({ post: savedShare._id })).map(
+        ({ author }) => author
+      );
+
+      const sharedPost = await makeSharePost(savedShare);
+
+      res.json(sharedPost);
     } catch (err) {
+      console.error(err);
       return res.status(500).json({ msg: 'server error' });
     }
   }
 );
 const makeSharePost = async savedShare => {
-  let post = await Post.findById(savedShare.post).lean();
+  let savedPost = await Post.findById(savedShare.post).lean();
 
-  if (post) {
-    post = await findUser(post, post.author, 'author_name');
-    post = await findUser(post, savedShare.shared_by, 'share_author');
-    post = {
-      ...post,
+  if (savedPost) {
+    savedPost = await findUser(savedPost, savedShare.author, 'share_author');
+    savedPost = {
+      ...savedPost,
+      author: await User.findById(savedPost.author).select(
+        'name profile_picture friends'
+      ),
       date_shared: savedShare.date_shared,
       share_body: savedShare.content,
       _id: savedShare._id,
       likes: savedShare.likes,
-      comments: savedShare.comments,
-      shared_by: savedShare.shared_by
+      stats: savedShare.stats
     };
   }
-  return post;
+  return savedPost;
 };
 
 module.exports = router;
