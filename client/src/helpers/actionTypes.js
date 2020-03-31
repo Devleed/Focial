@@ -70,3 +70,4 @@ export const DELETING = 'deleting';
 
 // notificaion action types
 export const GET_NOTIFICATION = 'get_notification';
+export const OPEN_NOTIFICATION = 'open_notification';

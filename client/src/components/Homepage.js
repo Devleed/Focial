@@ -6,11 +6,12 @@ import { Redirect, NavLink } from 'react-router-dom';
 import Navbar from './Navbar';
 import Postarea from './HomeComponents/Postarea';
 import Rightsidebar from './HomeComponents/Rightsidebar';
-import Footer from './Footer';
 import LoadingIndicator from './LoadingIndicator';
 import RequestButtons from './RequestButtons';
-import { checkRequest, getFriends } from '../helpers';
+import { checkRequest, getFriends, getNotification, getPost } from '../helpers';
+import { POST_LOADING } from '../helpers/actionTypes';
 import '../styles/homepage.css';
+import LeftSidebar from './HomeComponents/LeftSidebar';
 import ProfileCards from './ProfileCards';
 
 const Homepage = () => {
@@ -29,6 +30,8 @@ const Homepage = () => {
   useEffect(() => {
     (() => {
       window.addEventListener('scroll', handleScroll);
+      dispatch({ type: POST_LOADING, payload: true });
+      dispatch(getPost());
     })();
     () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -40,7 +43,7 @@ const Homepage = () => {
       <LoadingIndicator />
       <Container style={{ marginTop: '60px' }}>
         <div className="cover">
-          <ProfileCards
+          {/* <ProfileCards
             owner={true}
             user={user}
             className="left_sidebar"
@@ -56,12 +59,12 @@ const Homepage = () => {
                 32
               </p>
             </div>
-          </ProfileCards>
+          </ProfileCards> */}
+          <LeftSidebar />
           <Postarea />
-          <Rightsidebar />
+          {/* <Rightsidebar /> */}
         </div>
       </Container>
-      <Footer />
     </div>
   );
 };

@@ -1,23 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dropdown, Loader } from 'semantic-ui-react';
 import { useSelector, useDispatch } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 
-import { acceptRequest, rejectRequest } from '../helpers';
+import {
+  acceptRequest,
+  rejectRequest,
+  checkRequest,
+  requestSeen
+} from '../helpers';
 
 const RequestManager = () => {
-  const requestsRecieved = useSelector(
-    ({ requests }) => requests.requestsRecieved
-  );
+  const requestsRecieved = useSelector(({ requests }) => requests.recieved);
   const loggedInUser = useSelector(({ auth }) => auth.user);
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
 
+  let interval;
+
+  useEffect(() => {
+    (() => {
+      // interval = setInterval(() => {
+      dispatch(checkRequest());
+      // }, 5000);
+    })();
+    // return () => clearInterval(interval);
+  }, []);
+
+  let unseen = requestsRecieved.filter(request => request.status === 0);
+
   const renderRequest = () => {
     return requestsRecieved.map(request => {
-      console.log(request.sender);
       return (
-        <Dropdown.Item key={request._id} style={{ width: '100%' }}>
+        <Dropdown.Item
+          key={request._id}
+          style={{ width: '100%', padding: '10px 0' }}
+        >
           <img
             src={
               request.sender.profile_picture ||
@@ -39,13 +57,7 @@ const RequestManager = () => {
               <button
                 onClick={e => {
                   e.stopPropagation();
-                  dispatch(
-                    acceptRequest(
-                      request.sender._id,
-                      loggedInUser._id,
-                      setLoading
-                    )
-                  );
+                  dispatch(acceptRequest(request._id, setLoading));
                 }}
                 className="request_button accept_request"
               >
@@ -54,13 +66,7 @@ const RequestManager = () => {
               <button
                 onClick={e => {
                   e.stopPropagation();
-                  dispatch(
-                    rejectRequest(
-                      request.sender._id,
-                      loggedInUser._id,
-                      setLoading
-                    )
-                  );
+                  dispatch(rejectRequest(request._id, setLoading));
                 }}
                 className="request_button reject_request"
               >
@@ -73,25 +79,30 @@ const RequestManager = () => {
     });
   };
   return (
-    <Dropdown.Menu>
-      {requestsRecieved.length > 0 ? (
-        <p className="request-number number">{requestsRecieved.length}</p>
-      ) : null}
+    <React.Fragment>
       <Dropdown
         icon="user"
         style={{ color: 'white' }}
         floating
         className="icon"
+        onClick={() => dispatch(requestSeen())}
       >
         <Dropdown.Menu
-          style={{ width: '360px', paddingBottom: '10px', paddingRight: '5px' }}
+          style={{
+            width: '360px',
+            paddingBottom: '10px',
+            paddingRight: '5px'
+          }}
           className="left"
         >
           <Dropdown.Header content="Friend Requests" />
           {renderRequest()}
         </Dropdown.Menu>
       </Dropdown>
-    </Dropdown.Menu>
+      {unseen.length > 0 ? (
+        <p className="request-number number">{unseen}</p>
+      ) : null}
+    </React.Fragment>
   );
 };
 

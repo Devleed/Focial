@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { findPost } from '../../../helpers';
 import Loader from '../../Loader';
 import Navbar from '../../Navbar';
+import { DESTROY_POST } from '../../../helpers/actionTypes';
 
 const PostDisplay = props => {
   const dispatch = useDispatch();
@@ -15,6 +16,9 @@ const PostDisplay = props => {
     (() => {
       dispatch(findPost(props.match.params.id));
     })();
+    return () => {
+      dispatch({ type: DESTROY_POST });
+    };
   }, [dispatch, props.match.params.id]);
 
   const renderPage = () => {

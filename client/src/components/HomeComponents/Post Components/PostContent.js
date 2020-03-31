@@ -7,8 +7,9 @@ import { DELETING } from '../../../helpers/actionTypes';
 import PostBody from './PostBody';
 import PostHead from './PostHead';
 import { NavLink } from 'react-router-dom';
+import DeletePost from './DeletePost';
 
-const PostContent = ({ post }) => {
+const PostContent = ({ post, renderBody }) => {
   const [editing, setEditing] = useState(null);
   const userLoggedIn = useSelector(({ auth }) => auth.user);
   const dispatch = useDispatch();
@@ -20,20 +21,7 @@ const PostContent = ({ post }) => {
           <Icon name="edit" />
           Edit
         </Dropdown.Item>
-        <Dropdown.Item
-          onClick={() => {
-            dispatch({ type: DELETING, payload: true });
-            dispatch(
-              deletePost(
-                post._id,
-                post.post_image ? post.post_image.public_id : 'none'
-              )
-            );
-          }}
-        >
-          <Icon name="delete" />
-          Delete
-        </Dropdown.Item>
+        <DeletePost />
       </React.Fragment>
     );
     if (post.share_author) {
@@ -81,6 +69,8 @@ const PostContent = ({ post }) => {
         id={post._id}
         editing={editing}
         setEditing={setEditing}
+        scrapedData={post.scrapedData}
+        renderBody={renderBody}
       />
       {post.share_author ? (
         <div className="post_share-info">
@@ -95,7 +85,7 @@ const PostContent = ({ post }) => {
               post.post_image ? 'post_content-long' : null
             }`}
           >
-            {post.body}
+            {renderBody(post.body, post.scrapedData)}
           </div>
         </div>
       ) : null}

@@ -65,9 +65,7 @@ const Login = props => {
           onSubmit={props.handleSubmit(onFormSubmit)}
           className="formStyle"
         >
-          <Header as="h1" style={{ fontFamily: "'Noto Sans JP', sans-serif" }}>
-            Login
-          </Header>
+          <h1>Login</h1>
           <Form.Field>
             <Field
               name="email"

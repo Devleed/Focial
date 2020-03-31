@@ -15,7 +15,6 @@ import {
   REQUEST_SENT,
   USER_LOADING,
   VISITED_USER,
-  LOADING,
   GET_POST,
   CREATE_POST,
   LIKE_POST,
@@ -36,8 +35,40 @@ import {
   UPDATE_PROFILE,
   GET_FRIENDS,
   GET_NOTIFICATION,
-  SELECTED_POST
+  SELECTED_POST,
+  OPEN_NOTIFICATION
 } from './actionTypes';
+
+export const requestSeen = () => async (dispatch, getState) => {
+  try {
+    const { data } = await Axios.get(
+      '/api/request/seen',
+      getConfig(getState().auth.token)
+    );
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+export const notificationSeen = () => async (dispatch, getState) => {
+  try {
+    const { data } = await Axios.get(
+      '/api/notification/seen',
+      getConfig(getState().auth.token)
+    );
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+export const notificationOpened = id => async dispatch => {
+  try {
+    const { data } = await Axios.patch(`/api/notification/opened/${id}`);
+    dispatch({ type: OPEN_NOTIFICATION, payload: data });
+  } catch (err) {
+    console.error(err);
+  }
+};
 
 export const findPost = id => async dispatch => {
   try {
@@ -127,9 +158,16 @@ export const sharePost = (id, body) => async (dispatch, getState) => {
       { postContent: body },
       getConfig(getState().auth.token)
     );
-    console.log(data);
+
     dispatch({ type: SHARE_POST, payload: data });
     dispatch({ type: SHARING, payload: false });
+    const opts = {
+      id,
+      type: 'share',
+      content: 'shared your post',
+      token: getState().auth.token
+    };
+    await createNotification(opts);
   } catch (err) {
     console.error(err);
   }
@@ -137,7 +175,6 @@ export const sharePost = (id, body) => async (dispatch, getState) => {
 
 export const loadComments = (id, setCommentLoading) => async dispatch => {
   try {
-    console.log('ran');
     const { data } = await Axios.get(`/api/post/comment/${id}`);
     setCommentLoading(false);
     dispatch({ type: COMMENT_LOADED, payload: data });
@@ -168,7 +205,7 @@ export const commentPost = (id, comment) => async (dispatch, getState) => {
 
 export const unlikePost = id => async (dispatch, getState) => {
   try {
-    const { data } = await Axios.get(
+    const { data } = await Axios.put(
       `/api/post/unlike/${id}`,
       getConfig(getState().auth.token)
     );
@@ -180,7 +217,7 @@ export const unlikePost = id => async (dispatch, getState) => {
 
 export const likePost = (id, notify) => async (dispatch, getState) => {
   try {
-    const { data } = await Axios.get(
+    const { data } = await Axios.put(
       `/api/post/like/${id}`,
       getConfig(getState().auth.token)
     );
@@ -224,7 +261,6 @@ export const deletePost = (id, image_id) => async (dispatch, getState) => {
       `/api/post/${id}/${image_id}`,
       getConfig(getState().auth.token)
     );
-    console.log(data);
     dispatch({ type: DELETING, payload: false });
     dispatch({ type: DELETE_POST, payload: data });
   } catch (err) {
@@ -258,10 +294,10 @@ export const createPost = ({ postField, postImageField }) => async (
   }
 };
 
-export const getPost = () => async (dispatch, getState) => {
+export const getPost = (skip = 0, limit = 10) => async (dispatch, getState) => {
   try {
     const { data } = await Axios.get(
-      '/api/post',
+      `/api/post/getPosts/${limit}/${skip}`,
       getConfig(getState().auth.token)
     );
     dispatch({ type: GET_POST, payload: data });
@@ -306,8 +342,8 @@ export const checkRequest = () => async (dispatch, getState) => {
       '/api/request',
       getConfig(getState().auth.token)
     );
-    dispatch({ type: REQUEST_RECIEVED, payload: data.requestRecieved });
-    dispatch({ type: REQUEST_SENT, payload: data.requestSent });
+    dispatch({ type: REQUEST_RECIEVED, payload: data.recieved });
+    dispatch({ type: REQUEST_SENT, payload: data.sent });
   } catch (err) {
     console.log(err.response);
     // dispatch(
@@ -316,16 +352,9 @@ export const checkRequest = () => async (dispatch, getState) => {
   }
 };
 
-export const rejectRequest = (
-  visitedUserID,
-  loggedUserID,
-  setLoading
-) => async dispatch => {
+export const rejectRequest = (id, setLoading) => async dispatch => {
   try {
-    const { data } = await Axios.post('/api/request/rejected', {
-      visitedUserID,
-      loggedUserID
-    });
+    const { data } = await Axios.delete(`/api/request/rejected/${id}`);
     dispatch(loadUser());
     dispatch({ type: REQUEST_REJECTED, payload: data });
     setLoading(false);
@@ -335,16 +364,9 @@ export const rejectRequest = (
   }
 };
 
-export const acceptRequest = (
-  visitedUserID,
-  loggedUserID,
-  setLoading
-) => async dispatch => {
+export const acceptRequest = (id, setLoading) => async dispatch => {
   try {
-    const { data } = await Axios.post('/api/request/accepted', {
-      visitedUserID,
-      loggedUserID
-    });
+    const { data } = await Axios.patch(`/api/request/accepted/${id}`);
     dispatch(loadUser());
     dispatch({ type: REQUEST_ACCEPTED, payload: data });
     setLoading(false);
@@ -377,16 +399,9 @@ export const sendRequest = (
   }
 };
 
-export const deleteRequest = (
-  visitedUserID,
-  loggedUserID,
-  setLoading
-) => async dispatch => {
+export const deleteRequest = (id, setLoading) => async dispatch => {
   try {
-    const { data } = await Axios.post('/api/request/cancel', {
-      visitedUserID,
-      loggedUserID
-    });
+    const { data } = await Axios.delete(`/api/request/cancel/${id}`);
     dispatch({ type: CANCEL_REQUEST, payload: data });
     setLoading(false);
   } catch (err) {
@@ -425,10 +440,6 @@ export const registerUser = (
       password
     });
     dispatch({ type: REGISTER_SUCCESS, payload: res.data });
-    dispatch({ type: POST_LOADING, payload: true });
-    dispatch(getPost());
-    dispatch(checkRequest());
-    dispatch(getNotification());
     redirect('/');
   } catch (err) {
     if (err)
@@ -447,12 +458,8 @@ export const loadUser = () => async (dispatch, getState) => {
       '/api/user',
       getConfig(getState().auth.token)
     );
-    dispatch({ type: POST_LOADING, payload: true });
-    dispatch(getPost());
     dispatch({ type: LOAD_USER, payload: data });
     dispatch({ type: USER_LOADING, payload: false });
-    dispatch(checkRequest());
-    dispatch(getNotification());
   } catch (err) {
     dispatch({ type: USER_LOADING, payload: false });
     dispatch({ type: USER_LOAD_FAIL });
@@ -470,10 +477,6 @@ export const loginUser = (
   try {
     const res = await Axios.post('/api/user/login', { email, password });
     dispatch({ type: LOGIN_SUCCESS, payload: res.data });
-    dispatch({ type: POST_LOADING, payload: true });
-    dispatch(getPost());
-    dispatch(checkRequest());
-    dispatch(getNotification());
     dispatch(clearError());
     history.push('/');
   } catch (err) {
@@ -553,14 +556,13 @@ const getConfig = token => {
 };
 
 export const calculateDate = date => {
-  let dateNow = new Date(Date.now());
+  let dateNow = Date.now();
   let time, form;
-  time = (dateNow - new Date(date)) / 1000;
-  console.log(time);
+  time = (dateNow - date) / 1000;
   form = 'seconds';
   if (time > 60) {
     time = time / 60;
-    form = 'minutes';
+    form = 'minutes ago';
   }
   if (time > 60) {
     time = time / 60;

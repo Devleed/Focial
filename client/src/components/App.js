@@ -24,16 +24,7 @@ const App = () => {
     (async () => {
       dispatch({ type: USER_LOADING, payload: true });
       dispatch(loadUser());
-      let body = document.querySelector('body');
-      bodyInterval = setInterval(() => {
-        body.style.backgroundColor = `rgb(${Math.floor(
-          Math.random() * 255
-        )}, ${Math.floor(Math.random() * 255)}, ${Math.floor(
-          Math.random() * 255
-        )})`;
-      }, 2000);
     })();
-    () => clearInterval(bodyInterval);
   }, [dispatch]);
 
   return (

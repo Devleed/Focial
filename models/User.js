@@ -19,13 +19,11 @@ const userSchema = new mongoose.Schema({
     required: true,
     default: Date.now()
   },
-  friends: {
-    type: Array,
-    default: []
-  },
+  friends: [{ type: mongoose.Types.ObjectId, ref: 'user', required: true }],
   profile_picture: {
     type: String,
-    default: ''
+    default:
+      'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'
   },
   passwordResetToken: {
     type: String,

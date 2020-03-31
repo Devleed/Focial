@@ -9,8 +9,9 @@ import {
 } from '../helpers/actionTypes';
 
 const INITIAL_STATE = {
-  requestsRecieved: [],
-  requestsSent: []
+  recieved: [],
+  sent: [],
+  opened: null
 };
 
 export default (state = INITIAL_STATE, action) => {
@@ -18,31 +19,29 @@ export default (state = INITIAL_STATE, action) => {
     case SEND_REQUEST:
       return {
         ...state,
-        requestsSent: [...state.requestsSent, action.payload]
+        sent: [...state.sent, action.payload]
       };
     case REQUEST_RECIEVED:
-      return { ...state, requestsRecieved: action.payload };
+      return { ...state, recieved: action.payload };
     case REQUEST_SENT:
-      return { ...state, requestsSent: action.payload };
+      return { ...state, sent: action.payload };
     case REQUEST_ACCEPTED:
     case REQUEST_REJECTED:
       return {
         ...state,
-        requestsRecieved: state.requestsRecieved.filter(
+        recieved: state.recieved.filter(
           request => request._id !== action.payload._id
         )
       };
     case CANCEL_REQUEST:
       return {
         ...state,
-        requestsSent: state.requestsSent.filter(
-          request => request._id !== action.payload._id
-        )
+        sent: state.sent.filter(request => request._id !== action.payload._id)
       };
     case RESET_REQUESTS:
       return {
-        requestsRecieved: [],
-        requestsSent: []
+        recieved: [],
+        sent: []
       };
     default:
       return state;

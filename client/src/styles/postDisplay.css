@@ -1,0 +1,355 @@
+.post_display {
+  /* margin: 100px; */
+  width: 500px;
+  min-height: 165px;
+  background-color: var(--web-splash);
+  border-radius: 10px;
+  color: var(--text-color);
+  /* box-shadow: 10px 10px 60px 8px black; */
+  margin-top: 10px;
+}
+.post_display *,
+.modal-content * {
+  line-height: 1rem;
+}
+.post_head > img {
+  width: 33px;
+  height: 33px;
+  border: 1px solid var(--text-color);
+  border-radius: 50%;
+}
+.post_head {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+}
+.post_head p {
+  margin: 0;
+}
+.post_head a {
+  color: var(--text-color);
+}
+.post_meta {
+  margin-left: 10px;
+  flex: 4;
+}
+.post_meta > p {
+  font-size: 14px;
+}
+.post_meta > span {
+  font-size: 9px;
+  color: var(--secondary);
+}
+.post_body {
+  font-size: 13px;
+}
+.post_content {
+  padding: 10px;
+}
+.post_image {
+  width: 100%;
+  height: auto;
+}
+.post_stats {
+  display: flex;
+  color: var(--secondary);
+  padding: 10px;
+  font-size: 13px;
+}
+.like_stats {
+  flex: 4;
+}
+.like_stats > i {
+  color: var(--primary);
+}
+.share_stats {
+  margin-left: 10px;
+}
+.post_action {
+  width: 90%;
+  margin: 0 auto;
+  display: flex;
+  color: var(--secondary);
+  padding-bottom: 20px;
+}
+.post_action > button {
+  border: none;
+  border-top: 1px solid var(--extra);
+  border-bottom: 1px solid var(--extra);
+  background: transparent;
+  color: inherit;
+  width: 50%;
+  display: flex;
+  justify-content: center;
+  padding: 8px 5px;
+  transition: all 0.1s ease 0s;
+  cursor: pointer;
+}
+.post_action i {
+  margin-right: 5px;
+}
+.post_action > button:hover {
+  background-color: var(--extra);
+}
+.like_button-active {
+  color: var(--primary) !important;
+}
+.share_info {
+  color: var(--text-color);
+  width: 85%;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid var(--extra);
+  border-radius: 10px;
+}
+.share_info a {
+  color: var(--text-color);
+  font-size: 14px;
+}
+.share_info > span {
+  font-size: 9px;
+  color: var(--secondary);
+}
+.share_body {
+  margin-top: 10px;
+}
+
+/* create post */
+.create_post {
+  width: 500px;
+  height: 50px;
+  background-color: var(--web-splash);
+  display: flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 10px;
+}
+.create_post > img {
+  width: 33px;
+  height: 33px;
+  border-radius: 50px;
+  margin-right: 10px;
+}
+.create_post > input {
+  padding: 8px 5px;
+  background-color: var(--extra);
+  border: none;
+  width: 100%;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.1s ease 0s;
+}
+.create_post > input:hover {
+  background-color: var(--extra);
+}
+
+/* create post - modal */
+.modal-content {
+  background-color: var(--web-splash);
+  color: var(--text-color);
+  width: 500px;
+  min-height: 500px;
+  margin: 50px auto;
+  border-radius: 10px;
+  position: relative;
+}
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 30px;
+  border-bottom: 1px solid var(--extra);
+  padding: 15px 0;
+}
+.modal-head > h3 {
+  margin: 0;
+  margin-left: 160px;
+}
+.small-picture-post {
+  width: 33px;
+  height: 33px;
+  border-radius: 50px;
+  margin-right: 10px;
+}
+.user_info {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--extra);
+  padding: 10px 0;
+  margin: 0 20px;
+}
+.create_info {
+  width: 100%;
+  height: 300px;
+  overflow: auto;
+}
+.create_post-field {
+  background-color: transparent;
+  resize: none;
+  width: 100%;
+  font-size: 20px;
+  border: none;
+  color: var(--text-color);
+  padding: 30px;
+}
+.create_post-field:focus {
+  outline: none;
+}
+.extra_options {
+  height: 30%;
+  margin: 0 30px;
+  border: 1px solid var(--extra);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+}
+.extra_options span {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  cursor: pointer;
+  transition: all 0.1s ease 0s;
+}
+.extra_options span:hover {
+  background-color: var(--extra);
+}
+.extra_options > *:not(:last-child) {
+  border-right: 1px solid var(--extra);
+}
+.extra_options span img {
+  margin-right: 10px;
+}
+.modal-bottom {
+  background-color: var(--web-splash);
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  padding: 20px 0;
+  margin: 0 20px;
+  border-top: 1px solid var(--extra);
+}
+.modal-bottom > button {
+  float: right;
+  border: none;
+  padding: 10px 20px;
+  color: white;
+  background-color: var(--primary);
+  border-radius: 5px;
+  width: 100%;
+  cursor: pointer;
+}
+[type='file'] {
+  height: 0;
+  overflow: hidden;
+  width: 0;
+}
+[type='file'] + label {
+  border: none;
+  background-color: inherit;
+  cursor: pointer;
+  outline: none;
+  position: relative;
+  transition: all 0.3s;
+  vertical-align: middle;
+  margin-left: 10px;
+}
+.image_preview {
+  width: 92%;
+  height: 300px;
+  padding: 20px;
+  position: relative;
+}
+.image_preview > img {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+}
+.image_preview button {
+  position: absolute;
+  top: 52px;
+  right: 15px;
+  transform: translate(-50%, -50%);
+  background-color: var(--web-splash);
+  color: var(--text-color);
+  font-size: 13px;
+  padding: 12px;
+  border: none;
+  cursor: pointer;
+  border-radius: 50px;
+  text-align: center;
+}
+
+/* comment Section*/
+.comments_section {
+  padding: 310px;
+}
+.comment_display {
+  padding: 10px 20px;
+  display: flex;
+}
+.small-img {
+  width: 33px;
+  height: 33px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+.comment_display > i {
+  color: var(--secondary);
+  align-self: center;
+  margin-left: 10px;
+}
+.comment_content {
+  background-color: var(--extra);
+  padding: 10px;
+  border-radius: 10px;
+  letter-spacing: 0.5px;
+  font-size: 11px;
+}
+.comment_content > p {
+  padding-top: 7px;
+}
+.comment_content > a {
+  color: var(--text-color);
+}
+.comment_content > a:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+.comment_form {
+  padding: 10px 20px;
+}
+.comment_field {
+  display: flex;
+}
+.comment_field > div textarea {
+  border: none;
+  width: 330px;
+  padding: 10px;
+  color: var(--text-color);
+  font-size: 13px;
+  border-radius: 20px;
+  cursor: text;
+  height: auto;
+  overflow: hidden;
+  background: transparent;
+}
+.comment_field > div textarea:focus {
+  outline: none;
+}
+.comment_field > div {
+  background-color: var(--extra);
+  border-radius: 20px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+.comment_field > div i {
+  margin-right: 8px;
+  color: var(--secondary);
+}
+.nocomment_text {
+  text-align: center;
+  letter-spacing: 2px;
+  color: var(--text-color);
+}

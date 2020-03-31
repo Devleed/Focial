@@ -81,10 +81,12 @@ const Navbar = () => {
         )}
         {user.name}
       </NavLink>
-      <NotificationManager />
-      <Dropdown icon="facebook messenger"></Dropdown>
-      <RequestManager style={{ position: 'relative' }} />
-      <Dropdown icon="cog"></Dropdown>
+      <div className="stuff" style={{ position: 'relative' }}>
+        <NotificationManager />
+        <Dropdown icon="facebook messenger"></Dropdown>
+        <RequestManager style={{ position: 'relative' }} />
+        <Dropdown icon="cog"></Dropdown>
+      </div>
       <div className="auth_buttons" style={{ float: 'right' }}>
         {renderAuthButtons()}
       </div>

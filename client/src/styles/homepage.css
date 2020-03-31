@@ -1,40 +1,12 @@
 .cover {
   display: grid;
-  grid-template-columns: 1fr 3fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   grid-template-areas: 'lside postarea rside';
   gap: 0.3rem;
   align-items: flex-start;
 }
-.cover > div {
+.cover > div:not(.left-sidebar) {
   padding: 1rem;
-}
-.left_sidebar {
-  background-color: white;
-  grid-area: lside;
-  /* min-height: 00px; */
-  /* position: fixed; */
-  /* height: 800px !important; */
-  /* width: 100%; */
-  /* box-shadow: var(--div-shadows); */
-}
-.left_sidebar-options li {
-  padding: 5px 20px 5px 10px;
-  list-style-type: none;
-  transition: all 0.3s ease 0s;
-  cursor: pointer;
-  color: #343434;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  text-transform: capitalize;
-}
-.left_sidebar-options li > div,
-.left_sidebar-options li > i {
-  margin-right: 10px;
-}
-.left_sidebar-options li:hover {
-  background-color: #e6e6e6;
-  color: black;
 }
 .post_area {
   grid-area: postarea;
@@ -88,7 +60,7 @@
 }
 .right_sidebar {
   grid-area: rside;
-  background-color: white;
+  background-color: var(--web-splash);
   position: fixed;
   width: 14%;
   right: 13%;
@@ -120,9 +92,6 @@
   width: 6px;
   background-color: greenyellow;
   border-radius: 60%;
-}
-.all-posts > div {
-  /* box-shadow: var(--div-shadows); */
 }
 .friends_section,
 .photos_section {
@@ -163,4 +132,15 @@
 .notification_item > span > span {
   font-size: 12px;
   color: gray;
+}
+.unread .unread-alert {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  position: absolute;
+  right: 20px;
+}
+.unread > span > span {
+  color: var(--primary-color);
 }

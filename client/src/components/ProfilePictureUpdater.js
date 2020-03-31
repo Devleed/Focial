@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { updateProfilePicture } from '../helpers';
 import Modal from './HomeComponents/Modal';
 import { Icon, Button } from 'semantic-ui-react';
+import ModalHead from './ModalHead';
 
 const ProfilePictureUpdater = ({ user }) => {
   const loggedInUser = useSelector(({ auth }) => auth.user);
@@ -25,13 +26,6 @@ const ProfilePictureUpdater = ({ user }) => {
     }
   };
 
-  const cancel = e => {
-    e.stopPropagation();
-    setPreview(null);
-    setFile(null);
-    setShowModal(false);
-  };
-
   const afterUpload = () => {
     setPreview(null);
     setFile(null);
@@ -49,11 +43,8 @@ const ProfilePictureUpdater = ({ user }) => {
       return (
         <React.Fragment>
           <Modal show={showModal} setShowModal={setShowModal}>
-            <div className="modal-content" style={{ width: '50%' }}>
-              <div className="head">
-                Update Profile Picture
-                <Icon name="cancel" onClick={() => setShowModal(false)} />
-              </div>
+            <div className="modal-content">
+              <ModalHead heading="Update" cb={setShowModal} />
               <div className="image_upload-content">
                 <div className="image-upload">
                   <label
@@ -78,25 +69,12 @@ const ProfilePictureUpdater = ({ user }) => {
                 <div>Show The World How Beautiful you are</div>
               </div>
               {preview ? (
-                <>
-                  <div className="image_preview">
-                    <img src={preview} />
+                <React.Fragment>
+                  <img src={preview} className="image_preview" />
+                  <div className="modal-bottom">
+                    <button onClick={onPictureChange}>Update</button>
                   </div>
-                  <div className="bottom">
-                    {/* <button onClick={onPictureChange}>Save</button> */}
-                    <Button
-                      floated="right"
-                      loading={loading}
-                      onClick={onPictureChange}
-                      primary
-                    >
-                      save
-                    </Button>
-                    <Button floated="right" negative onClick={cancel}>
-                      cancel
-                    </Button>
-                  </div>
-                </>
+                </React.Fragment>
               ) : null}
             </div>
           </Modal>

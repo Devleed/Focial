@@ -4,22 +4,27 @@
   width: 40%;
   padding: 2.5rem;
   margin-top: 6rem;
-  box-shadow: var(--div-shadows);
-  background-color: white;
+  background-color: var(--web-splash);
+  color: var(--text-color);
 }
-
+.formStyle input {
+  background-color: var(--splash) !important;
+  color: var(--text-color) !important;
+  border: none !important;
+}
+.formStyle input:focus,
+.formStyle input:active {
+  background-color: var(--splash) !important;
+}
 .authLinkStyle {
-  color: var(--primary-color);
+  color: var(--primary);
   padding: 0.2rem;
   transition: all 0.5s ease 0s;
   border: none;
-  background-color: white;
+  background-color: var(--web-splash);
   cursor: pointer;
 }
 
-.authLinkStyle:hover {
-  background-color: #d9e6ffc1;
-}
 .auth_div {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -33,7 +38,7 @@
 .auth_div > h1 {
   font-size: 6rem;
   line-height: 0.8;
-  color: white;
+  color: var(--text-color);
   font-weight: 900;
 }
 .auth_div form {

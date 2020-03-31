@@ -1,6 +1,8 @@
 const User = require('../models/User');
+const mongoose = require('mongoose');
 
 const helpers = {
+  getObjectId: str => mongoose.Types.ObjectId(str),
   findUser: async (obj, id, propName) => {
     const author = await User.findById(id)
       .select('name profile_picture')

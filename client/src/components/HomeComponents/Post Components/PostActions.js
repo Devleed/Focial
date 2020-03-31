@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Icon } from 'semantic-ui-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { reduxForm, Field, reset } from 'redux-form';
@@ -13,19 +13,26 @@ const renderField = ({ input }) => {
   return <input {...input} placeholder="write a comment..." />;
 };
 
-const PostActions = ({ post, handleSubmit, commentSection }) => {
+const PostActions = ({ post, handleSubmit, commentSection, renderBody }) => {
   const user = useSelector(({ auth }) => auth.user);
   const [showInput, setShowInput] = useState(false);
   const [commentLoading, setCommentLoading] = useState(null);
   const [buttonDisabled, setButtonDisabled] = useState(false);
+  const [value, setValue] = useState('');
+  const [scrollHeight, setScrollHeight] = useState(34);
+  let [rows, setRows] = useState(1);
+  const textRef = useRef(null);
   const dispatch = useDispatch();
 
-  const onFormSubmit = commentField => {
-    dispatch(commentPost(post._id, commentField[`comment${post._id}`]));
+  const onFormSubmit = e => {
+    e.preventDefault();
+    dispatch(commentPost(post._id, value));
     dispatch({
       type: UPDATE_STATS,
       payload: { id: post._id, stats: { comments: ++post.stats.comments } }
     });
+    setValue('');
+    setRows(1);
   };
 
   const loadPostComments = () => {
@@ -43,30 +50,45 @@ const PostActions = ({ post, handleSubmit, commentSection }) => {
     if (showInput) {
       return (
         <React.Fragment>
-          <div className="post-comments_section">
+          <div className="comment_section">
             <PostComments
               comments={post.comments}
-              id={post._id}
               loading={commentLoading}
               stats={post.stats.comments}
             />
           </div>
-          <form
-            className="post_comment-form"
-            onSubmit={handleSubmit(onFormSubmit)}
-          >
-            {user.profile_picture ? (
-              <div className="post_author-dp">
-                <img src={user.profile_picture} />
+          <div className="comment_form">
+            <form onSubmit={e => onFormSubmit(e)}>
+              <div className="comment_field">
+                <img className="small-img" src={user.profile_picture} />
+                <div>
+                  <textarea
+                    ref={textRef}
+                    value={value}
+                    onChange={e => {
+                      setValue(e.target.value);
+                      if (scrollHeight < textRef.current.scrollHeight) {
+                        setScrollHeight(textRef.current.scrollHeight);
+                        setRows(++rows);
+                      }
+                      if (e.target.value === '') setRows(1);
+                    }}
+                    onKeyDown={e => {
+                      if (e.keyCode === 13 && e.shiftKey === false) {
+                        e.preventDefault();
+                        onFormSubmit(e);
+                      }
+                    }}
+                    rows={rows}
+                    placeholder="Write a comment..."
+                  ></textarea>
+                  <Icon name="globe" />
+                  <Icon name="camera retro" />
+                  <Icon name="image outline" />
+                </div>
               </div>
-            ) : (
-              <Icon name="user" size="large" color="grey" />
-            )}
-            <Field name={`comment${post._id}`} component={renderField} />
-            <button>
-              <Icon name="send" />
-            </button>
-          </form>
+            </form>
+          </div>
         </React.Fragment>
       );
     }
@@ -74,30 +96,19 @@ const PostActions = ({ post, handleSubmit, commentSection }) => {
   };
   return (
     <React.Fragment>
-      <div className="post_actions">
-        <LikePost
-          likes={post.likes}
-          author={post.share_author ? post.share_author._id : post.author._id}
-          id={post._id}
-        />
+      <div className="post_action">
+        <LikePost likes={post.likes} id={post._id} author={post.author._id} />
         <button
+          className="comment_button"
           disabled={buttonDisabled}
-          className="post_actions-button"
           onClick={loadPostComments}
         >
           <Icon name="comment outline" />
-          Comment
+          <p>comment</p>
         </button>
-        <SharePost
-          image={post.post_image}
-          id={post._id}
-          author={post.author}
-          date_created={post.date_created}
-          body={post.body}
-          shares={post.stats.shares}
-        />
+        <SharePost post={post} />
       </div>
-      <div className="post_comment-section">{renderCommentSection()}</div>
+      {renderCommentSection()}
     </React.Fragment>
   );
 };

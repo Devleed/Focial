@@ -37,7 +37,7 @@ const ProfileDisplay = props => {
   }, [dispatch, props.match.params.id]);
 
   if (!isLoggedIn) {
-    return <Redirect to={{ pathname: '/login' }} />;
+    return <Redirect to={{ pathname: '/auth' }} />;
   }
 
   const displayContent = () => {

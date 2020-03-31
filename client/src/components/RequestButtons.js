@@ -16,12 +16,23 @@ const RequestButtons = ({ user, float }) => {
   const requests = useSelector(({ requests }) => requests);
   const [loading, setLoading] = useState(false);
 
-  const requestsSent = requests.requestsSent.map(
-    request => request.reciever._id
-  );
-  const requestsRecieved = requests.requestsRecieved.map(
-    request => request.sender._id
-  );
+  let selectedRequest;
+
+  const checkStatus = id => {
+    const sent = requests.sent.filter(request => request.reciever._id === id);
+    const recieved = requests.recieved.filter(
+      request => request.sender._id === id
+    );
+    if (sent.length > 0) {
+      selectedRequest = sent[0];
+      return { sent: 1 };
+    }
+    if (recieved.length > 0) {
+      selectedRequest = recieved[0];
+      return { recieved: 1 };
+    }
+    return {};
+  };
 
   let buttonFloatProp = {};
   if (float) buttonFloatProp.floated = float;
@@ -46,13 +57,13 @@ const RequestButtons = ({ user, float }) => {
           Unfriend
         </Button>
       );
-    } else if (requestsSent.includes(user._id)) {
+    } else if (checkStatus(user._id).sent) {
       return (
         <Button
           {...buttonFloatProp}
           onClick={() => {
             setLoading(true);
-            dispatch(deleteRequest(user._id, loggedInUser._id, setLoading));
+            dispatch(deleteRequest(selectedRequest._id, setLoading));
           }}
           negative
           loading={loading}
@@ -60,7 +71,7 @@ const RequestButtons = ({ user, float }) => {
           Cancel Request
         </Button>
       );
-    } else if (requestsRecieved.includes(user._id)) {
+    } else if (checkStatus(user._id).recieved) {
       return (
         <React.Fragment>
           <Button
@@ -68,7 +79,7 @@ const RequestButtons = ({ user, float }) => {
             negative
             onClick={() => {
               setLoading(true);
-              dispatch(rejectRequest(user._id, loggedInUser._id, setLoading));
+              dispatch(rejectRequest(selectedRequest._id, setLoading));
             }}
             loading={loading}
           >
@@ -79,7 +90,7 @@ const RequestButtons = ({ user, float }) => {
             primary
             onClick={() => {
               setLoading(true);
-              dispatch(acceptRequest(user._id, loggedInUser._id, setLoading));
+              dispatch(acceptRequest(selectedRequest._id, setLoading));
             }}
             loading={loading}
           >

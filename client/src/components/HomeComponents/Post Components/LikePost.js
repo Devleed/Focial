@@ -31,9 +31,9 @@ const LikePost = props => {
 
   return (
     <button
-      className={`post_actions-button ${
-        props.likes.includes(userLoggedIn) || activeButton
-          ? 'post_actions-button-active'
+      className={`like_button ${
+        activeButton || props.likes.includes(userLoggedIn)
+          ? 'like_button-active'
           : ''
       }`}
       onClick={
@@ -41,7 +41,7 @@ const LikePost = props => {
       }
     >
       <Icon name="thumbs up outline" />
-      Like
+      <p>like</p>
     </button>
   );
 };

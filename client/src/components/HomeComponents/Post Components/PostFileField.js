@@ -22,12 +22,11 @@ const FieldFileInput = props => {
         accept=".jpg, .png, .jpeg"
         onChange={onChange}
       />
-      <label
-        onClick={e => e.stopPropagation()}
-        htmlFor="file"
-        className="btn-2"
-      >
-        <Icon name="images outline" />
+      <label onClick={e => e.stopPropagation()} htmlFor="file">
+        <span>
+          <img src="https://static.xx.fbcdn.net/rsrc.php/v3/yA/r/6C1aT2Hm3x-.png" />
+          <p>Photo / video</p>
+        </span>
       </label>
     </React.Fragment>
   );

@@ -2,110 +2,91 @@ import React, { useState } from 'react';
 import { Field, reduxForm } from 'redux-form';
 import { useDispatch } from 'react-redux';
 import { Button, Icon } from 'semantic-ui-react';
-import { editPost } from '../../../helpers';
+import { editPost, calculateDate } from '../../../helpers';
 import Modal from '../Modal';
+import { NavLink } from 'react-router-dom';
 
-const renderInput = ({ input, placeholder }) => {
-  return <textarea {...input} value={placeholder} autoFocus />;
-};
+const PostBody = ({ post }) => {
+  let shared,
+    image,
+    body = post.body;
 
-const PostBody = props => {
-  const [initialValue, setInitialValue] = useState(props.body);
-  const [loading, setLoading] = useState(false);
-  const [showModal, setShowModal] = useState(null);
-  const dispatch = useDispatch();
-
-  const onFormSubmit = values => {
-    setLoading(true);
-    dispatch(
-      editPost(
-        props.id,
-        values[`postBody${props.id}`],
-        props.setEditing,
-        setLoading
-      )
-    );
+  const textStyle = {
+    fontSize: '24px'
   };
 
-  const editForm = () => {
-    return (
-      <form onSubmit={props.handleSubmit(onFormSubmit)}>
-        <Icon
-          name="cancel"
-          style={{ float: 'right' }}
-          size="small"
-          onClick={() => props.setEditing(false)}
-        />
-        <Field
-          name={`postBody${props.id}`}
-          placeholder={initialValue}
-          onChange={e => setInitialValue(e.target.value)}
-          component={renderInput}
-        />
-        <Button loading={loading} primary type="submit">
-          Save
-        </Button>
-      </form>
-    );
-  };
+  if (post.date_shared) {
+    shared = true;
+    textStyle.fontSize = '12px';
+    if (post.post) {
+      body = post.post.body;
+      if (post.post.post_image || post.post.body.length > 200) {
+        image = post.post.post_image;
+      }
+    }
+  } else if (post.post_image || post.body.length > 200) {
+    image = post.post_image;
+    textStyle.fontSize = '12px';
+  }
 
-  const renderBody = text => {
-    let urlRegex = /(https?:\/\/[^\s]+)/g;
-    return text.split(urlRegex).map((t, index) => {
-      if (!t.match(urlRegex)) return t;
-      return (
-        <a key={index} href={t} target="_blank" style={{ color: '#008ecc' }}>
-          {t}
-        </a>
-      );
-    });
-  };
-
-  console.log(renderBody(props.body));
-
-  const displayBody = () => {
-    if (props.image) {
-      return (
-        <React.Fragment>
-          <Modal show={showModal} setShowModal={setShowModal}>
-            <div
-              className="modal-content image_modal"
-              style={{
-                width: `${props.image.width / 1.3}px`,
-                height: `${props.image.height / 1.3}px`
-              }}
-            >
-              <img src={props.image.url} className="post_image-modal" />
-              <Icon name="options" className="options_icon" />
-            </div>
-          </Modal>
-          <div className="post_content-image">
-            {props.editing ? (
-              <div className="post_content">{editForm()}</div>
-            ) : (
-              <div className="post_image-info">{props.body}</div>
-            )}
-            <img
-              src={props.image.url}
-              className="post_image"
-              onClick={() => setShowModal(true)}
-            />
-          </div>
-        </React.Fragment>
-      );
-    } else
+  const renderShareInfo = () => {
+    if (shared) {
       return (
         <div
-          className={`post_content ${
-            props.body.length > 100 || props.shared ? 'post_content-long' : ''
-          }`}
+          className="share_info"
+          style={{
+            borderTop: image ? 'none' : '1px solid var(--extra)'
+          }}
         >
-          {props.editing ? editForm() : renderBody(props.body)}
+          {!post.post ? (
+            <React.Fragment>
+              <h3>This post was deleted</h3>
+              <p>
+                for any inconvenience do report us at{' '}
+                <a href="google.com" target="_black">
+                  Google
+                </a>
+              </p>
+            </React.Fragment>
+          ) : (
+            <React.Fragment>
+              <div className="post_head" style={{ padding: 0 }}>
+                {image ? null : (
+                  <img
+                    className="small-picture-post"
+                    src={post.post.author.profile_picture}
+                  />
+                )}
+                <div className="post_meta" style={{ margin: 0 }}>
+                  <strong>
+                    <NavLink to={`/user/${post.post.author._id}`}>
+                      {post.post.author.name}
+                    </NavLink>
+                  </strong>
+                  <br />
+                  <span>{calculateDate(post.post.date_created)}</span>
+                </div>
+              </div>
+              <div className="share_body">{body}</div>
+            </React.Fragment>
+          )}
         </div>
       );
+    }
+    return null;
   };
 
-  return displayBody();
+  return (
+    <React.Fragment>
+      <div className="post_body">
+        <div className="post_content">
+          <p style={textStyle}>{shared ? post.content : post.body}</p>
+        </div>
+        {image ? <img src={image.url} className="post_image" /> : null}
+      </div>
+      {renderShareInfo()}
+    </React.Fragment>
+  );
 };
 
 export default reduxForm({ form: 'post edit form' })(PostBody);

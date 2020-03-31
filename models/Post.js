@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 
 const postSchema = new mongoose.Schema({
   author: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'user',
     required: true
   },
   body: {
@@ -16,14 +17,15 @@ const postSchema = new mongoose.Schema({
     height: Number
   },
   date_created: {
-    type: Date,
+    type: Number,
     default: Date.now()
   },
   stats: {
     likes: { type: Number, default: 0 },
     comments: { type: Number, default: 0 },
     shares: { type: Number, default: 0 }
-  }
+  },
+  scrapedData: Object
 });
 
 module.exports = Post = mongoose.model('post', postSchema);

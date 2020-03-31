@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
 const shareSchema = new mongoose.Schema({
-  author: { type: String, required: true },
-  post: { type: String, required: true },
+  author: { type: mongoose.Types.ObjectId, ref: 'user', required: true },
+  post: { type: mongoose.Types.ObjectId, ref: 'post', required: true },
   content: { type: String, default: '' },
   stats: {
     likes: { type: Number, default: 0 },
@@ -12,4 +12,4 @@ const shareSchema = new mongoose.Schema({
   date_shared: { type: Date, default: Date.now() }
 });
 
-module.exports = PostShares = mongoose.model('shares', shareSchema);
+module.exports = PostShares = mongoose.model('post_shares', shareSchema);

@@ -1,42 +1,38 @@
-.lds-facebook {
-  display: inline-block;
+/* CSS for animated bouncing loader. */
+.loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   position: relative;
-  width: 80px;
-  height: 80px;
-  margin-top: 250px;
-  /* position: absolute;
-  top: 45%;
-  left: 45%;
-  transform: translate(-50%, -50%); */
+  top: 50%;
+  transform: translateY(-50%);
 }
-.lds-facebook div {
-  display: inline-block;
-  position: absolute;
-  left: 8px;
-  width: 16px;
-  background: white;
-  animation: lds-facebook 1.2s cubic-bezier(0, 0.5, 0.5, 1) infinite;
+
+/* Loader circles */
+.loader > span {
+  background: steelblue;
+  border-radius: 50%;
+  margin: 0.1rem 0.2rem;
+  animation: bouncingLoader 0.6s infinite alternate;
 }
-.lds-facebook div:nth-child(1) {
-  left: 8px;
-  animation-delay: -0.24s;
+
+.loader > span:nth-child(2) {
+  animation-delay: 0.2s;
 }
-.lds-facebook div:nth-child(2) {
-  left: 32px;
-  animation-delay: -0.12s;
+
+.loader > span:nth-child(3) {
+  animation-delay: 0.4s;
 }
-.lds-facebook div:nth-child(3) {
-  left: 56px;
-  animation-delay: 0;
-}
-@keyframes lds-facebook {
-  0% {
-    top: 8px;
-    height: 64px;
+
+/* Define the animation called bouncingLoader. */
+@keyframes bouncingLoader {
+  from {
+    width: 0.1rem;
+    height: 0.1rem;
   }
-  50%,
-  100% {
-    top: 24px;
-    height: 32px;
+  to {
+    width: 0.5rem;
+    height: 0.5rem;
+    background-color: #008ecc;
   }
 }

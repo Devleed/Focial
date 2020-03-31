@@ -1,18 +1,17 @@
 const mongoose = require('mongoose');
 
 const requestSchema = new mongoose.Schema({
-  senderID: {
-    type: String,
-    isRequired: true
+  sender: {
+    type: mongoose.Types.ObjectId,
+    ref: 'user',
+    required: true
   },
-  recieverID: {
-    type: String,
-    isRequired: true
+  reciever: {
+    type: mongoose.Types.ObjectId,
+    ref: 'user',
+    required: true
   },
-  status: {
-    type: Number,
-    isRequired: true
-  }
+  status: { type: Number, default: 0 }
 });
 
 module.exports = Request = mongoose.model('request', requestSchema);

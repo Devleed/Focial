@@ -1,6 +1,6 @@
 const express = require('express');
 const passport = require('passport');
-const { findUser } = require('../../helpers');
+const mongoose = require('mongoose');
 
 const router = express.Router();
 
@@ -12,25 +12,25 @@ router.use(express.json());
 
 router.post('/', async (req, res) => {
   try {
+    // find the reciever
     const user = await User.findById(req.body.visitedUserID).select(
       'name email profile_picture'
     );
+
+    // find the sender
     const loggedUser = await User.findById(req.body.loggedUserID).select(
       'name email profile_picture'
     );
+
+    // create request
     const request = new Request({
-      senderID: loggedUser.id,
-      recieverID: user.id,
+      sender: loggedUser.id,
+      reciever: user.id,
       status: 2
     });
-    let savedRequest = await request.save();
-    savedRequest = savedRequest.toObject();
+    const savedRequest = (await request.save()).toObject();
 
-    savedRequest = {
-      sender: loggedUser,
-      reciever: user
-    };
-
+    // send response
     res.json(savedRequest);
   } catch (err) {
     return res.status(500).json({ msg: 'server error, try again later' });
@@ -43,83 +43,99 @@ router.get(
   async (req, res) => {
     try {
       if (!req.user) return res.status(401).json({ msg: 'Unauthorized' });
-      let requestRecieved = await Request.find({
-        recieverID: req.user.id
-      }).lean();
-      let requestSent = await Request.find({ senderID: req.user.id }).lean();
 
-      requestRecieved = await Promise.all(
-        requestRecieved.map(async request => {
-          return await findUser(request, request.senderID, 'sender');
+      // const query = [
+      //   { $match: { reciever: mongoose.Types.ObjectId(req.user._id) } },
+      //   {
+      //     $lookup: {
+      //       from: 'user',
+      //       localField: 'sender',
+      //       foreignField: '_id',
+      //       as: 'senderDetails'
+      //     }
+      //   },
+      //   { $unwind: '$authorDetails' }
+      // ];
+      // let recieved = await Request.aggregate(query);
+      // console.log(recieved);
+      // res.json(recieved);
+
+      // find the requests sent or recieved
+      let requests = await Request.find({
+        $or: [
+          { reciever: mongoose.Types.ObjectId(req.user._id) },
+          { sender: mongoose.Types.ObjectId(req.user._id) }
+        ]
+      })
+        .populate('sender reciever', 'name profile_picture friends email', {
+          email: { $ne: req.user.email }
         })
-      );
-      requestSent = await Promise.all(
-        requestSent.map(async request => {
-          return await findUser(request, request.recieverID, 'reciever');
-        })
-      );
-      res.json({ requestRecieved, requestSent });
+        .lean();
+
+      res.json({
+        recieved: requests.filter(({ reciever }) => !reciever),
+        sent: requests.filter(({ sender }) => !sender)
+      });
     } catch (err) {
+      console.error(err);
       return res.status(500).json({ msg: 'server error, try again later' });
     }
   }
 );
 
-router.post('/accepted', async (req, res) => {
+router.patch('/accepted/:id', async (req, res) => {
   try {
-    const user = await User.findById(req.body.visitedUserID);
-    const loggedUser = await User.findById(req.body.loggedUserID);
+    // find and delete the request
+    const request = await Request.findByIdAndRemove(req.params.id, req.body);
 
-    user.friends.push(loggedUser.id);
-    loggedUser.friends.push(user.id);
+    // await User.update({
+    //   $or: [{ id: request.sender }, { id: request.reciever }]
+    // }, { $push: { friends}});
 
-    await user.save();
-    await loggedUser.save();
-
-    const request = await Request.findOne({
-      senderID: req.body.visitedUserID,
-      recieverID: req.body.loggedUserID
+    // modify user's friend list
+    await User.findByIdAndUpdate(request.sender, {
+      $push: { friends: mongoose.Types.ObjectId(request.reciever) }
     });
-    await Request.deleteOne({
-      senderID: req.body.visitedUserID,
-      recieverID: req.body.loggedUserID
+    await User.findByIdAndUpdate(request.reciever, {
+      $push: { friends: mongoose.Types.ObjectId(request.sender) }
     });
 
+    // send response back
     res.json(request);
   } catch (err) {
     return res.status(500).json({ msg: 'server error, try again later' });
   }
 });
 
-router.post('/rejected', async (req, res) => {
+router.delete('/rejected/:id', async (req, res) => {
   try {
-    const request = await Request.findOne({
-      senderID: req.body.visitedUserID,
-      recieverID: req.body.loggedUserID
-    });
-    await Request.deleteOne({
-      senderID: req.body.visitedUserID,
-      recieverID: req.body.loggedUserID
-    });
+    const request = await Request.findByIdAndRemove(req.params.id, req.body);
     res.json(request);
   } catch (err) {
     return res.status(500).json({ msg: 'server error, try again later' });
   }
 });
-router.post('/cancel', async (req, res) => {
+router.delete('/cancel/:id', async (req, res) => {
   try {
-    const request = await Request.findOne({
-      recieverID: req.body.visitedUserID,
-      senderID: req.body.loggedUserID
-    });
-    await Request.deleteOne({
-      recieverID: req.body.visitedUserID,
-      senderID: req.body.loggedUserID
-    });
+    const request = await Request.findByIdAndRemove(req.params.id, req.body);
     return res.json(request);
   } catch (err) {
     return res.status(500).json({ msg: 'server error, try again later' });
   }
 });
-
+router.get(
+  '/seen',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res) => {
+    try {
+      await Request.updateMany(
+        { reciever: mongoose.Types.ObjectId(req.user._id), status: 0 },
+        { $set: { status: 1 } }
+      );
+      res.json({ msg: 'success' });
+    } catch (err) {
+      console.error(err);
+    }
+  }
+);
 module.exports = router;

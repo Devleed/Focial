@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Login from './Login';
 import Register from './Register';
 
-const Auth = () => {
+const Auth = props => {
   const [login, setLogin] = useState(true);
 
   return (
@@ -15,7 +15,11 @@ const Auth = () => {
         Enjoy.
         <br />
       </h1>
-      {login ? <Login setLogin={setLogin} /> : <Register setLogin={setLogin} />}
+      {login ? (
+        <Login setLogin={setLogin} />
+      ) : (
+        <Register setLogin={setLogin} history={props.history} />
+      )}
     </div>
   );
 };

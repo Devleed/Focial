@@ -26,7 +26,14 @@ export default (state = INITIAL_STATE, action) => {
     case POST_LOADING:
       return { ...state, postLoading: action.payload };
     case GET_POST:
-      return { ...state, posts: action.payload };
+      let allPosts = [...state.posts, ...action.payload];
+      console.log(allPosts);
+      return {
+        ...state,
+        posts: Array.from(new Set(allPosts.map(post => post._id))).map(id =>
+          allPosts.find(post => post._id === id)
+        )
+      };
     case CREATE_POST:
       return { ...state, posts: [...state.posts, { ...action.payload }] };
     case COMMENT_POST:

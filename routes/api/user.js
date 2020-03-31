@@ -100,6 +100,7 @@ router.post('/register', async (req, res) => {
       res.json({
         token: `Bearer ${token}`,
         user: {
+          register_date: savedUser.register_date,
           friends: savedUser.friends,
           _id: savedUser.id,
           name: savedUser.name,
@@ -221,7 +222,7 @@ router.get('/', (req, res, next) => {
     async (err, user, info) => {
       if (err) return next(err);
       if (!user) return res.status(401).json({ msg: "your're not logged in" });
-      user.friends = await friendsFinder(user.friends);
+      // user.friends = await friendsFinder(user.friends);
       return res.json(user);
     }
   )(req, res, next);
@@ -237,18 +238,29 @@ router.get('/:id', async (req, res) => {
 
 router.post('/unfriend', async (req, res) => {
   try {
-    const visitedUser = await User.findById(req.body.visitedUserID);
-    const loggedUser = await User.findById(req.body.loggedUserID);
+    // const visitedUser = await User.findById(req.body.visitedUserID);
+    // const loggedUser = await User.findById(req.body.loggedUserID);
 
-    loggedUser.friends = loggedUser.friends.filter(
-      friend => friend !== req.body.visitedUserID
-    );
-    visitedUser.friends = visitedUser.friends.filter(
-      friend => friend !== req.body.loggedUserID
-    );
+    // loggedUser.friends = loggedUser.friends.filter(
+    //   friend => friend !== req.body.visitedUserID
+    // );
+    // visitedUser.friends = visitedUser.friends.filter(
+    //   friend => friend !== req.body.loggedUserID
+    // );
 
-    await loggedUser.save();
-    await visitedUser.save();
+    // await loggedUser.save();
+    // await visitedUser.save();
+
+    await User.findByIdAndUpdate(req.body.visitedUserID, {
+      $pull: {
+        friends: req.body.loggedUserID
+      }
+    });
+    await User.findByIdAndUpdate(req.body.loggedUserID, {
+      $pull: {
+        friends: req.body.visitedUserID
+      }
+    });
 
     return res.json({ msg: 'success' });
   } catch (err) {
@@ -261,14 +273,19 @@ router.put(
   passport.authenticate('jwt', { session: false }),
   async (req, res) => {
     try {
-      console.log(req.files.photo);
+      // upload image on server
       const { url } = await cloudinary.uploader.upload(
         req.files.photo.tempFilePath
       );
-      const user = await User.findById(req.user.id);
-      user.profile_picture = url;
-      const savedUser = await user.save();
-      res.json(savedUser);
+      // update user's profile picture
+      const user = await User.findByIdAndUpdate(
+        req.user._id,
+        {
+          $set: { profile_picture: url }
+        },
+        { new: true }
+      );
+      res.json(user);
     } catch (err) {
       console.error(err);
       res.status(500).json({ msg: 'internal server error' });

@@ -19,9 +19,11 @@ const SearchResults = props => {
   let _unmounted;
 
   useEffect(() => {
-    _unmounted = false;
-    if (!_unmounted) setLoading(true);
-    dispatch(searchUser(props.match.params.term, setLoading));
+    (() => {
+      _unmounted = false;
+      if (!_unmounted) setLoading(true);
+      dispatch(searchUser(props.match.params.term, setLoading));
+    })();
     return () => {
       _unmounted = true;
       dispatch({ type: RESET_RESULTS });
@@ -37,9 +39,10 @@ const SearchResults = props => {
   };
 
   const displayResults = () => {
-    return results.map(result => {
+    return results.map((result, i) => {
       return (
         <ProfileCards
+          key={i}
           user={result}
           mutualFriends={getMutualFriends(result.friends)}
           className="search_result-div"
@@ -48,7 +51,7 @@ const SearchResults = props => {
     });
   };
 
-  if (!loggedInUser) return <Redirect to={{ pathname: '/login' }} />;
+  if (!loggedInUser) return <Redirect to={{ pathname: '/auth' }} />;
   return (
     <div>
       <Navbar />

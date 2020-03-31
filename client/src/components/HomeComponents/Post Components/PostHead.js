@@ -1,39 +1,57 @@
 import React from 'react';
-import { Icon } from 'semantic-ui-react';
-import { Link } from 'react-router-dom';
-import { calculateDate } from '../../../helpers';
+import { Icon, Dropdown } from 'semantic-ui-react';
+import { NavLink } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
-const PostHead = ({
-  author,
-  author_name,
-  profile_picture,
-  date,
-  shared,
-  children
-}) => {
+import { calculateDate } from '../../../helpers';
+import DeletePost from './DeletePost';
+
+const renderProfilePicture = post => {
   return (
-    <div className="post_meta">
-      {profile_picture ? (
-        <div className="post_author-dp">
-          <img src={profile_picture} />
-        </div>
-      ) : (
-        <Icon
-          name="user"
-          size="big"
-          color="grey"
-          style={{ marginTop: '8px' }}
-        />
-      )}
-      <div className="post_info">
-        <Link to={`/user/${author}`} className="post_author">
-          {author_name}
-        </Link>
-        {shared ? ' shared a post' : null}
+    post.author.profile_picture ||
+    'https://www.kindpng.com/picc/m/22-223965_no-profile-picture-icon-circle-member-icon-png.png'
+  );
+};
+
+const PostHead = ({ post }) => {
+  const userLoggedIn = useSelector(({ auth }) => auth.user);
+
+  const renderDropdown = () => {
+    const dropdownJSX = (
+      <React.Fragment>
+        <Dropdown.Item>
+          <Icon name="edit" />
+          Edit
+        </Dropdown.Item>
+        <DeletePost post={post} />
+      </React.Fragment>
+    );
+    if (post.author._id === userLoggedIn._id) return dropdownJSX;
+    else return null;
+  };
+
+  return (
+    <div className="post_head">
+      <img src={renderProfilePicture(post)} />
+      <div className="post_meta">
+        <strong>
+          <NavLink to={post.author._id}>{post.author.name}</NavLink>
+        </strong>{' '}
+        {post.date_shared ? 'shared a post' : ''}
         <br />
-        <span className="post_date">{calculateDate(date)}</span>
+        <span>{calculateDate(post.date_shared || post.date_created)}</span>
       </div>
-      {children}
+      <Dropdown icon="ellipsis horizontal" className="icon">
+        <Dropdown.Menu className="left">
+          <Dropdown.Item>
+            <NavLink to={`/post/${post._id}`}>
+              <Icon name="eye" />
+              View
+            </NavLink>
+          </Dropdown.Item>
+          {renderDropdown()}
+        </Dropdown.Menu>
+      </Dropdown>
     </div>
   );
 };
