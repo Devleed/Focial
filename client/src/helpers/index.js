@@ -153,7 +153,7 @@ export const updateProfilePicture = (picture, cb) => async (
 
 export const sharePost = (id, body) => async (dispatch, getState) => {
   try {
-    const { data } = await Axios.put(
+    const { data } = await Axios.patch(
       `/api/post/share/${id}`,
       { postContent: body },
       getConfig(getState().auth.token)
@@ -205,8 +205,9 @@ export const commentPost = (id, comment) => async (dispatch, getState) => {
 
 export const unlikePost = id => async (dispatch, getState) => {
   try {
-    const { data } = await Axios.put(
+    const { data } = await Axios.patch(
       `/api/post/unlike/${id}`,
+      {},
       getConfig(getState().auth.token)
     );
     dispatch({ type: UNLIKE_POST, payload: data });
@@ -217,8 +218,9 @@ export const unlikePost = id => async (dispatch, getState) => {
 
 export const likePost = (id, notify) => async (dispatch, getState) => {
   try {
-    const { data } = await Axios.put(
+    const { data } = await Axios.patch(
       `/api/post/like/${id}`,
+      {},
       getConfig(getState().auth.token)
     );
     dispatch({ type: LIKE_POST, payload: data });
@@ -376,16 +378,15 @@ export const acceptRequest = (id, setLoading) => async dispatch => {
   }
 };
 
-export const sendRequest = (
-  visitedUserID,
-  loggedUserID,
-  setLoading
-) => async dispatch => {
+export const sendRequest = (visitedUserID, setLoading) => async (
+  dispatch,
+  getState
+) => {
   try {
-    const { data } = await Axios.post('/api/request', {
-      visitedUserID,
-      loggedUserID
-    });
+    const { data } = await Axios.get(
+      `/api/request/send/${visitedUserID}`,
+      getConfig(getState().auth.token)
+    );
     dispatch({ type: SEND_REQUEST, payload: data });
     setLoading(false);
   } catch (err) {
@@ -560,6 +561,7 @@ export const calculateDate = date => {
   let time, form;
   time = (dateNow - date) / 1000;
   form = 'seconds';
+  console.log(time);
   if (time > 60) {
     time = time / 60;
     form = 'minutes ago';

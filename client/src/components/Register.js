@@ -79,7 +79,7 @@ const Register = props => {
           onSubmit={props.handleSubmit(onFormSubmit)}
           className="formStyle"
         >
-          <Header as="h1">Register</Header>
+          <h1>Register</h1>
           {error.id === REGISTER_FAIL ? (
             <Message negative className="negative_message-style">
               <p>{error.msg}</p>

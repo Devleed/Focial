@@ -9,7 +9,7 @@ const shareSchema = new mongoose.Schema({
     comments: { type: Number, default: 0 },
     shares: { type: Number, default: 0 }
   },
-  date_shared: { type: Date, default: Date.now() }
+  date_shared: { type: Number, default: Date.now() }
 });
 
 module.exports = PostShares = mongoose.model('post_shares', shareSchema);

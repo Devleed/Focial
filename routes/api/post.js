@@ -262,7 +262,7 @@ router.delete(
  * Edit Post
  * Private
  */
-router.put(
+router.get(
   '/:id',
   passport.authenticate('jwt', { session: false }),
   async (req, res) => {
@@ -282,7 +282,7 @@ router.put(
  * Like post
  * private
  */
-router.put(
+router.patch(
   '/like/:id',
   passport.authenticate('jwt', { session: false }),
   async (req, res) => {
@@ -342,7 +342,7 @@ router.put(
  * unlike post
  * private
  */
-router.put(
+router.patch(
   '/unlike/:id',
   passport.authenticate('jwt', { session: false }),
   async (req, res) => {
@@ -474,7 +474,7 @@ router.get('/comment/:id', async (req, res) => {
  * share post
  * private
  */
-router.put(
+router.patch(
   '/share/:id',
   passport.authenticate('jwt', { session: false }),
   async (req, res) => {

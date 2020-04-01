@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import PostActions from './PostActions';
 import PostStats from './PostStats';
-import PostContent from './PostContent';
+import PostHead from './PostHead';
+import PostBody from './PostBody';
 import { useDispatch, useSelector } from 'react-redux';
 import { findPost } from '../../../helpers';
 import Loader from '../../Loader';
@@ -24,12 +25,11 @@ const PostDisplay = props => {
   const renderPage = () => {
     if (post)
       return (
-        <div className="post_display-main">
-          <div>
-            <PostContent post={post} />
-            <PostStats stats={post.stats} />
-            <PostActions post={post} commentSection />
-          </div>
+        <div className="post_display main_display">
+          <PostHead post={post} />
+          <PostBody post={post} />
+          <PostStats stats={post.stats} />
+          <PostActions post={post} />
         </div>
       );
     else return <Loader />;

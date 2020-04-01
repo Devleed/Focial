@@ -20,20 +20,20 @@ const Homepage = () => {
   const [fixedClass, setFixedClass] = useState('');
   const dispatch = useDispatch();
 
-  const handleScroll = e => {
-    if (window.scrollY >= 230) setFixedClass('fixed-style');
-    else {
-      setFixedClass('');
-    }
-  };
+  // const handleScroll = e => {
+  //   if (window.scrollY >= 230) setFixedClass('fixed-style');
+  //   else {
+  //     setFixedClass('');
+  //   }
+  // };
 
   useEffect(() => {
     (() => {
-      window.addEventListener('scroll', handleScroll);
+      // window.addEventListener('scroll', handleScroll);
       dispatch({ type: POST_LOADING, payload: true });
       dispatch(getPost());
     })();
-    () => window.removeEventListener('scroll', handleScroll);
+    // () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   if (!isLoggedIn) return <Redirect to={{ pathname: '/auth' }} />;

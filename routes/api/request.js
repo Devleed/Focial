@@ -1,6 +1,7 @@
 const express = require('express');
 const passport = require('passport');
 const mongoose = require('mongoose');
+const { getObjectId } = require('../../helpers/index');
 
 const router = express.Router();
 
@@ -10,32 +11,30 @@ const Request = require('../../models/Request');
 
 router.use(express.json());
 
-router.post('/', async (req, res) => {
-  try {
-    // find the reciever
-    const user = await User.findById(req.body.visitedUserID).select(
-      'name email profile_picture'
-    );
-
-    // find the sender
-    const loggedUser = await User.findById(req.body.loggedUserID).select(
-      'name email profile_picture'
-    );
-
-    // create request
-    const request = new Request({
-      sender: loggedUser.id,
-      reciever: user.id,
-      status: 2
-    });
-    const savedRequest = (await request.save()).toObject();
-
-    // send response
-    res.json(savedRequest);
-  } catch (err) {
-    return res.status(500).json({ msg: 'server error, try again later' });
+router.get(
+  '/send/:id',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res) => {
+    try {
+      // create request
+      const request = new Request({
+        sender: getObjectId(req.user._id),
+        reciever: getObjectId(req.params.id),
+        status: 2
+      });
+      const savedRequest = await request.save();
+      await Request.populate(request, {
+        path: 'reciever',
+        select: 'name email profile_picture'
+      });
+      // send response
+      res.json(savedRequest);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ msg: 'server error, try again later' });
+    }
   }
-});
+);
 
 router.get(
   '/',

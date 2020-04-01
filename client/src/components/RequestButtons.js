@@ -106,7 +106,7 @@ const RequestButtons = ({ user, float }) => {
           {...buttonFloatProp}
           onClick={() => {
             setLoading(true);
-            dispatch(sendRequest(user._id, loggedInUser._id, setLoading));
+            dispatch(sendRequest(user._id, setLoading));
           }}
           loading={loading}
         >

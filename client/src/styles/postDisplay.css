@@ -45,6 +45,7 @@
 }
 .post_content {
   padding: 10px;
+  white-space: pre-wrap;
 }
 .post_image {
   width: 100%;
@@ -96,7 +97,7 @@
 }
 .share_info {
   color: var(--text-color);
-  width: 85%;
+  width: 90%;
   margin: 0 auto;
   padding: 20px;
   border: 1px solid var(--extra);
@@ -112,6 +113,10 @@
 }
 .share_body {
   margin-top: 10px;
+  white-space: pre-wrap;
+}
+.main_display {
+  margin: 0 auto;
 }
 
 /* create post */
