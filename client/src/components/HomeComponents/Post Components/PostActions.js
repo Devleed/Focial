@@ -1,17 +1,14 @@
 import React, { useState, useRef } from 'react';
 import { Icon } from 'semantic-ui-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { reduxForm, Field, reset } from 'redux-form';
+import { reduxForm, reset } from 'redux-form';
 
 import PostComments from './PostComments';
 import LikePost from './LikePost';
 import { commentPost, loadComments } from '../../../helpers';
 import SharePost from './SharePost';
 import { UPDATE_STATS } from '../../../helpers/actionTypes';
-
-const renderField = ({ input }) => {
-  return <input {...input} placeholder="write a comment..." />;
-};
+import ControlledTextarea from '../../ControlledTextarea';
 
 const PostActions = ({ post, handleSubmit, commentSection, renderBody }) => {
   const user = useSelector(({ auth }) => auth.user);
@@ -19,20 +16,16 @@ const PostActions = ({ post, handleSubmit, commentSection, renderBody }) => {
   const [commentLoading, setCommentLoading] = useState(null);
   const [buttonDisabled, setButtonDisabled] = useState(false);
   const [value, setValue] = useState('');
-  const [scrollHeight, setScrollHeight] = useState(34);
-  let [rows, setRows] = useState(1);
-  const textRef = useRef(null);
   const dispatch = useDispatch();
 
-  const onFormSubmit = e => {
+  const onFormSubmit = (e) => {
     e.preventDefault();
     dispatch(commentPost(post._id, value));
     dispatch({
       type: UPDATE_STATS,
-      payload: { id: post._id, stats: { comments: ++post.stats.comments } }
+      payload: { id: post._id, stats: { comments: ++post.stats.comments } },
     });
     setValue('');
-    setRows(1);
   };
 
   const loadPostComments = () => {
@@ -58,30 +51,16 @@ const PostActions = ({ post, handleSubmit, commentSection, renderBody }) => {
             />
           </div>
           <div className="comment_form">
-            <form onSubmit={e => onFormSubmit(e)}>
+            <form onSubmit={(e) => onFormSubmit(e)}>
               <div className="comment_field">
                 <img className="small-img" src={user.profile_picture} />
                 <div>
-                  <textarea
-                    ref={textRef}
+                  <ControlledTextarea
                     value={value}
-                    onChange={e => {
-                      setValue(e.target.value);
-                      if (scrollHeight < textRef.current.scrollHeight) {
-                        setScrollHeight(textRef.current.scrollHeight);
-                        setRows(++rows);
-                      }
-                      if (e.target.value === '') setRows(1);
-                    }}
-                    onKeyDown={e => {
-                      if (e.keyCode === 13 && e.shiftKey === false) {
-                        e.preventDefault();
-                        onFormSubmit(e);
-                      }
-                    }}
-                    rows={rows}
-                    placeholder="Write a comment..."
-                  ></textarea>
+                    setValue={setValue}
+                    submit={onFormSubmit}
+                    placeholder="write a comment..."
+                  />
                   <Icon name="globe" />
                   <Icon name="camera retro" />
                   <Icon name="image outline" />
@@ -119,5 +98,5 @@ const afterSubmit = (result, dispatch) => {
 
 export default reduxForm({
   form: 'comment form',
-  onSubmitSuccess: afterSubmit
+  onSubmitSuccess: afterSubmit,
 })(PostActions);

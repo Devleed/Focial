@@ -1,16 +1,10 @@
 import React from 'react';
 import ModalHead from './ModalHead';
 
-const ModalMessage = ({
-  heading,
-  message,
-  setShowModal,
-  buttonText,
-  buttonFunction
-}) => {
+const ModalMessage = ({ heading, message, cb, buttonText, buttonFunction }) => {
   return (
     <div className="modal-content-msg">
-      <ModalHead heading={heading} cb={setShowModal} />
+      <ModalHead heading={heading} cb={cb} />
       <div className="modal-msg">
         <p>{message}</p>
       </div>

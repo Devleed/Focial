@@ -1,0 +1,193 @@
+.message-container {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  background-color: var(--web-splash);
+  color: var(--text-color);
+  height: 600px;
+  font-family: Arial, Helvetica, sans-serif;
+  gap: 1rem;
+}
+.message-container h2 {
+  text-align: center;
+  border-bottom: 1px solid var(--extra);
+  padding: 1rem 0;
+  color: var(--secondary);
+}
+.friend-list > h2 {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 20px;
+}
+.friend-list-item {
+  border-bottom: 1px solid var(--extra);
+  display: flex;
+  align-items: center;
+  padding: 1rem 0;
+  margin: 0 1rem;
+  cursor: pointer;
+  transition: all 0.1s ease 0s;
+  position: relative;
+}
+.friend-list-item.unread {
+  font-weight: 900;
+}
+.friend-list-item.unread .last_message {
+  color: var(--primary);
+}
+.friend-list-item > img {
+  width: 42px;
+  height: 42px;
+  margin-right: 10px;
+  border-radius: 50%;
+}
+.last_message {
+  color: var(--secondary);
+  font-size: 11px;
+}
+.chat_list-info {
+  position: absolute;
+  right: 0;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  color: var(--primary) !important;
+}
+.last_message-date {
+  font-size: 12px;
+}
+.unread-indicator {
+  width: 11px;
+  height: 11px;
+  background-color: var(--primary);
+  justify-self: flex-end;
+  border-radius: 50%;
+  margin-left: 10px;
+}
+.messages-div {
+  background-color: var(--web-back);
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.create-message {
+  /* min-height: 10%; */
+  position: relative;
+  z-index: 9;
+  bottom: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0 10px;
+  justify-content: space-around;
+}
+.create-message > textarea {
+  border: none;
+  width: 600px;
+  padding: 10px;
+  color: var(--text-color);
+  font-size: 13px;
+  border-radius: 20px;
+  height: auto;
+  overflow: hidden;
+  background: var(--web-splash);
+  resize: none;
+}
+.create-message > textarea:focus {
+  outline: none;
+}
+.create-message > i {
+  font-size: 1.5rem;
+  color: var(--primary);
+}
+.message-list {
+  display: flex;
+  flex-direction: column-reverse;
+  height: 81%;
+  overflow: auto;
+}
+.message-date {
+  margin: 10px;
+  border-bottom: 1px solid var(--extra);
+}
+.message-date > span {
+  font-size: 10px;
+  color: var(--secondary);
+  position: relative;
+  bottom: -7px;
+  left: 50%;
+  margin-left: -5%;
+  padding: 0px 10px;
+  z-index: 9;
+  background-color: var(--web-back);
+}
+.real-messages {
+  padding: 10px;
+  display: flex;
+  flex-direction: column-reverse;
+}
+.real-messages img {
+  width: 33px;
+  height: 33px;
+  margin: 0 5px;
+  border-radius: 50%;
+}
+.real-messages > div {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+}
+.own-msg {
+  align-self: flex-end;
+}
+.own-msg > div,
+.friend-msg > div {
+  background-color: var(--primary);
+  padding: 5px;
+  font-size: 12px;
+  max-width: 250px;
+  border-radius: 10px;
+  word-wrap: break-word;
+}
+.own-msg > span,
+.friend-msg > span {
+  color: var(--secondary);
+  font-size: 9px;
+  margin-bottom: -6px;
+  /* visibility: hidden; */
+}
+/* .own-msg:hover > span,
+.friend-msg:hover > span {
+  visibility: visible;
+} */
+.own-msg:hover > i,
+.friend-msg:hover > i {
+  visibility: visible;
+}
+.real-messages > div > i {
+  margin: 5px;
+  color: var(--secondary);
+  visibility: hidden;
+}
+
+.friend-info {
+  text-align: center;
+  padding: 0 1rem;
+}
+.friend-info > img {
+  width: 150px;
+  height: 150px;
+  padding: 1rem;
+  border-radius: 50%;
+}
+.friend-info > div > span {
+  color: var(--secondary);
+  font-size: 11px;
+}
+.messages-div > h1 {
+  text-align: center;
+  position: relative;
+  top: 50%;
+  transform: translate(0, -50px);
+  font-family: cursive;
+}

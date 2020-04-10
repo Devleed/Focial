@@ -36,8 +36,55 @@ import {
   GET_FRIENDS,
   GET_NOTIFICATION,
   SELECTED_POST,
-  OPEN_NOTIFICATION
+  OPEN_NOTIFICATION,
+  GET_CHATS,
+  GET_MESSAGES,
+  CREATE_MESSAGE,
+  SELECTED_CHAT_LOADING,
+  CHAT_LOADING,
 } from './actionTypes';
+
+export const createMessage = (id, body) => async (dispatch, getState) => {
+  try {
+    const { data } = await Axios.post(
+      `/api/message/${id}`,
+      { messageBody: body },
+      getConfig(getState().auth.token)
+    );
+    dispatch({ type: CREATE_MESSAGE, payload: data });
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+export const getMessages = (id, setLoading) => async (dispatch, getState) => {
+  try {
+    const { data } = await Axios.get(
+      `/api/message/${id}`,
+      getConfig(getState().auth.token)
+    );
+    dispatch({ type: GET_MESSAGES, payload: data });
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoading(false);
+    dispatch({ type: SELECTED_CHAT_LOADING, payload: false });
+  }
+};
+
+export const getChats = () => async (dispatch, getState) => {
+  try {
+    const { data } = await Axios.get(
+      '/api/message',
+      getConfig(getState().auth.token)
+    );
+    dispatch({ type: GET_CHATS, payload: data });
+  } catch (err) {
+    console.error(err);
+  } finally {
+    dispatch({ type: CHAT_LOADING, payload: false });
+  }
+};
 
 export const requestSeen = () => async (dispatch, getState) => {
   try {
@@ -45,6 +92,7 @@ export const requestSeen = () => async (dispatch, getState) => {
       '/api/request/seen',
       getConfig(getState().auth.token)
     );
+    return data;
   } catch (err) {
     console.error(err);
   }
@@ -61,7 +109,7 @@ export const notificationSeen = () => async (dispatch, getState) => {
   }
 };
 
-export const notificationOpened = id => async dispatch => {
+export const notificationOpened = (id) => async (dispatch) => {
   try {
     const { data } = await Axios.patch(`/api/notification/opened/${id}`);
     dispatch({ type: OPEN_NOTIFICATION, payload: data });
@@ -70,7 +118,7 @@ export const notificationOpened = id => async dispatch => {
   }
 };
 
-export const findPost = id => async dispatch => {
+export const findPost = (id) => async (dispatch) => {
   try {
     const { data } = await Axios.get(`/api/post/${id}`);
     dispatch({ type: SELECTED_POST, payload: data });
@@ -104,7 +152,7 @@ export const getNotification = () => async (dispatch, getState) => {
   }
 };
 
-export const getFriends = (id, limit) => async dispatch => {
+export const getFriends = (id, limit) => async (dispatch) => {
   try {
     const { data } = await Axios.get(`/api/user/get-friends/${id}/${limit}`);
     dispatch({ type: GET_FRIENDS, payload: data });
@@ -113,7 +161,7 @@ export const getFriends = (id, limit) => async dispatch => {
   }
 };
 
-export const getSearchResults = async term => {
+export const getSearchResults = async (term) => {
   try {
     const res = await Axios.get(`/api/user/fuzzy-search?term=${term}`);
     return res.data;
@@ -128,8 +176,8 @@ export const updateProfilePicture = (picture, cb) => async (
 ) => {
   const config = {
     headers: {
-      'Content-Type': 'multipart/form-data'
-    }
+      'Content-Type': 'multipart/form-data',
+    },
   };
   if (getState().auth.token) {
     config.headers['Authorization'] = getState().auth.token;
@@ -151,29 +199,30 @@ export const updateProfilePicture = (picture, cb) => async (
   }
 };
 
-export const sharePost = (id, body) => async (dispatch, getState) => {
+export const sharePost = (id, body, cleanUp) => async (dispatch, getState) => {
   try {
     const { data } = await Axios.patch(
       `/api/post/share/${id}`,
       { postContent: body },
       getConfig(getState().auth.token)
     );
-
     dispatch({ type: SHARE_POST, payload: data });
     dispatch({ type: SHARING, payload: false });
     const opts = {
       id,
       type: 'share',
       content: 'shared your post',
-      token: getState().auth.token
+      token: getState().auth.token,
     };
     await createNotification(opts);
   } catch (err) {
     console.error(err);
+  } finally {
+    cleanUp();
   }
 };
 
-export const loadComments = (id, setCommentLoading) => async dispatch => {
+export const loadComments = (id, setCommentLoading) => async (dispatch) => {
   try {
     const { data } = await Axios.get(`/api/post/comment/${id}`);
     setCommentLoading(false);
@@ -195,7 +244,7 @@ export const commentPost = (id, comment) => async (dispatch, getState) => {
       id,
       type: 'comment',
       content: 'commented on your post',
-      token: getState().auth.token
+      token: getState().auth.token,
     };
     await createNotification(opts);
   } catch (err) {
@@ -203,7 +252,7 @@ export const commentPost = (id, comment) => async (dispatch, getState) => {
   }
 };
 
-export const unlikePost = id => async (dispatch, getState) => {
+export const unlikePost = (id) => async (dispatch, getState) => {
   try {
     const { data } = await Axios.patch(
       `/api/post/unlike/${id}`,
@@ -230,7 +279,7 @@ export const likePost = (id, notify) => async (dispatch, getState) => {
         id,
         type: 'like',
         content: 'liked your post',
-        token: getState().auth.token
+        token: getState().auth.token,
       };
       await createNotification(opts);
     }
@@ -239,21 +288,18 @@ export const likePost = (id, notify) => async (dispatch, getState) => {
   }
 };
 
-export const editPost = (id, body, setEditing, setLoading) => async (
-  dispatch,
-  getState
-) => {
+export const editPost = (id, body, cleanUp) => async (dispatch, getState) => {
   try {
     const { data } = await Axios.put(
       `/api/post/${id}`,
       { postBody: body },
       getConfig(getState().auth.token)
     );
-    setLoading(false);
     dispatch({ type: EDIT_POST, payload: data });
-    setEditing(false);
   } catch (err) {
     console.error(err);
+  } finally {
+    cleanUp();
   }
 };
 
@@ -270,29 +316,33 @@ export const deletePost = (id, image_id) => async (dispatch, getState) => {
   }
 };
 
-export const createPost = ({ postField, postImageField }) => async (
+export const createPost = ({ postField, postImageField }, cleanUp) => async (
   dispatch,
   getState
 ) => {
   const config = {
     headers: {
-      'Content-Type': 'multipart/form-data'
-    }
+      'Content-Type': 'multipart/form-data',
+    },
   };
   if (getState().auth.token) {
     config.headers['Authorization'] = getState().auth.token;
   }
   try {
-    console.log(postField);
+    console.log('creating');
     const formData = new FormData();
     formData.append('postBody', postField);
     formData.append('photo', postImageField);
 
     const { data } = await Axios.post('/api/post', formData, config);
+    console.log('creaed');
+
     dispatch({ type: CREATE_POST, payload: data });
     dispatch({ type: POSTING, payload: false });
   } catch (err) {
     console.error(err);
+  } finally {
+    cleanUp();
   }
 };
 
@@ -317,7 +367,7 @@ export const unfriendUser = (visitedUserID, loggedUserID, setLoading) => async (
   try {
     const { data } = await Axios.post('/api/user/unfriend', {
       visitedUserID,
-      loggedUserID
+      loggedUserID,
     });
     dispatch(loadUser(getState().auth.token));
     dispatch(findUser(visitedUserID));
@@ -328,7 +378,7 @@ export const unfriendUser = (visitedUserID, loggedUserID, setLoading) => async (
   }
 };
 
-export const findUser = id => async dispatch => {
+export const findUser = (id) => async (dispatch) => {
   try {
     const { data } = await Axios.get(`/api/user/${id}`);
     dispatch({ type: VISITED_USER, payload: data });
@@ -354,7 +404,7 @@ export const checkRequest = () => async (dispatch, getState) => {
   }
 };
 
-export const rejectRequest = (id, setLoading) => async dispatch => {
+export const rejectRequest = (id, setLoading) => async (dispatch) => {
   try {
     const { data } = await Axios.delete(`/api/request/rejected/${id}`);
     dispatch(loadUser());
@@ -366,7 +416,7 @@ export const rejectRequest = (id, setLoading) => async dispatch => {
   }
 };
 
-export const acceptRequest = (id, setLoading) => async dispatch => {
+export const acceptRequest = (id, setLoading) => async (dispatch) => {
   try {
     const { data } = await Axios.patch(`/api/request/accepted/${id}`);
     dispatch(loadUser());
@@ -400,7 +450,7 @@ export const sendRequest = (visitedUserID, setLoading) => async (
   }
 };
 
-export const deleteRequest = (id, setLoading) => async dispatch => {
+export const deleteRequest = (id, setLoading) => async (dispatch) => {
   try {
     const { data } = await Axios.delete(`/api/request/cancel/${id}`);
     dispatch({ type: CANCEL_REQUEST, payload: data });
@@ -433,12 +483,12 @@ export const searchUser = (name, cb) => async (dispatch, getState) => {
 export const registerUser = (
   { name, email, password },
   { setLoading, redirect }
-) => async dispatch => {
+) => async (dispatch) => {
   try {
     const res = await Axios.post('/api/user/register', {
       name,
       email,
-      password
+      password,
     });
     dispatch({ type: REGISTER_SUCCESS, payload: res.data });
     redirect('/');
@@ -470,11 +520,9 @@ export const loadUser = () => async (dispatch, getState) => {
   }
 };
 
-export const loginUser = (
-  { email, password },
-  history,
-  setLoading
-) => async dispatch => {
+export const loginUser = ({ email, password }, history, setLoading) => async (
+  dispatch
+) => {
   try {
     const res = await Axios.post('/api/user/login', { email, password });
     dispatch({ type: LOGIN_SUCCESS, payload: res.data });
@@ -491,7 +539,7 @@ export const loginUser = (
   }
 };
 
-export const sendResetEmail = async email => {
+export const sendResetEmail = async (email) => {
   try {
     console.log(email);
     const res = await Axios.post('/api/user/forget-password', { email });
@@ -505,10 +553,10 @@ export const sendResetEmail = async email => {
   }
 };
 
-export const resetPassword = async token => {
+export const resetPassword = async (token) => {
   try {
     const res = await Axios.get(`/api/user/reset`, {
-      params: { token }
+      params: { token },
     });
     return res.data;
   } catch (err) {
@@ -524,7 +572,7 @@ export const resetPasswordViaEmail = async ({ email, password }) => {
   try {
     const res = await Axios.put('/api/user/resetPasswordViaEmail', {
       email,
-      password
+      password,
     });
     return res.data;
   } catch (err) {
@@ -544,11 +592,11 @@ export const clearError = () => {
   return { type: CLEAR_ERRORS };
 };
 
-const getConfig = token => {
+const getConfig = (token) => {
   const config = {
     headers: {
-      'Content-Type': 'application/json'
-    }
+      'Content-Type': 'application/json',
+    },
   };
   if (token) {
     config.headers['Authorization'] = token;
@@ -556,12 +604,11 @@ const getConfig = token => {
   return config;
 };
 
-export const calculateDate = date => {
+export const calculateDate = (date) => {
   let dateNow = Date.now();
   let time, form;
   time = (dateNow - date) / 1000;
   form = 'seconds';
-  console.log(time);
   if (time > 60) {
     time = time / 60;
     form = 'minutes ago';
@@ -578,4 +625,16 @@ export const calculateDate = date => {
     return date.toLocaleString('en-us');
   }
   return `${Math.floor(time)} ${form}`;
+};
+export const stringShortener = (str, limit) => {
+  let result = [];
+  if (str.length > limit) {
+    str.split('').forEach((char) => {
+      if (result.length < limit) {
+        result.push(char);
+      } else return false;
+    });
+    return `${result.join('')}...`;
+  }
+  return str;
 };

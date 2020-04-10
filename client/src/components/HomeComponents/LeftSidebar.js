@@ -19,19 +19,31 @@ const LeftSidebar = () => {
       </div>
       <div className="middle">
         <li>
-          <Icon name="home" />
+          <img
+            src="https://static.xx.fbcdn.net/rsrc.php/v3/yI/r/WcCzeboYevF.png?_nc_eui2=AeERAomcV8ttQdDlt3iLzDG_yYVpW3Hmh7XJhWlbceaHtbDT4c5U8BOAlwJfhNxbipb6-8ImgSaOcB5kqNYG9C6l"
+            alt="home indicator"
+          />
           Home
         </li>
         <li>
-          <Icon name="users" />
+          <img
+            src="https://static.xx.fbcdn.net/rsrc.php/v3/yD/r/mk4dH3FK0jT.png?_nc_eui2=AeFVOHwR5QDy0PFoaeDqsXTxA_bf-kPbCmUD9t_6Q9sKZfLoF6L4HxvE6vancHgr4F-KGBJ5YmXdnxaZ55PsH0xp"
+            alt="group icon indicating friends"
+          />
           Friends
         </li>
         <li>
-          <Icon name="paste" />
+          <img
+            src="https://static.xx.fbcdn.net/rsrc.php/v3/yZ/r/i7hepQ2OeZg.png?_nc_eui2=AeG-LFxTaXtM6EDYu6nlLoiLIucpu18fVQgi5ym7Xx9VCDbp-o0YTzx0N0covr-Y-nIX2cxcM9gcWqBrsIX5o4kk"
+            alt="flag icon indicating posts"
+          />
           Posts
         </li>
         <li>
-          <Icon name="rss" />
+          <img
+            src="https://static.xx.fbcdn.net/rsrc.php/v3/yv/r/QAyfjudAqqG.png?_nc_eui2=AeH9EhojJbB_i3EcCcCAiPiqKwEv14JBhfkrAS_XgkGF-d9khOOkYWmk7GIzoex_8VYzfc19IavF7QyZPe2jtped"
+            alt="messages icon indicating messages"
+          />
           Messages
         </li>
       </div>

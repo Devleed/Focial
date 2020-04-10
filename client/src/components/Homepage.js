@@ -1,70 +1,54 @@
 import React, { useEffect, useState } from 'react';
 import { Container } from 'semantic-ui-react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Redirect, NavLink } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 
+import Rightsidebar from './HomeComponents/Rightsidebar';
 import Navbar from './Navbar';
 import Postarea from './HomeComponents/Postarea';
-import Rightsidebar from './HomeComponents/Rightsidebar';
 import LoadingIndicator from './LoadingIndicator';
-import RequestButtons from './RequestButtons';
-import { checkRequest, getFriends, getNotification, getPost } from '../helpers';
-import { POST_LOADING } from '../helpers/actionTypes';
+import { getChats } from '../helpers';
 import '../styles/homepage.css';
 import LeftSidebar from './HomeComponents/LeftSidebar';
-import ProfileCards from './ProfileCards';
+import { USER_CONNECTED } from '../helpers/socketTypes';
 
-const Homepage = () => {
-  const isLoggedIn = useSelector(({ auth }) => auth.isAuthorized);
+const Homepage = (props) => {
   const user = useSelector(({ auth }) => auth.user);
-  const [fixedClass, setFixedClass] = useState('');
+  const socket = useSelector(({ auth }) => auth.socket);
+  const [onlineFriends, setOnlineFriends] = useState([]);
   const dispatch = useDispatch();
-
-  // const handleScroll = e => {
-  //   if (window.scrollY >= 230) setFixedClass('fixed-style');
-  //   else {
-  //     setFixedClass('');
-  //   }
-  // };
 
   useEffect(() => {
     (() => {
-      // window.addEventListener('scroll', handleScroll);
-      dispatch({ type: POST_LOADING, payload: true });
-      dispatch(getPost());
+      if (socket) {
+        if (user) {
+          socket.emit(USER_CONNECTED, user);
+          socket.on('online_users', (onlineUsers) => {
+            user.friends.forEach((friend) => {
+              if (onlineUsers.includes(friend._id)) {
+                setOnlineFriends([...onlineFriends, friend]);
+              }
+            });
+          });
+        }
+      }
+      dispatch(getChats());
     })();
-    // () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  if (!isLoggedIn) return <Redirect to={{ pathname: '/auth' }} />;
+  console.log('online-friends => ', onlineFriends);
+
+  if (!user) return <Redirect to={{ pathname: '/auth' }} />;
   return (
     <div>
       <Navbar />
       <LoadingIndicator />
-      <Container style={{ marginTop: '60px' }}>
-        <div className="cover">
-          {/* <ProfileCards
-            owner={true}
-            user={user}
-            className="left_sidebar"
-            style={fixedClass}
-          >
-            <div className="user_stats">
-              <p>
-                <span>Friends: </span>
-                {user.friends.length}
-              </p>
-              <p>
-                <span>Posts: </span>
-                32
-              </p>
-            </div>
-          </ProfileCards> */}
-          <LeftSidebar />
-          <Postarea />
-          {/* <Rightsidebar /> */}
-        </div>
-      </Container>
+
+      <div className="cover">
+        <LeftSidebar />
+        <Postarea />
+        <Rightsidebar onlineFriends={onlineFriends} />
+      </div>
     </div>
   );
 };

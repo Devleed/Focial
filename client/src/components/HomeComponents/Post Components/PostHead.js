@@ -2,16 +2,11 @@ import React from 'react';
 import { Icon, Dropdown } from 'semantic-ui-react';
 import { NavLink } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import moment from 'moment';
 
 import { calculateDate } from '../../../helpers';
 import DeletePost from './DeletePost';
-
-const renderProfilePicture = post => {
-  return (
-    post.author.profile_picture ||
-    'https://www.kindpng.com/picc/m/22-223965_no-profile-picture-icon-circle-member-icon-png.png'
-  );
-};
+import EditPost from './EditPost';
 
 const PostHead = ({ post }) => {
   const userLoggedIn = useSelector(({ auth }) => auth.user);
@@ -19,10 +14,7 @@ const PostHead = ({ post }) => {
   const renderDropdown = () => {
     const dropdownJSX = (
       <React.Fragment>
-        <Dropdown.Item>
-          <Icon name="edit" />
-          Edit
-        </Dropdown.Item>
+        <EditPost post={post} />
         <DeletePost post={post} />
       </React.Fragment>
     );
@@ -32,14 +24,14 @@ const PostHead = ({ post }) => {
 
   return (
     <div className="post_head">
-      <img src={renderProfilePicture(post)} />
+      <img src={post.author.profile_picture} />
       <div className="post_meta">
         <strong>
           <NavLink to={post.author._id}>{post.author.name}</NavLink>
         </strong>{' '}
         {post.date_shared ? 'shared a post' : ''}
         <br />
-        <span>{calculateDate(post.date_shared || post.date_created)}</span>
+        <span>{moment(post.date_shared || post.date_created).fromNow()}</span>
       </div>
       <Dropdown icon="ellipsis horizontal" className="icon">
         <Dropdown.Menu className="left">

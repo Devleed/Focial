@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { reduxForm, Field } from 'redux-form';
 import { Form, Message, Button, Container } from 'semantic-ui-react';
-import { useSelector } from 'react-redux';
 
 import { sendResetEmail } from '../helpers';
 

@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { NavLink, Redirect } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 
 import Navbar from './Navbar';
 import { searchUser } from '../helpers';
 import { RESET_RESULTS } from '../helpers/actionTypes';
 import '../styles/searchResults.css';
-import RequestButtons from './RequestButtons';
 import { Loader } from 'semantic-ui-react';
 import ProfileCards from './ProfileCards';
 
@@ -16,16 +15,16 @@ const SearchResults = props => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(null);
 
-  let _unmounted;
+  // let _unmounted;
 
   useEffect(() => {
     (() => {
-      _unmounted = false;
-      if (!_unmounted) setLoading(true);
+      // _unmounted = false;
+      // if (!_unmounted) setLoading(true);
       dispatch(searchUser(props.match.params.term, setLoading));
     })();
     return () => {
-      _unmounted = true;
+      // _unmounted = true;
       dispatch({ type: RESET_RESULTS });
     };
   }, [dispatch, props.match.params.term]);

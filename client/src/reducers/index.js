@@ -8,6 +8,7 @@ import visitedUser from './visitedUserReducer';
 import loading from './loadingReducer';
 import postsData from './postReducer';
 import notificationData from './notificationReducer';
+import messageData from './messagesReducer';
 
 export default combineReducers({
   form: formReducer,
@@ -18,5 +19,6 @@ export default combineReducers({
   visitedUser,
   loading,
   postsData,
-  notificationData
+  notificationData,
+  messageData,
 });

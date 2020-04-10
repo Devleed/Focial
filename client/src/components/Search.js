@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useHistory, NavLink } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Icon, Loader } from 'semantic-ui-react';
-import { searchUser, makeCancelable, getSearchResults } from '../helpers';
+import { Icon } from 'semantic-ui-react';
+import { searchUser } from '../helpers';
+import Loader from './Loader';
 
 const Search = props => {
   const history = useHistory();
@@ -57,7 +58,7 @@ const Search = props => {
   };
 
   const displaySearchResults = () => {
-    if (loading) return <Loader active />;
+    if (loading) return <Loader />;
     if (results.length === 0) return <p>No results found</p>;
     return results.map(result => {
       return (

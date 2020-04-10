@@ -6,6 +6,7 @@
   margin-top: 6rem;
   background-color: var(--web-splash);
   color: var(--text-color);
+  position: relative;
 }
 .formStyle input {
   background-color: var(--splash) !important;

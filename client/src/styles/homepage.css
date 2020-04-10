@@ -12,6 +12,7 @@
   grid-area: postarea;
   background-color: inherit;
   padding-top: 0 !important;
+  margin-top: 10px;
 }
 .post_form-header {
   width: 100%;
@@ -57,41 +58,6 @@
 .post_area textarea:focus,
 .post_form textarea:focus {
   outline: none;
-}
-.right_sidebar {
-  grid-area: rside;
-  background-color: var(--web-splash);
-  position: fixed;
-  width: 14%;
-  right: 13%;
-  /* box-shadow: var(--div-shadows); */
-}
-.right_sidebar > a {
-  color: black;
-  list-style-type: none;
-  display: flex;
-  flex-direction: row;
-  padding: 6px;
-  align-items: center;
-  border-bottom: 1px solid gray;
-  cursor: pointer;
-}
-.right_sidebar > a:last-child {
-  border: none;
-}
-.right_sidebar > a > p {
-  flex: 3;
-  margin: 0;
-}
-.right_sidebar > a > img {
-  margin-right: 10px;
-  border-radius: 50%;
-}
-.right_sidebar > a > span {
-  height: 6px;
-  width: 6px;
-  background-color: greenyellow;
-  border-radius: 60%;
 }
 .friends_section,
 .photos_section {

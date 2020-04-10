@@ -11,8 +11,9 @@ const PostPlaceholder = () => {
         right: '0',
         zIndex: '0'
       }}
+      inverted
     >
-      <Placeholder>
+      <Placeholder inverted>
         <Placeholder.Header image>
           <Placeholder.Line length="short" />
           <Placeholder.Line length="very short" />

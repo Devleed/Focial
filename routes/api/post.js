@@ -127,7 +127,17 @@ router.get('/:id', async (req, res) => {
     if (!post) {
       // if found populate it with post and post's author
       post = await PostShares.findById(req.params.id)
-        .populate('author', 'name profile_picture friends')
+        .populate([
+          {
+            path: 'author',
+            select: 'name email profile_picture'
+          },
+          {
+            path: 'post',
+            select: 'post_image body author date_created',
+            populate: { path: 'author', select: 'name email profile_picture' }
+          }
+        ])
         .lean();
     }
 
@@ -262,14 +272,27 @@ router.delete(
  * Edit Post
  * Private
  */
-router.get(
+router.put(
   '/:id',
   passport.authenticate('jwt', { session: false }),
   async (req, res) => {
     try {
-      let post = await Post.findByIdAndUpdate(req.params.id, {
-        $set: { body: req.body.postBody }
-      }).lean();
+      let post = await Post.findByIdAndUpdate(
+        req.params.id,
+        {
+          $set: { body: req.body.postBody }
+        },
+        { new: true }
+      ).lean();
+      if (!post) {
+        post = await PostShares.findByIdAndUpdate(
+          req.params.id,
+          {
+            $set: { body: req.body.postBody }
+          },
+          { new: true }
+        ).lean();
+      }
       res.json(post);
     } catch (err) {
       console.error(err);
@@ -505,7 +528,7 @@ router.patch(
 
       const share = new PostShares({
         author: getObjectId(req.user._id),
-        content: req.body.postContent,
+        body: req.body.postContent,
         post: getObjectId(post._id)
       });
 

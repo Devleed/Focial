@@ -1,7 +1,7 @@
 .left-sidebar {
-  height: 80%;
+  height: 90%;
   width: 300px;
-  background-color: var(--web-splash);
+  background-color: var(--splash);
   color: var(--text-color);
   position: fixed;
   border-radius: 10px;
@@ -36,20 +36,25 @@
   border-radius: 50%;
 }
 
-.middle {
+.left-sidebar .middle {
   width: 100%;
 }
-.middle > li {
+.left-sidebar .middle > li {
   width: 100%;
   list-style-type: none;
-  padding: 13px 50px;
+  padding: 13px 10px;
   border-bottom: 0.6px solid var(--extra);
   transition: all 0.2s ease 0s;
   cursor: pointer;
   color: var(--text-color);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
-.left-sidebar i {
-  margin-right: 5px;
+.left-sidebar .middle img {
+  margin-right: 15px;
+  width: 30px;
+  height: 30px;
 }
 .middle > li:hover {
   background-color: var(--extra);

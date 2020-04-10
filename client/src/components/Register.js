@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 
 import { registerUser } from '../helpers';
 import { REGISTER_FAIL } from '../helpers/actionTypes';
+import OverlayLoader from './OverlayLoader';
 
 // render input fields
 const renderInput = ({
@@ -74,11 +75,8 @@ const Register = props => {
       return null;
     } else {
       return (
-        <Form
-          loading={loading}
-          onSubmit={props.handleSubmit(onFormSubmit)}
-          className="formStyle"
-        >
+        <Form onSubmit={props.handleSubmit(onFormSubmit)} className="formStyle">
+          {loading ? <OverlayLoader /> : null}
           <h1>Register</h1>
           {error.id === REGISTER_FAIL ? (
             <Message negative className="negative_message-style">

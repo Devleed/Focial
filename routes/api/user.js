@@ -31,7 +31,7 @@ router.get(
       let results = await User.find({ name: { $regex: regex } }).select(
         'name profile_picture email friends register_date'
       );
-      results = results.filter(user => user.id !== req.user.id);
+      results = results.filter((user) => user.id !== req.user.id);
       res.json({ searchResults: results });
     } catch (err) {
       return res.status(500).json({ msg: 'server error' });
@@ -67,47 +67,61 @@ router.get('/fuzzy-search', async (req, res) => {
 });
 
 router.post('/login', (req, res, next) => {
-  passport.authenticate('login', { session: false }, (err, user, info) => {
-    if (err) next(err);
-    if (!user) generateError(res, 401, 'email or password is incorrect');
-    jwt.sign({ id: user.id }, config.get('jwtSecret'), (err, token) => {
-      if (err) generateError(res, 500, 'server error, try again later');
-      res.json({
-        token: `Bearer ${token}`,
-        user
+  passport.authenticate(
+    'login',
+    { session: false },
+    async (err, user, info) => {
+      if (err) next(err);
+      if (!user) generateError(res, 401, 'email or password is incorrect');
+      await User.populate(user, {
+        path: 'friends',
+        select: 'name profile_picture',
       });
-    });
-  })(req, res, next);
+      jwt.sign({ id: user.id }, config.get('jwtSecret'), (err, token) => {
+        if (err) generateError(res, 500, 'server error, try again later');
+        res.json({
+          token: `Bearer ${token}`,
+          user,
+        });
+      });
+    }
+  )(req, res, next);
 });
 
 router.post('/register', async (req, res) => {
   try {
     const userExists = await User.findOne({ email: req.body.email });
     if (userExists) generateError(res, 401, 'Email Already Taken!');
+    else {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(req.body.password, salt);
-
-    const newUser = new User({
-      name: req.body.name,
-      email: req.body.email,
-      password: hashedPassword
-    });
-    const savedUser = await newUser.save();
-
-    jwt.sign({ id: savedUser.id }, config.get('jwtSecret'), (err, token) => {
-      if (err) generateError(res, 400, 'server error, try again later');
-      res.json({
-        token: `Bearer ${token}`,
-        user: {
-          register_date: savedUser.register_date,
-          friends: savedUser.friends,
-          _id: savedUser.id,
-          name: savedUser.name,
-          email: savedUser.email
-        }
+      const newUser = new User({
+        name: req.body.name,
+        email: req.body.email,
+        password: hashedPassword,
       });
-    });
+      const savedUser = await newUser.save();
+
+      await User.populate(savedUser, {
+        path: 'friends',
+        select: 'name profile_picture',
+      });
+
+      jwt.sign({ id: savedUser.id }, config.get('jwtSecret'), (err, token) => {
+        if (err) generateError(res, 400, 'server error, try again later');
+        res.json({
+          token: `Bearer ${token}`,
+          user: {
+            register_date: savedUser.register_date,
+            friends: savedUser.friends,
+            _id: savedUser.id,
+            name: savedUser.name,
+            email: savedUser.email,
+          },
+        });
+      });
+    }
   } catch (error) {
     generateError(res, 500, 'server error, try again later');
   }
@@ -119,8 +133,8 @@ router.get('/reset', async (req, res) => {
     const user = await User.findOne({
       passwordResetToken: req.query.token,
       passwordResetTokenExpiry: {
-        $gt: Date.now()
-      }
+        $gt: Date.now(),
+      },
     });
 
     // if no user found then send error
@@ -129,7 +143,7 @@ router.get('/reset', async (req, res) => {
     // send response
     res.json({
       msg: 'Token is valid',
-      email: user.email
+      email: user.email,
     });
   } catch (error) {
     generateError(res, 500, 'an error occured try again later');
@@ -184,8 +198,8 @@ router.post('/forget-password', async (req, res) => {
       service: 'Gmail',
       auth: {
         user: config.get('senderEmail'),
-        pass: config.get('senderPassword')
-      }
+        pass: config.get('senderPassword'),
+      },
     });
 
     // set up mail options
@@ -193,7 +207,7 @@ router.post('/forget-password', async (req, res) => {
       from: config.get('senderEmail'),
       to: `${user.email}`,
       subject: 'Link to reset password',
-      text: `You are recieving this because, you ( or someone else ) has requested to reset your password,click the following link to complete the process http://localhost:3000/reset/${token}`
+      text: `You are recieving this because, you ( or someone else ) has requested to reset your password,click the following link to complete the process http://localhost:3000/reset/${token}`,
     };
 
     // send the mail to the given candidate
@@ -203,7 +217,7 @@ router.post('/forget-password', async (req, res) => {
         res.json({
           msg:
             'recovery email sent, you can close this window and follow procedure from you gmail account',
-          res: response
+          res: response,
         });
       }
     });
@@ -217,12 +231,15 @@ router.get('/', (req, res, next) => {
   passport.authenticate(
     'jwt',
     {
-      session: false
+      session: false,
     },
     async (err, user, info) => {
       if (err) return next(err);
       if (!user) return res.status(401).json({ msg: "your're not logged in" });
-      // user.friends = await friendsFinder(user.friends);
+      await User.populate(user, {
+        path: 'friends',
+        select: 'name profile_picture',
+      });
       return res.json(user);
     }
   )(req, res, next);
@@ -253,13 +270,13 @@ router.post('/unfriend', async (req, res) => {
 
     await User.findByIdAndUpdate(req.body.visitedUserID, {
       $pull: {
-        friends: req.body.loggedUserID
-      }
+        friends: req.body.loggedUserID,
+      },
     });
     await User.findByIdAndUpdate(req.body.loggedUserID, {
       $pull: {
-        friends: req.body.visitedUserID
-      }
+        friends: req.body.visitedUserID,
+      },
     });
 
     return res.json({ msg: 'success' });
@@ -281,7 +298,7 @@ router.put(
       const user = await User.findByIdAndUpdate(
         req.user._id,
         {
-          $set: { profile_picture: url }
+          $set: { profile_picture: url },
         },
         { new: true }
       );
@@ -305,7 +322,7 @@ router.get('/get-friends/:id/:limit', async (req, res) => {
 
     // find friends information
     const friends = await Promise.all(
-      user.friends.map(async friend => {
+      user.friends.map(async (friend) => {
         return await User.findById(friend).select('name email profile_picture');
       })
     );

@@ -1,34 +1,40 @@
 import React from 'react';
-import { Icon } from 'semantic-ui-react';
-import { useSelector } from 'react-redux';
 import { NavLink } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
-const Rightsidebar = () => {
+import '../../styles/rightSidebar.css';
+
+const Rightsidebar = (props) => {
   const user = useSelector(({ auth }) => auth.user);
 
   const renderFriends = () => {
-    if (user.friendsInfo)
-      return user.friendsInfo.map(friend => {
-        return (
-          <NavLink to={`/user/${friend._id}`} key={friend._id}>
-            <img
-              className="small-picture"
-              src={
-                friend.profile_picture
-                  ? friend.profile_picture
-                  : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'
-              }
-              alt="profile-picture"
-            />
-            <p>{friend.name}</p>
-            <Icon name="dot circle" color="green" size="tiny" />
-          </NavLink>
-        );
-      });
-    else return null;
+    return user.friends.map((friend) => {
+      return (
+        <NavLink to={`/user/${friend._id}`} key={friend._id}>
+          <img
+            className="small-picture"
+            src={friend.profile_picture}
+            alt="profile picture"
+          />
+          <p>{friend.name}</p>
+          <span />
+        </NavLink>
+      );
+    });
   };
 
-  return <div className="right_sidebar">{renderFriends()}</div>;
+  return (
+    <div className="right_sidebar">
+      <h3>
+        Contacts{' '}
+        <img
+          src="https://static.xx.fbcdn.net/rsrc.php/v3/yD/r/mk4dH3FK0jT.png?_nc_eui2=AeFVOHwR5QDy0PFoaeDqsXTxA_bf-kPbCmUD9t_6Q9sKZfLoF6L4HxvE6vancHgr4F-KGBJ5YmXdnxaZ55PsH0xp"
+          alt="group icon indicating friends"
+        />
+      </h3>
+      {renderFriends()}
+    </div>
+  );
 };
 
 export default Rightsidebar;

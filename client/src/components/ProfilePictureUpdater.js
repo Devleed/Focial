@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateProfilePicture } from '../helpers';
 import Modal from './HomeComponents/Modal';
-import { Icon, Button } from 'semantic-ui-react';
+import { Icon } from 'semantic-ui-react';
 import ModalHead from './ModalHead';
 
 const ProfilePictureUpdater = ({ user }) => {
@@ -10,7 +10,6 @@ const ProfilePictureUpdater = ({ user }) => {
   const [preview, setPreview] = useState(null);
   const [showModal, setShowModal] = useState(null);
   const [file, setFile] = useState(null);
-  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
 
   const onChange = e => {
@@ -34,7 +33,6 @@ const ProfilePictureUpdater = ({ user }) => {
 
   const onPictureChange = e => {
     e.stopPropagation();
-    setLoading(true);
     dispatch(updateProfilePicture(file, afterUpload));
   };
 
@@ -79,11 +77,7 @@ const ProfilePictureUpdater = ({ user }) => {
             </div>
           </Modal>
           <img
-            src={`${
-              user.profile_picture
-                ? user.profile_picture
-                : 'https://homepages.cae.wisc.edu/~ece533/images/watch.png'
-            }`}
+            src={user.profile_picture}
             alt="profile photo"
             className="profile_photo"
             onClick={() => setShowModal(true)}
@@ -93,11 +87,7 @@ const ProfilePictureUpdater = ({ user }) => {
     } else {
       return (
         <img
-          src={`${
-            user.profile_picture
-              ? user.profile_picture
-              : 'https://homepages.cae.wisc.edu/~ece533/images/watch.png'
-          }`}
+          src={user.profile_picture}
           alt="profile photo"
           className="profile_photo"
         />

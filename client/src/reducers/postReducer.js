@@ -27,7 +27,6 @@ export default (state = INITIAL_STATE, action) => {
       return { ...state, postLoading: action.payload };
     case GET_POST:
       let allPosts = [...state.posts, ...action.payload];
-      console.log(allPosts);
       return {
         ...state,
         posts: Array.from(new Set(allPosts.map(post => post._id))).map(id =>
@@ -108,7 +107,12 @@ export default (state = INITIAL_STATE, action) => {
             return { ...post, body: action.payload.body };
           }
           return post;
-        })
+        }),
+        selectedPost: state.selectedPost
+          ? state.selectedPost._id === action.payload._id
+            ? { ...state.selectedPost, body: action.payload.body }
+            : state.selectedPost
+          : null
       };
     case RESET_POSTS:
       return {

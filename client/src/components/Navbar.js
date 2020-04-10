@@ -7,7 +7,7 @@ import {
   LOGOUT_SUCCESS,
   RESET_REQUESTS,
   RESET_POSTS,
-  POST_LOADING
+  POST_LOADING,
 } from '../helpers/actionTypes';
 import Search from './Search';
 import RequestManager from './RequestManager';
@@ -63,13 +63,13 @@ const Navbar = () => {
       </NavLink>
       <Search />
       <NavLink
-        to={`/user/${user._id}`}
+        to={`/chats`}
         className="logo"
         style={{
           fontSize: '16px',
           padding: '0 20px',
           borderRight: '2px solid rgba(199, 199, 199, 0.796)',
-          margin: ' 0 20px 5px 0'
+          margin: ' 0 20px 5px 0',
         }}
       >
         {user.profile_picture ? (

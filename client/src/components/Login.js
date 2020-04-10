@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 
 import { reduxForm, Field } from 'redux-form';
-import { Form, Header, Message, Container } from 'semantic-ui-react';
+import { Form, Message } from 'semantic-ui-react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import Loader from './Loader';
+import OverlayLoader from './OverlayLoader';
 import { loginUser } from '../helpers';
 import { LOGIN_FAIL } from '../helpers/actionTypes';
 import { Link, Redirect } from 'react-router-dom';
@@ -60,11 +61,8 @@ const Login = props => {
       return <Loader />;
     } else {
       return (
-        <Form
-          loading={loading}
-          onSubmit={props.handleSubmit(onFormSubmit)}
-          className="formStyle"
-        >
+        <Form onSubmit={props.handleSubmit(onFormSubmit)} className="formStyle">
+          {loading ? <OverlayLoader /> : null}
           <h1>Login</h1>
           <Form.Field>
             <Field

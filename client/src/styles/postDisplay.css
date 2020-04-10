@@ -15,7 +15,6 @@
 .post_head > img {
   width: 33px;
   height: 33px;
-  border: 1px solid var(--text-color);
   border-radius: 50%;
 }
 .post_head {
@@ -122,21 +121,21 @@
 /* create post */
 .create_post {
   width: 500px;
-  height: 50px;
+  height: 60px;
   background-color: var(--web-splash);
   display: flex;
   align-items: center;
-  padding: 5px 10px;
+  padding: 12px 17px;
   border-radius: 10px;
 }
 .create_post > img {
-  width: 33px;
-  height: 33px;
+  width: 41px;
+  height: 41px;
   border-radius: 50px;
   margin-right: 10px;
 }
 .create_post > input {
-  padding: 8px 5px;
+  padding: 12px 10px;
   background-color: var(--extra);
   border: none;
   width: 100%;
@@ -145,7 +144,7 @@
   transition: all 0.1s ease 0s;
 }
 .create_post > input:hover {
-  background-color: var(--extra);
+  background-color: var(--web-back);
 }
 
 /* create post - modal */
@@ -169,6 +168,9 @@
 .modal-head > h3 {
   margin: 0;
   margin-left: 160px;
+}
+.modal-head i {
+  cursor: pointer;
 }
 .small-picture-post {
   width: 33px;
@@ -357,4 +359,36 @@
   text-align: center;
   letter-spacing: 2px;
   color: var(--text-color);
+}
+/* scraped data */
+.scraped_data {
+  margin-top: 15px;
+  /* background-color: rgb(236, 236, 236); */
+  /* display: flex; */
+  width: 100%;
+}
+.scraped_data > div {
+  padding: 15px;
+  margin: 0 20px;
+  border: 2px solid var(--extra);
+  border-top: none;
+  line-height: 2.2rem !important;
+}
+.scraped_data > div > h1 {
+  font-weight: 900;
+  color: var(--text-color);
+  margin: 0 !important;
+  line-height: 2.2rem;
+}
+.scraped_data > div > span {
+  font-size: 12px;
+  color: var(--primary);
+}
+.scraped_data > div > p {
+  color: var(--secondary);
+}
+.scraped_data img {
+  width: 100%;
+  height: 100%;
+  /* flex: 1; */
 }

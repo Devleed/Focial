@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Dropdown } from 'semantic-ui-react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   calculateDate,
   notificationOpened,
-  notificationSeen,
-  getNotification
+  notificationSeen
 } from '../helpers';
 
 const NotificationManager = () => {
@@ -19,7 +18,7 @@ const NotificationManager = () => {
     (a, b) => new Date(b.date) - new Date(a.date)
   );
 
-  let interval;
+  // let interval;
 
   // useEffect(() => {
   //   (() => {

@@ -9,8 +9,9 @@ export const LOGIN_FAIL = 'login_fail';
 export const LOGOUT_SUCCESS = 'logout_success';
 export const USER_LOADING = 'user_loading';
 
-// user actio types
+// user action types
 export const GET_FRIENDS = 'get_friends';
+export const SET_SOCKET = 'set_socket';
 
 // get emails and errors action types
 export const GET_ERRORS = 'get_errors';
@@ -71,3 +72,10 @@ export const DELETING = 'deleting';
 // notificaion action types
 export const GET_NOTIFICATION = 'get_notification';
 export const OPEN_NOTIFICATION = 'open_notification';
+
+// messages action types
+export const CREATE_MESSAGE = 'create_message';
+export const GET_MESSAGES = 'get_messages';
+export const GET_CHATS = 'get_chats';
+export const CHAT_LOADING = 'chat_loading';
+export const SELECTED_CHAT_LOADING = 'selected_chat_loading';

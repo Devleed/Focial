@@ -1,10 +1,29 @@
-import React, { useState } from 'react';
-import { Field, reduxForm } from 'redux-form';
-import { useDispatch } from 'react-redux';
-import { Button, Icon } from 'semantic-ui-react';
-import { editPost, calculateDate } from '../../../helpers';
-import Modal from '../Modal';
+import React from 'react';
 import { NavLink } from 'react-router-dom';
+import moment from 'moment';
+
+const renderBody = (text, data) => {
+  let urlRegex = /(https?:\/\/[^\s]+)/g;
+  return text.split(urlRegex).map((t, index) => {
+    if (!t.match(urlRegex)) return null;
+    return (
+      <a key={index} href={t} target="_blank" style={{ color: '#008ecc' }}>
+        {data ? (
+          <div className="scraped_data">
+            <img src={data[0].image} alt={`${data[0].title} image`} />
+            <div>
+              <h1>{data[0].title}</h1>
+              <span>{data[0].url}</span>
+              <p>{data[0].description}</p>
+            </div>
+          </div>
+        ) : (
+          t
+        )}
+      </a>
+    );
+  });
+};
 
 const PostBody = ({ post }) => {
   let shared,
@@ -12,18 +31,14 @@ const PostBody = ({ post }) => {
     body = post.body;
 
   const textStyle = {
-    fontSize: '24px'
+    fontSize: '24px',
   };
 
   if (post.date_shared) {
     shared = true;
     textStyle.fontSize = '12px';
-    if (post.post) {
-      body = post.post.body;
-      if (post.post.post_image || post.post.body.length > 200) {
-        image = post.post.post_image;
-      }
-    }
+    body = post.post.body;
+    if (post.post.post_image) image = post.post.post_image;
   } else if (post.post_image || post.body.length > 200) {
     image = post.post_image;
     textStyle.fontSize = '12px';
@@ -35,7 +50,7 @@ const PostBody = ({ post }) => {
         <div
           className="share_info"
           style={{
-            borderTop: image ? 'none' : '1px solid var(--extra)'
+            borderTop: image ? 'none' : '1px solid var(--extra)',
           }}
         >
           {!post.post ? (
@@ -64,10 +79,12 @@ const PostBody = ({ post }) => {
                     </NavLink>
                   </strong>
                   <br />
-                  <span>{calculateDate(post.post.date_created)}</span>
+                  <span>{moment(post.post.date_created).fromNow()}</span>
                 </div>
               </div>
-              <div className="share_body">{body}</div>
+              <div className="share_body">
+                {renderBody(body, post.scrapedData)}
+              </div>
             </React.Fragment>
           )}
         </div>
@@ -80,7 +97,7 @@ const PostBody = ({ post }) => {
     <React.Fragment>
       <div className="post_body">
         <div className="post_content">
-          <p style={textStyle}>{shared ? post.content : post.body}</p>
+          <div style={textStyle}>{renderBody(post.body, post.scrapedData)}</div>
         </div>
         {image ? <img src={image.url} className="post_image" /> : null}
       </div>
@@ -89,4 +106,4 @@ const PostBody = ({ post }) => {
   );
 };
 
-export default reduxForm({ form: 'post edit form' })(PostBody);
+export default PostBody;

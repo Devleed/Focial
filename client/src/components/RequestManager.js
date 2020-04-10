@@ -16,7 +16,7 @@ const RequestManager = () => {
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
 
-  let interval;
+  // let interval;
 
   useEffect(() => {
     (() => {

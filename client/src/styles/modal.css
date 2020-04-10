@@ -50,3 +50,45 @@
 .modal-msg {
   padding: 10px 0px 0px 30px;
 }
+
+/* create new message user search */
+.modal-user-search {
+  width: 400px;
+  height: auto;
+  margin: 100px auto;
+  background-color: #2d2d2d;
+  color: white;
+  padding: 1rem;
+  position: relative;
+}
+.modal-user-search > input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgb(255, 255, 255, 0.1);
+  color: white;
+  padding: 10px;
+}
+.user-msg-results {
+  padding: 10px;
+  position: relative;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  background-color: #18191a;
+}
+.user-msg-results > li {
+  list-style-type: none;
+  border-bottom: 1px solid rgb(255, 255, 255, 0.1);
+  padding: 7px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.user-msg-results li > img {
+  width: 33px;
+  height: 33px;
+  margin-right: 10px;
+  border-radius: 50%;
+}
