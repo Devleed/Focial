@@ -1,16 +1,27 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 import '../../styles/rightSidebar.css';
 
+/** MAIN COMPONENT
+ * - responsible for displaying contact list of logged in user
+ */
 const Rightsidebar = (props) => {
+  // getting logged in user from redux store
   const user = useSelector(({ auth }) => auth.user);
 
   const renderFriends = () => {
+    // mapping through user's friends
     return user.friends.map((friend) => {
       return (
-        <NavLink to={`/user/${friend._id}`} key={friend._id}>
+        <li
+          to={`#!`}
+          key={friend._id}
+          onClick={() => {
+            props.setShowChatBox(true);
+            props.setSelectedChat(friend._id);
+          }}
+        >
           <img
             className="small-picture"
             src={friend.profile_picture}
@@ -18,7 +29,7 @@ const Rightsidebar = (props) => {
           />
           <p>{friend.name}</p>
           <span />
-        </NavLink>
+        </li>
       );
     });
   };

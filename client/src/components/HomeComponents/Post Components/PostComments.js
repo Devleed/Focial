@@ -4,12 +4,16 @@ import Loader from '../../Loader';
 
 import { NavLink } from 'react-router-dom';
 
-const PostComments = props => {
+/**
+ * MAIN COMPONENT
+ * - responsible for manage comments of a post
+ */
+const PostComments = (props) => {
   const renderComments = () => {
     if (props.loading) return <Loader />;
 
     if (props.comments && props.stats > 0) {
-      return props.comments.map(comment => {
+      return props.comments.map((comment) => {
         return (
           <div className="comment_display" key={comment._id}>
             <img

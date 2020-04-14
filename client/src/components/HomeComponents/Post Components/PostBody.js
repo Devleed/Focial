@@ -2,6 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import moment from 'moment';
 
+// function to get url from body
 const renderBody = (text, data) => {
   let urlRegex = /(https?:\/\/[^\s]+)/g;
   return text.split(urlRegex).map((t, index) => {
@@ -25,6 +26,10 @@ const renderBody = (text, data) => {
   });
 };
 
+/**
+ * MAIN COMPONENT
+ * - responsible for manage and displaying posts body
+ */
 const PostBody = ({ post }) => {
   let shared,
     image,

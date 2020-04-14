@@ -6,11 +6,15 @@ import ModalMessage from '../../ModalMessage';
 import { deletePost } from '../../../helpers';
 import { DELETING } from '../../../helpers/actionTypes';
 
+/**
+ * MAIN COMPONENT
+ * - responsible for manage deleting a post
+ */
 const DeletePost = ({ post }) => {
   const [showModal, setShowModal] = useState(null);
   const dispatch = useDispatch();
 
-  const onDeletePost = e => {
+  const onDeletePost = (e) => {
     e.preventDefault();
     e.stopPropagation();
     dispatch({ type: DELETING, payload: true });

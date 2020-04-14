@@ -1,39 +1,38 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import PostFileField from './HomeComponents/Post Components/PostFileField';
+
 import { updateProfilePicture } from '../helpers';
 import Modal from './HomeComponents/Modal';
-import { Icon } from 'semantic-ui-react';
 import ModalHead from './ModalHead';
+import { Icon } from 'semantic-ui-react';
 
+/**
+ * MAIN COMPONENT
+ * - responsible for profile picture update management
+ */
 const ProfilePictureUpdater = ({ user }) => {
+  // select logged in user
   const loggedInUser = useSelector(({ auth }) => auth.user);
+  // using state to manage image preview
   const [preview, setPreview] = useState(null);
+  // using state to manage modal display
   const [showModal, setShowModal] = useState(null);
-  const [file, setFile] = useState(null);
+  // using state to manage files
+  const [file, setFile] = useState([]);
   const dispatch = useDispatch();
 
-  const onChange = e => {
-    e.stopPropagation();
-    setShowModal(true);
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
-      let reader = new FileReader();
-      reader.onload = e => {
-        setPreview(e.target.result);
-      };
-      reader.readAsDataURL(e.target.files[0]);
-    }
-  };
-
+  // funtion to perform after uploading
   const afterUpload = () => {
     setPreview(null);
     setFile(null);
     setShowModal(false);
   };
 
-  const onPictureChange = e => {
+  // function to perform when picture is changed
+  const onPictureChange = (e) => {
     e.stopPropagation();
-    dispatch(updateProfilePicture(file, afterUpload));
+    dispatch(updateProfilePicture(file[0], afterUpload));
   };
 
   if (user) {
@@ -44,26 +43,13 @@ const ProfilePictureUpdater = ({ user }) => {
             <div className="modal-content">
               <ModalHead heading="Update" cb={setShowModal} />
               <div className="image_upload-content">
-                <div className="image-upload">
-                  <label
-                    htmlFor="file-input"
-                    onClick={e => e.stopPropagation()}
-                  >
-                    <div
-                      onClick={e => e.stopPropagation()}
-                      className="change_profilepic-btn"
-                    >
-                      <Icon name="upload" />
-                      Upload Picture
-                    </div>
-                  </label>
-                  <input
-                    id="file-input"
-                    type="file"
-                    onChange={onChange}
-                    onClick={e => e.stopPropagation()}
-                  />
-                </div>
+                <PostFileField
+                  files={file}
+                  onFileSelect={setFile}
+                  setPreview={setPreview}
+                >
+                  <Icon name="upload" />
+                </PostFileField>
                 <div>Show The World How Beautiful you are</div>
               </div>
               {preview ? (

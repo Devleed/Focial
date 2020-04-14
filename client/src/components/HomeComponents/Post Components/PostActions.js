@@ -10,7 +10,11 @@ import SharePost from './SharePost';
 import { UPDATE_STATS } from '../../../helpers/actionTypes';
 import ControlledTextarea from '../../ControlledTextarea';
 
-const PostActions = ({ post, handleSubmit, commentSection, renderBody }) => {
+/**
+ * MAIN COMPONENT
+ * - responsible for manage post actions
+ */
+const PostActions = ({ post, commentSection }) => {
   const user = useSelector(({ auth }) => auth.user);
   const [showInput, setShowInput] = useState(false);
   const [commentLoading, setCommentLoading] = useState(null);

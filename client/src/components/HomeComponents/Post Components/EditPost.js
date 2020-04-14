@@ -8,6 +8,10 @@ import PostModalContent from './PostModalContent';
 import { editPost } from '../../../helpers';
 import OverlayLoader from '../../OverlayLoader';
 
+/**
+ * MAIN COMPONENT
+ * - responsible for manage editing a post
+ */
 const EditPost = ({ post }) => {
   let image;
   if (post.date_shared) {
@@ -29,7 +33,7 @@ const EditPost = ({ post }) => {
     setValue('');
   };
 
-  const onEditPost = e => {
+  const onEditPost = (e) => {
     e.stopPropagation();
     dispatch(editPost(post._id, value, cleanUp));
   };
@@ -37,7 +41,7 @@ const EditPost = ({ post }) => {
   return (
     <React.Fragment>
       <Modal show={showModal} setShowModal={setShowModal}>
-        <div className="modal-content" onClick={e => e.stopPropagation()}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
           {loading ? <OverlayLoader /> : null}
           <ModalHead heading="Edit Post" cb={setShowModal} />
           <div className="modal-main">

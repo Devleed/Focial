@@ -2,7 +2,12 @@ import React, { useState } from 'react';
 import Login from './Login';
 import Register from './Register';
 
-const Auth = props => {
+/**
+ * MAIN COMPONENT
+ * - responsible for displaying auth forms by conditions
+ */
+const Auth = (props) => {
+  // using state to know which form to render
   const [login, setLogin] = useState(true);
 
   return (

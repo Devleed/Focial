@@ -5,36 +5,33 @@ import { useSelector, useDispatch } from 'react-redux';
 import {
   calculateDate,
   notificationOpened,
-  notificationSeen
+  notificationSeen,
 } from '../helpers';
 
+/**
+ * MAIN COMPONENT
+ * - responsible for displaying dropdown of notification and managing them
+ */
 const NotificationManager = () => {
+  // select notifications from redux store
   const notificationData = useSelector(
     ({ notificationData }) => notificationData
   );
   const dispatch = useDispatch();
 
+  // sort them in descending order by date
   notificationData.notifications.sort(
     (a, b) => new Date(b.date) - new Date(a.date)
   );
 
-  // let interval;
-
-  // useEffect(() => {
-  //   (() => {
-  //     interval = setInterval(() => {
-  //       dispatch(getNotification());
-  //     }, 5000);
-  //   })();
-  //   return () => clearInterval(interval);
-  // }, []);
-
+  // filter out the length of unseen notifications
   let unseen = notificationData.notifications.filter(
-    notification => notification.status === 0
+    (notification) => notification.status === 0
   ).length;
 
+  // function to siplay notifications
   const displayNotifications = () => {
-    return notificationData.notifications.map(notification => {
+    return notificationData.notifications.map((notification) => {
       return (
         <Dropdown.Item
           key={notification._id}
@@ -87,7 +84,7 @@ const NotificationManager = () => {
             paddingBottom: '10px',
             paddingRight: '5px',
             overflowY: 'auto',
-            maxHeight: '550px'
+            maxHeight: '550px',
           }}
           className="left"
         >

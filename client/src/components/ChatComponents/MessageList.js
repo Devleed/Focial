@@ -6,21 +6,33 @@ import moment from 'moment';
 import OverlayLoader from '../OverlayLoader';
 import CreateMessage from './CreateMessage';
 import { getMessages } from '../../helpers';
+import { DESTROY_MESSAGES } from '../../helpers/actionTypes';
 
+/**
+ * MAIN COMPONENT
+ * - responsible for displaying and managing message list
+ */
 const MessageList = (props) => {
+  // selecting active chat
   const chat = useSelector(({ messageData }) => messageData.selectedChat);
+  // selecting logged in user
   const user = useSelector(({ auth }) => auth.user);
+  // using state to manage loading state
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
 
+  // on mount
   useEffect(() => {
     if (props.id) {
-      console.log(props.id);
       setLoading(true);
       dispatch(getMessages(props.id, setLoading));
     }
+    return () => {
+      dispatch({ type: DESTROY_MESSAGES });
+    };
   }, [props.id, dispatch]);
 
+  // function to render messages
   const renderMessages = (messages) => {
     return messages.map((message, i) => {
       if (message.sentBy === user._id) {
@@ -45,6 +57,8 @@ const MessageList = (props) => {
     });
   };
 
+  // function to render messages sorted by date
+  // - parent of renderMessages()
   const renderMessagesByDate = () => {
     return chat.messagesByDate.map((message, i) => {
       message.messages.sort((a, b) => b.date - a.date);
@@ -62,10 +76,10 @@ const MessageList = (props) => {
   };
 
   return (
-    <div className="messages-div">
+    <div className={`messages-div ${props.className || ''}`}>
       {props.id ? (
         <React.Fragment>
-          <h2>Messages</h2>
+          {props.children}
           <div className="message-list">
             {loading ? <OverlayLoader /> : null}
             {renderMessagesByDate()}

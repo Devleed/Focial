@@ -6,11 +6,19 @@ import { Icon } from 'semantic-ui-react';
 import { searchUser } from '../helpers';
 import Loader from './Loader';
 
-const Search = props => {
+/**
+ * MAIN COMPONENT
+ * - responsible for displaying and managing search operations
+ */
+const Search = (props) => {
   const history = useHistory();
+  // using state to manage value
   const [value, setValue] = useState('');
+  // using state to manage laoding state
   const [loading, setLoading] = useState(null);
+  // using state to manage when to show search results
   const [showResults, setShowResults] = useState(null);
+  // selecting search results from store
   const results = useSelector(({ searchResults }) => searchResults);
   const dispatch = useDispatch();
 
@@ -18,6 +26,7 @@ const Search = props => {
 
   let elementNode;
 
+  // on mount
   useEffect(() => {
     (() => {
       unmounted.current = false;
@@ -29,14 +38,16 @@ const Search = props => {
     };
   }, []);
 
-  const onFormSubmit = e => {
+  // function to perform when form is submitted
+  const onFormSubmit = (e) => {
     e.preventDefault();
     setShowResults(false);
     let path = `/search/${value}`;
     history.push(path);
   };
 
-  const handleClick = e => {
+  // function to perform when clicked
+  const handleClick = (e) => {
     if (elementNode) {
       if (!elementNode.contains(e.target)) {
         setLoading(false);
@@ -44,7 +55,8 @@ const Search = props => {
     }
   };
 
-  const onInputChange = async e => {
+  // function to perform input is changed
+  const onInputChange = async (e) => {
     if (!unmounted.current) {
       setLoading(true);
       setShowResults(true);
@@ -57,10 +69,11 @@ const Search = props => {
     }
   };
 
+  // function to display search results
   const displaySearchResults = () => {
     if (loading) return <Loader />;
     if (results.length === 0) return <p>No results found</p>;
-    return results.map(result => {
+    return results.map((result) => {
       return (
         <NavLink to={`/user/${result._id}`} key={result._id}>
           {result.profile_picture ? (
@@ -77,7 +90,7 @@ const Search = props => {
   };
 
   return (
-    <div className="search-div" ref={node => (elementNode = node)}>
+    <div className="search-div" ref={(node) => (elementNode = node)}>
       {showResults ? (
         <div className="search_results">{displaySearchResults()}</div>
       ) : null}

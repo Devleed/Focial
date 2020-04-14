@@ -3,7 +3,10 @@ import reactDOM from 'react-dom';
 
 import '../../styles/modal.css';
 
-const Modal = props => {
+/** MAIN COMPONENT
+ * - responsible for displaying content as modal
+ */
+const Modal = (props) => {
   if (props.show) document.body.style.overflow = 'hidden';
   else document.body.style.overflowY = 'scroll';
 

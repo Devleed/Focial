@@ -14,14 +14,24 @@ import RequestManager from './RequestManager';
 import { getPost } from '../helpers';
 import { Icon, Dropdown } from 'semantic-ui-react';
 import NotificationManager from './NotificationManager';
+import ChatManager from './ChatManager';
 
+/**
+ * MAIN COMPONENT
+ * - responsible for displaying navbar and manage navigation
+ */
 const Navbar = () => {
   const dispatch = useDispatch();
+  // select if user is logged in
   const isLoggedin = useSelector(({ auth }) => auth.isAuthorized);
+  // select if user is being fetched
   const userLoading = useSelector(({ auth }) => auth.userLoading);
+  // select logged in user
   const user = useSelector(({ auth }) => auth.user);
 
+  // function to render authentication buttons
   const renderAuthButtons = () => {
+    // if user is loading return null
     if (userLoading || userLoading === null) {
       return null;
     } else {
@@ -83,7 +93,7 @@ const Navbar = () => {
       </NavLink>
       <div className="stuff" style={{ position: 'relative' }}>
         <NotificationManager />
-        <Dropdown icon="facebook messenger"></Dropdown>
+        <ChatManager />
         <RequestManager style={{ position: 'relative' }} />
         <Dropdown icon="cog"></Dropdown>
       </div>

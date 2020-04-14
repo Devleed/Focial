@@ -79,3 +79,4 @@ export const GET_MESSAGES = 'get_messages';
 export const GET_CHATS = 'get_chats';
 export const CHAT_LOADING = 'chat_loading';
 export const SELECTED_CHAT_LOADING = 'selected_chat_loading';
+export const DESTROY_MESSAGES = 'destroy_messages';

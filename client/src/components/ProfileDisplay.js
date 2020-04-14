@@ -11,15 +11,23 @@ import Posts from './HomeComponents/Post Components/Posts';
 import ProfilePictureUpdater from './ProfilePictureUpdater';
 import { Redirect } from 'react-router-dom';
 
-const ProfileDisplay = props => {
+/**
+ * MAIN COMPONENT
+ * - responsible for displaying profile of user
+ */
+const ProfileDisplay = (props) => {
   const dispatch = useDispatch();
+  // select the user which is visited
   const user = useSelector(({ visitedUser }) => visitedUser);
+  // select if user is logged in
   const isLoggedIn = useSelector(({ auth }) => auth.isAuthorized);
-
+  // select posts
   let posts = useSelector(({ postsData }) => postsData.posts);
   if (user) {
+    // filter out the posts of visited user
+    // sort them in descending order by date
     posts = posts
-      .filter(post => post.author._id === user._id)
+      .filter((post) => post.author._id === user._id)
       .sort(
         (a, b) =>
           new Date(b.date_shared ? b.date_shared : b.date_created) -
@@ -27,19 +35,24 @@ const ProfileDisplay = props => {
       );
   }
 
+  // on mount
   useEffect(() => {
     (() => {
+      // find the user by taking id from url
       dispatch(findUser(props.match.params.id));
     })();
+    // on unmount
     return () => {
       dispatch({ type: VISITED_USER, payload: null });
     };
   }, [dispatch, props.match.params.id]);
 
+  // if not logged in redirect to auth page
   if (!isLoggedIn) {
     return <Redirect to={{ pathname: '/auth' }} />;
   }
 
+  // funtion to display content
   const displayContent = () => {
     if (user) {
       return (
@@ -67,6 +80,7 @@ const ProfileDisplay = props => {
         </div>
       );
     } else {
+      // if no user is present show placeholder
       return (
         <Placeholder>
           <Placeholder>

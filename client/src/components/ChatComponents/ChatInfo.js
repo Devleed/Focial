@@ -2,7 +2,12 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 
+/**
+ * MAIN COMPONENT
+ * - responsible for displayin chat user's info
+ */
 const ChatInfo = () => {
+  // selecting which user person is chatting with
   const chatUser = useSelector(
     ({ messageData }) => messageData.selectedChat.user
   );

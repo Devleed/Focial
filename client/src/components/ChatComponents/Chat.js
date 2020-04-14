@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import queryString from 'query-string';
 
 import Modal from '../HomeComponents/Modal';
@@ -9,29 +9,30 @@ import { Redirect } from 'react-router-dom';
 import ChatList from './ChatList';
 import MessageList from './MessageList';
 import ChatInfo from './ChatInfo';
-import { PRIVATE_MESSAGE } from '../../helpers/socketTypes';
-import { CREATE_MESSAGE } from '../../helpers/actionTypes';
 
+/**
+ * MAIN COMPONENT
+ * - responsible for managing chat actions
+ */
 const Chat = (props) => {
-  const socket = useSelector(({ auth }) => auth.socket);
   const user = useSelector(({ auth }) => auth.user);
+  // using state to manage messages
   const [showMessages, setShowMessages] = useState(null);
+  // using state to manage modal
   const [showModal, setShowModal] = useState(null);
+  // using state to manage value
   const [value, setValue] = useState('');
+  // using state to manage results
   const [results, setResults] = useState([]);
-  const dispatch = useDispatch();
 
+  // on mount
   useEffect(() => {
-    socket.on(PRIVATE_MESSAGE, (message) => {
-      dispatch({ type: CREATE_MESSAGE, payload: message });
-    });
-  }, [dispatch]);
-
-  useEffect(() => {
+    // getting id from query
     const { user } = queryString.parse(props.location.search);
     setShowMessages(user);
   }, [props.location.search]);
 
+  // function to perform searching of a friend ontype
   const searchFriends = (e) => {
     setValue(e.target.value);
     if (e.target.value === '') setResults([]);
@@ -50,14 +51,15 @@ const Chat = (props) => {
     }
   };
 
+  // function to set chat active of given id
   const setChat = (id) => {
     setValue('');
     setShowMessages(id);
     setShowModal(false);
   };
 
+  // function to render results
   const renderResults = () => {
-    console.log(results);
     return results.map((result) => {
       return (
         <li key={result._id} onClick={() => setChat(result._id)}>
@@ -67,7 +69,6 @@ const Chat = (props) => {
       );
     });
   };
-
   if (!user) return <Redirect to={{ path: '/auth' }} />;
   return (
     <React.Fragment>
@@ -92,7 +93,9 @@ const Chat = (props) => {
       <Navbar />
       <div className="message-container">
         <ChatList function={setShowModal} history={props.history} />
-        <MessageList id={showMessages} />
+        <MessageList id={showMessages}>
+          <h2>Messages</h2>
+        </MessageList>
         <ChatInfo />
       </div>
     </React.Fragment>

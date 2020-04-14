@@ -4,11 +4,12 @@ import { Form, Message, Button, Container } from 'semantic-ui-react';
 
 import { sendResetEmail } from '../helpers';
 
+// function to render input fields
 const renderInput = ({
   input,
   type,
   placeholder,
-  meta: { touched, error }
+  meta: { touched, error },
 }) => {
   return (
     <div>
@@ -22,7 +23,8 @@ const renderInput = ({
   );
 };
 
-const validate = values => {
+// function to validate input fields
+const validate = (values) => {
   let errors = {};
   if (!values.email) errors.email = 'Enter email';
   else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email))
@@ -30,17 +32,24 @@ const validate = values => {
   return errors;
 };
 
-const ResetPasswordParent = props => {
+/**
+ * MAIN COMPONENT
+ * - responsible for getting user's email and performing actions
+ */
+const ResetPasswordParent = (props) => {
+  // using state to manage message
   const [msg, setMsg] = useState({ type: null, text: null });
+  // using state to manage loading state
   const [loading, setLoading] = useState(false);
-  const onFormSubmit = values => {
+  // function to perform when form is submitted
+  const onFormSubmit = (values) => {
     setLoading(true);
     sendResetEmail(values.email)
-      .then(data => {
+      .then((data) => {
         setMsg({ type: 'positive', text: data.msg });
         setLoading(false);
       })
-      .catch(e => {
+      .catch((e) => {
         setMsg({ type: 'negative', text: e.response.data.msg });
         setLoading(false);
       });
@@ -72,5 +81,5 @@ const ResetPasswordParent = props => {
 
 export default reduxForm({
   form: 'send email form',
-  validate
+  validate,
 })(ResetPasswordParent);

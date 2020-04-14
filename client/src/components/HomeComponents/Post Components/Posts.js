@@ -8,7 +8,11 @@ import PostStats from './PostStats';
 import PostHead from './PostHead';
 import PostBody from './PostBody';
 
-const Posts = props => {
+/**
+ * MAIN COMPONENT
+ * - responsible for displaying all post
+ */
+const Posts = (props) => {
   const posts = useSelector(({ postsData }) => postsData.posts);
   const postLoading = useSelector(({ postsData }) => postsData.postLoading);
 

@@ -7,21 +7,32 @@ import {
   deleteRequest,
   acceptRequest,
   rejectRequest,
-  unfriendUser
+  unfriendUser,
 } from '../helpers';
 
+/**
+ * MAIN COMPONENT
+ * - responsible for managing and displaying buttons
+ * - which represent the relation with visited user
+ */
 const RequestButtons = ({ user, float }) => {
   const dispatch = useDispatch();
+  // select logged in user
   const loggedInUser = useSelector(({ auth }) => auth.user);
+  // select requests send and recieved by user
   const requests = useSelector(({ requests }) => requests);
+  // using state to manage loading state
   const [loading, setLoading] = useState(false);
 
   let selectedRequest;
 
-  const checkStatus = id => {
-    const sent = requests.sent.filter(request => request.reciever._id === id);
+  // function to check friend status
+  const checkStatus = (id) => {
+    // filter out requests sent by user
+    const sent = requests.sent.filter((request) => request.reciever._id === id);
+    // filter out requests recieved by user
     const recieved = requests.recieved.filter(
-      request => request.sender._id === id
+      (request) => request.sender._id === id
     );
     if (sent.length > 0) {
       selectedRequest = sent[0];
@@ -39,6 +50,7 @@ const RequestButtons = ({ user, float }) => {
 
   if (loggedInUser)
     if (loggedInUser.friends.includes(user._id)) {
+      // check if they are already friends
       return (
         <Button
           {...buttonFloatProp}

@@ -9,7 +9,11 @@ import Loader from '../../Loader';
 import Navbar from '../../Navbar';
 import { DESTROY_POST } from '../../../helpers/actionTypes';
 
-const PostDisplay = props => {
+/**
+ * MAIN COMPONENT
+ * - responsible for displaying a single post
+ */
+const PostDisplay = (props) => {
   const dispatch = useDispatch();
   const post = useSelector(({ postsData }) => postsData.selectedPost);
 

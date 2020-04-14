@@ -4,10 +4,13 @@ import { NavLink } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import moment from 'moment';
 
-import { calculateDate } from '../../../helpers';
 import DeletePost from './DeletePost';
 import EditPost from './EditPost';
 
+/**
+ * MAIN COMPONENT
+ * - responsible for displaaying head of a post
+ */
 const PostHead = ({ post }) => {
   const userLoggedIn = useSelector(({ auth }) => auth.user);
 

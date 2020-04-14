@@ -8,17 +8,17 @@ import { registerUser } from '../helpers';
 import { REGISTER_FAIL } from '../helpers/actionTypes';
 import OverlayLoader from './OverlayLoader';
 
-// render input fields
+// function to render input fields
 const renderInput = ({
   input,
   type,
   placeholder,
-  meta: { touched, error }
+  meta: { touched, error },
 }) => {
   let style;
   if (touched && error) {
     style = {
-      border: '1px solid #FFA6A6'
+      border: '1px solid #FFA6A6',
       // backgroundColor: '#FFEDED'
     };
   }
@@ -34,8 +34,8 @@ const renderInput = ({
   );
 };
 
-// validate inputs
-const validate = values => {
+// function to validate inputs
+const validate = (values) => {
   const errors = {};
   if (!values.name) errors.name = 'Name is required';
   if (!values.email) errors.email = 'Email is required';
@@ -51,20 +51,29 @@ const validate = values => {
   return errors;
 };
 
-/** MAIN COMPONENT */
-const Register = props => {
+/** MAIN COMPONENT
+ * - responsible for displaying and managing register operations
+ */
+const Register = (props) => {
   const dispatch = useDispatch();
+  // select error from store
   const error = useSelector(({ error }) => error);
+  // select if user is logged in
   const isLoggedIn = useSelector(({ auth }) => auth.isAuthorized);
 
+  // using state to manage loading
   const [loading, setLoading] = useState(false);
 
-  const onFormSubmit = values => {
+  // funtion to perform when form is submitted
+  const onFormSubmit = (values) => {
+    // set loading to true
     setLoading(true);
     let opts = { setLoading, redirect: props.history.push };
     dispatch(registerUser(values, opts));
   };
+  // function to render form
   const renderForm = () => {
+    // if user is logged in return message
     if (isLoggedIn) {
       return (
         <Message warning style={{ marginTop: '60px ' }}>
@@ -134,7 +143,8 @@ const Register = props => {
   return renderForm();
 };
 
+// powered by redux forms
 export default reduxForm({
   form: 'registration form',
-  validate
+  validate,
 })(Register);

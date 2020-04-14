@@ -5,7 +5,11 @@ import { Icon } from 'semantic-ui-react';
 import { likePost, unlikePost } from '../../../helpers';
 import { UPDATE_STATS } from '../../../helpers/actionTypes';
 
-const LikePost = props => {
+/**
+ * MAIN COMPONENT
+ * - responsible for manage liking a post
+ */
+const LikePost = (props) => {
   const userLoggedIn = useSelector(({ auth }) => auth.user._id);
   const [activeButton, setActiveButton] = useState(null);
 
@@ -16,7 +20,7 @@ const LikePost = props => {
     dispatch(unlikePost(props.id));
     dispatch({
       type: UPDATE_STATS,
-      payload: { id: props.id, stats: { likes: --props.likes.length } }
+      payload: { id: props.id, stats: { likes: --props.likes.length } },
     });
   };
   const likeThisPost = () => {
@@ -25,7 +29,7 @@ const LikePost = props => {
     dispatch(likePost(props.id, createNotification));
     dispatch({
       type: UPDATE_STATS,
-      payload: { id: props.id, stats: { likes: ++props.likes.length } }
+      payload: { id: props.id, stats: { likes: ++props.likes.length } },
     });
   };
 

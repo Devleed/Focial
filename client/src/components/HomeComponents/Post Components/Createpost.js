@@ -8,7 +8,11 @@ import ModalHead from '../../ModalHead';
 import PostModalContent from './PostModalContent';
 import OverlayLoader from '../../OverlayLoader';
 
-const Createpost = props => {
+/**
+ * MAIN COMPONENT
+ * - responsible for manage creating a post
+ */
+const Createpost = (props) => {
   const [showModal, setShowModal] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
   const [files, setFiles] = useState([]);
@@ -28,9 +32,8 @@ const Createpost = props => {
 
   const onCreatePost = () => {
     setLoading(true);
-    // dispatch({ type: POSTING, payload: true });
     let postContent = {
-      postField: value
+      postField: value,
     };
     postContent.postImageField = files[0];
     dispatch(createPost(postContent, cleanUp));
@@ -38,7 +41,7 @@ const Createpost = props => {
   return (
     <React.Fragment>
       <Modal show={showModal} setShowModal={setShowModal}>
-        <div className="modal-content" onClick={e => e.stopPropagation()}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
           {loading ? <OverlayLoader /> : null}
           <ModalHead heading="Create Post" cb={setShowModal} />
           <div className="modal-main">

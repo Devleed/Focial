@@ -5,7 +5,12 @@ import '../../styles/leftSidebar.css';
 import { NavLink } from 'react-router-dom';
 import { Icon } from 'semantic-ui-react';
 
+/** MAIN COMPONENT
+ * - responsible for displaying menu on the left
+ * - handles navigation between pages
+ */
 const LeftSidebar = () => {
+  // importing logged in user
   const user = useSelector(({ auth }) => auth.user);
 
   return (

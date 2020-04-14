@@ -8,6 +8,10 @@ import ModalHead from '../../ModalHead';
 import PostModalContent from './PostModalContent';
 import OverlayLoader from '../../OverlayLoader';
 
+/**
+ * MAIN COMPONENT
+ * - responsible for manage sharing a post
+ */
 const SharePost = ({ post }) => {
   let image;
   if (post.date_shared) {
@@ -28,7 +32,7 @@ const SharePost = ({ post }) => {
     setValue('');
   };
 
-  const onSharePost = e => {
+  const onSharePost = (e) => {
     setLoading(true);
     e.preventDefault();
     dispatch(sharePost(post._id, value, cleanUp));
@@ -37,7 +41,7 @@ const SharePost = ({ post }) => {
   return (
     <React.Fragment>
       <Modal show={showModal} setShowModal={setShowModal}>
-        <div className="modal-content" onClick={e => e.stopPropagation()}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
           {loading ? <OverlayLoader /> : null}
           <ModalHead heading="Share Post" cb={setShowModal} />
           <div className="modal-main">
@@ -55,7 +59,7 @@ const SharePost = ({ post }) => {
           </div>
         </div>
       </Modal>
-      <button className="share_button" onClick={e => setShowModal(true)}>
+      <button className="share_button" onClick={(e) => setShowModal(true)}>
         <Icon name="share" />
         <p>share</p>
       </button>

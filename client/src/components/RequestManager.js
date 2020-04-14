@@ -7,17 +7,25 @@ import {
   acceptRequest,
   rejectRequest,
   checkRequest,
-  requestSeen
+  requestSeen,
 } from '../helpers';
 
+/**
+ * MAIN COMPONENT
+ * - responsible for managing and displaying requests
+ */
 const RequestManager = () => {
+  // select requests recieved by logged in user
   const requestsRecieved = useSelector(({ requests }) => requests.recieved);
+  // select logged in user
   const loggedInUser = useSelector(({ auth }) => auth.user);
+  // using state to manage loading state
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
 
   // let interval;
 
+  // on mount
   useEffect(() => {
     (() => {
       // interval = setInterval(() => {
@@ -27,10 +35,12 @@ const RequestManager = () => {
     // return () => clearInterval(interval);
   }, []);
 
-  let unseen = requestsRecieved.filter(request => request.status === 0);
+  // filter unseen requests
+  let unseen = requestsRecieved.filter((request) => request.status === 0);
 
+  // function to render requests
   const renderRequest = () => {
-    return requestsRecieved.map(request => {
+    return requestsRecieved.map((request) => {
       return (
         <Dropdown.Item
           key={request._id}
@@ -55,7 +65,7 @@ const RequestManager = () => {
           ) : (
             <React.Fragment>
               <button
-                onClick={e => {
+                onClick={(e) => {
                   e.stopPropagation();
                   dispatch(acceptRequest(request._id, setLoading));
                 }}
@@ -64,7 +74,7 @@ const RequestManager = () => {
                 {loading ? <Loader active /> : 'Accept'}
               </button>
               <button
-                onClick={e => {
+                onClick={(e) => {
                   e.stopPropagation();
                   dispatch(rejectRequest(request._id, setLoading));
                 }}
@@ -91,7 +101,7 @@ const RequestManager = () => {
           style={{
             width: '360px',
             paddingBottom: '10px',
-            paddingRight: '5px'
+            paddingRight: '5px',
           }}
           className="left"
         >

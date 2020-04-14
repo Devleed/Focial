@@ -2,6 +2,7 @@ import {
   CREATE_MESSAGE,
   GET_MESSAGES,
   GET_CHATS,
+  DESTROY_MESSAGES,
 } from '../helpers/actionTypes';
 import moment from 'moment';
 
@@ -17,15 +18,9 @@ const INITIAL_STATE = {
 
 const getMessagesByDate = (messagesByDate, payload) => {
   let date = moment(payload.date).format('L').replace(/\//g, '-');
-  console.log('created message date => ', date);
   let noChange = 0;
   messagesByDate = messagesByDate.map((msg) => {
-    console.log('looping message date', msg.date);
     if (msg.date.replace(/\//g, '-') === date) {
-      console.log('returned object', {
-        ...msg,
-        messages: [...msg.messages, payload],
-      });
       return {
         ...msg,
         messages: [...msg.messages, payload],
@@ -35,7 +30,6 @@ const getMessagesByDate = (messagesByDate, payload) => {
       return msg;
     }
   });
-  console.log('no Change => ', noChange === messagesByDate.length);
   if (noChange === messagesByDate.length)
     return [...messagesByDate, { date, messages: [payload] }];
   return messagesByDate;
@@ -84,6 +78,11 @@ export default (state = INITIAL_STATE, action) => {
               ]
             : state.chats,
         selectedChat: action.payload,
+      };
+    case DESTROY_MESSAGES:
+      return {
+        ...state,
+        selectedChat: INITIAL_STATE.selectedChat,
       };
     default:
       return state;

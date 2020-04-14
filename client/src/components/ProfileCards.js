@@ -2,13 +2,17 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import RequestButtons from './RequestButtons';
 
+/**
+ * MAIN COMPONENT
+ * - responsible for displaying profile cards
+ */
 const ProfileCards = ({
   user,
   children,
   className,
   owner,
   mutualFriends,
-  style
+  style,
 }) => {
   return (
     <div className={`profile_card ${className} ${style}`} key={user._id}>

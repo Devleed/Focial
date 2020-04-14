@@ -18,7 +18,6 @@ const app = express();
 const port = process.env.PORT || 5000;
 const server = app.listen(port, () => console.log(`listening on port ${port}`));
 
-// setting up socket.io
 const io = socketio(server);
 
 // setting up cloudinary
@@ -78,6 +77,8 @@ io.on('connection', (socket) => {
       socket.broadcast.emit('online_users', Object.keys(onlineUsers));
       socket.emit('online_users', Object.keys(onlineUsers));
     });
+
+    socket.on('test', (data) => console.log(data));
 
     // user sending private message to somenone
     socket.on('private_message', async ({ reciever, body }, cb) => {

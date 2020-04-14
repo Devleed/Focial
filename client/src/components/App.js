@@ -17,15 +17,25 @@ import Chat from './ChatComponents/Chat';
 
 let socket;
 
+/**
+ * MAIN COMPONENT
+ * - responsible for managing routes
+ * - basic app setup
+ * - startup of app
+ */
 const App = () => {
   const dispatch = useDispatch();
+  // setting backend endpoint
   const ENDPOINT = 'localhost:5000';
 
+  // on component mount
   useEffect(() => {
     (() => {
+      // set up socket io
       socket = io(ENDPOINT);
       dispatch({ type: SET_SOCKET, payload: socket });
 
+      // try to load user
       dispatch({ type: USER_LOADING, payload: true });
       dispatch(loadUser());
     })();

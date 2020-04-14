@@ -9,14 +9,22 @@ import '../styles/searchResults.css';
 import { Loader } from 'semantic-ui-react';
 import ProfileCards from './ProfileCards';
 
-const SearchResults = props => {
+/**
+ * MAIN COMPONENT
+ * - responsible for displaying and managing search results
+ */
+const SearchResults = (props) => {
+  // select results from store
   const results = useSelector(({ searchResults }) => searchResults);
+  // select logged in user
   const loggedInUser = useSelector(({ auth }) => auth.user);
   const dispatch = useDispatch();
+  // using state to manage loading state
   const [loading, setLoading] = useState(null);
 
   // let _unmounted;
 
+  // on mount
   useEffect(() => {
     (() => {
       // _unmounted = false;
@@ -29,14 +37,16 @@ const SearchResults = props => {
     };
   }, [dispatch, props.match.params.term]);
 
-  const getMutualFriends = friends => {
+  // function to get mutual friends
+  const getMutualFriends = (friends) => {
     let mutualFriends = 0;
-    friends.forEach(friend => {
+    friends.forEach((friend) => {
       if (loggedInUser.friends.includes(friend)) mutualFriends++;
     });
     return mutualFriends;
   };
 
+  // function to display results
   const displayResults = () => {
     return results.map((result, i) => {
       return (

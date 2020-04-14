@@ -96,7 +96,7 @@
 .create-message > textarea:focus {
   outline: none;
 }
-.create-message > i {
+.create-message i {
   font-size: 1.5rem;
   color: var(--primary);
 }
@@ -114,9 +114,8 @@
   font-size: 10px;
   color: var(--secondary);
   position: relative;
-  bottom: -7px;
-  left: 50%;
-  margin-left: -5%;
+  bottom: -9px;
+  left: 45%;
   padding: 0px 10px;
   z-index: 9;
   background-color: var(--web-back);
@@ -153,13 +152,19 @@
 .friend-msg > span {
   color: var(--secondary);
   font-size: 9px;
-  margin-bottom: -6px;
-  /* visibility: hidden; */
+  margin-bottom: -5px;
+  visibility: hidden;
 }
-/* .own-msg:hover > span,
+.own-msg > span {
+  margin-right: 5px;
+}
+.friend-msg > span {
+  margin-left: 5px;
+}
+.own-msg:hover > span,
 .friend-msg:hover > span {
   visibility: visible;
-} */
+}
 .own-msg:hover > i,
 .friend-msg:hover > i {
   visibility: visible;
@@ -190,4 +195,64 @@
   top: 50%;
   transform: translate(0, -50px);
   font-family: cursive;
+}
+/* chat box styles */
+.chat_box {
+  width: 350px;
+  height: 450px;
+  position: fixed;
+  bottom: 20px;
+  right: 100px;
+  box-shadow: 5px 5px 20px 10px var(--web-back);
+  background-color: var(--web-back);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  z-index: 99;
+  color: var(--text-color);
+}
+.chat_box-info {
+  flex: 1;
+  background-color: var(--primary);
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+  display: flex;
+  padding: 5px 10px;
+  align-items: center;
+}
+.chat_box-info > img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+.chat_box-info > a:hover {
+  color: var(--text-color);
+}
+.chat_box-info > a {
+  flex: 2;
+}
+.message_image-preview {
+  width: 100%;
+  background-color: inherit;
+  display: flex;
+  flex-direction: row;
+  padding: 20px;
+}
+.message_image-preview img {
+  width: 77px;
+  height: auto;
+  border-radius: 10px;
+}
+.message_image-preview div {
+  position: relative;
+}
+.message_image-preview button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  border: none;
+  font-size: 17px;
+  background-color: grey;
+  color: white;
 }

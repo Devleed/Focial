@@ -329,13 +329,11 @@ export const createPost = ({ postField, postImageField }, cleanUp) => async (
     config.headers['Authorization'] = getState().auth.token;
   }
   try {
-    console.log('creating');
     const formData = new FormData();
     formData.append('postBody', postField);
     formData.append('photo', postImageField);
 
     const { data } = await Axios.post('/api/post', formData, config);
-    console.log('creaed');
 
     dispatch({ type: CREATE_POST, payload: data });
     dispatch({ type: POSTING, payload: false });

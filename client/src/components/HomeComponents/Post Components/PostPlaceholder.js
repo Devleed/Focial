@@ -1,6 +1,10 @@
 import React from 'react';
 import { Placeholder, Segment } from 'semantic-ui-react';
 
+/**
+ * MAIN COMPONENT
+ * - responsible for displaying placeholder for post
+ */
 const PostPlaceholder = () => {
   return (
     <Segment
@@ -9,7 +13,7 @@ const PostPlaceholder = () => {
         position: 'relative',
         top: '0',
         right: '0',
-        zIndex: '0'
+        zIndex: '0',
       }}
       inverted
     >

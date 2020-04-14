@@ -1,6 +1,10 @@
 import React from 'react';
 import { Icon } from 'semantic-ui-react';
 
+/**
+ * MAIN COMPONENT
+ * - responsible for displaying stats of post
+ */
 const PostStats = ({ stats }) => {
   return (
     <div className="post_stats">

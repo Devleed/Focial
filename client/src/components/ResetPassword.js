@@ -6,17 +6,18 @@ import {
   Header,
   Message,
   Loader,
-  Container
+  Container,
 } from 'semantic-ui-react';
 import { useDispatch } from 'react-redux';
 
 import { resetPassword, clearError, resetPasswordViaEmail } from '../helpers';
 
+// function to render input fields
 const renderInput = ({
   input,
   type,
   placeholder,
-  meta: { touched, error }
+  meta: { touched, error },
 }) => {
   return (
     <div>
@@ -30,7 +31,8 @@ const renderInput = ({
   );
 };
 
-const validate = values => {
+// function to validate input fields
+const validate = (values) => {
   let errors = {};
   if (!values.password) errors.password = 'Enter password';
   else if (values.password !== values.confirm_password)
@@ -40,29 +42,39 @@ const validate = values => {
   return errors;
 };
 
-const ResetPassword = props => {
+/**
+ * MAIN COMPONENT
+ * - responsible for displaying and managing reset password form
+ */
+const ResetPassword = (props) => {
   const dispatch = useDispatch();
+  // using state to manage message
   const [msg, setMsg] = useState('');
+  // using state to manage email
   const [email, setEmail] = useState(null);
+  // using state to manage loading state
   const [loading, setLoading] = useState(false);
 
+  // on mount
   useEffect(() => {
     (() => {
       resetPassword(props.match.params.token)
-        .then(data => {
+        .then((data) => {
           if (data.type === 'err') throw data.err;
           else {
             setMsg(data.msg);
             setEmail(data.email);
           }
         })
-        .catch(e => setMsg(e.response.data.msg));
+        .catch((e) => setMsg(e.response.data.msg));
     })();
   }, [props.match.params.token]);
-  const onFormSubmit = values => {
+
+  // function to perform when for is submitted
+  const onFormSubmit = (values) => {
     setLoading(true);
     resetPasswordViaEmail({ email, password: values.password })
-      .then(data => {
+      .then((data) => {
         if (data.type === 'err') throw data.err;
         else {
           dispatch(clearError());
@@ -70,12 +82,13 @@ const ResetPassword = props => {
           props.history.push('/login');
         }
       })
-      .catch(e => {
+      .catch((e) => {
         setLoading(false);
         setMsg(e.response.data.msg);
       });
   };
   const display = () => {
+    // if loading return loader
     if (loading) {
       return <Loader active />;
     }
@@ -118,7 +131,8 @@ const ResetPassword = props => {
   return <Container className="containerStyle">{display()}</Container>;
 };
 
+// powered by redux forms
 export default reduxForm({
   form: 'reset password form',
-  validate
+  validate,
 })(ResetPassword);
