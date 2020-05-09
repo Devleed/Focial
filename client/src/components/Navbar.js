@@ -73,7 +73,7 @@ const Navbar = () => {
       </NavLink>
       <Search />
       <NavLink
-        to={`/chats`}
+        to={`/user/${user._id}`}
         className="logo"
         style={{
           fontSize: '16px',

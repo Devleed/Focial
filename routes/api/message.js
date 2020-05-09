@@ -8,7 +8,7 @@ router.use(express.json());
 const Message = require('../../models/Message');
 const User = require('../../models/User');
 
-const getConditionQuery = (id) => ({ $eq: ['$sender', getObjectId(id)] });
+const getConditionQuery = id => ({ $eq: ['$sender', getObjectId(id)] });
 
 console.log(require('../../server'));
 // check for messages
@@ -22,9 +22,9 @@ router.get(
           $match: {
             $or: [
               { reciever: getObjectId(req.user._id) },
-              { sender: getObjectId(req.user._id) },
-            ],
-          },
+              { sender: getObjectId(req.user._id) }
+            ]
+          }
         },
         {
           $group: {
@@ -32,8 +32,8 @@ router.get(
               $cond: {
                 if: getConditionQuery(req.user._id),
                 then: '$reciever',
-                else: '$sender',
-              },
+                else: '$sender'
+              }
             },
             message: {
               $last: {
@@ -41,26 +41,26 @@ router.get(
                   $cond: {
                     if: getConditionQuery(req.user._id),
                     then: req.user._id,
-                    else: '$sender',
-                  },
+                    else: '$sender'
+                  }
                 },
                 body: '$body',
                 date: '$date',
-                status: '$status',
-              },
-            },
-          },
+                status: '$status'
+              }
+            }
+          }
         },
         {
           $lookup: {
             from: 'users',
             localField: '_id',
             foreignField: '_id',
-            as: 'user',
-          },
+            as: 'user'
+          }
         },
         {
-          $unwind: '$user',
+          $unwind: '$user'
         },
         {
           $project: {
@@ -69,9 +69,9 @@ router.get(
             'user._id': 1,
             'user.register_date': 1,
             message: 1,
-            _id: 0,
-          },
-        },
+            _id: 0
+          }
+        }
       ]);
 
       res.json(messages);
@@ -92,7 +92,7 @@ router.post(
         sender: getObjectId(req.user._id),
         reciever: getObjectId(req.params.id),
         body: req.body.messageBody,
-        date: Date.now(),
+        date: Date.now()
       });
 
       const savedMessage = await newMessage.save();
@@ -100,7 +100,7 @@ router.post(
       res.json({
         sentBy: true,
         body: savedMessage.body,
-        date: savedMessage.date,
+        date: savedMessage.date
       });
     } catch (err) {
       console.error(err);
@@ -122,17 +122,17 @@ router.get(
               {
                 $or: [
                   { sender: getObjectId(req.params.id) },
-                  { sender: getObjectId(req.user._id) },
-                ],
+                  { sender: getObjectId(req.user._id) }
+                ]
               },
               {
                 $or: [
                   { reciever: getObjectId(req.params.id) },
-                  { reciever: getObjectId(req.user._id) },
-                ],
-              },
-            ],
-          },
+                  { reciever: getObjectId(req.user._id) }
+                ]
+              }
+            ]
+          }
         },
         {
           $group: {
@@ -140,16 +140,16 @@ router.get(
               date: {
                 $dateToString: {
                   format: '%m-%d-%Y',
-                  date: { $toDate: '$date' },
-                },
+                  date: { $toDate: '$date' }
+                }
               },
               user: {
                 $cond: {
                   if: getConditionQuery(req.user._id),
                   then: '$reciever',
-                  else: '$sender',
-                },
-              },
+                  else: '$sender'
+                }
+              }
             },
             messages: {
               $push: {
@@ -157,31 +157,31 @@ router.get(
                   $cond: {
                     if: getConditionQuery(req.user._id),
                     then: req.user._id,
-                    else: '$sender',
-                  },
+                    else: '$sender'
+                  }
                 },
                 body: '$body',
-                date: '$date',
-              },
-            },
-          },
+                date: '$date'
+              }
+            }
+          }
         },
         { $sort: { '_id.date': -1 } },
         {
           $group: {
             _id: '$_id.user',
             messagesByDate: {
-              $push: { date: '$_id.date', messages: '$messages' },
-            },
-          },
+              $push: { date: '$_id.date', messages: '$messages' }
+            }
+          }
         },
         {
           $lookup: {
             from: 'users',
             localField: '_id',
             foreignField: '_id',
-            as: 'user',
-          },
+            as: 'user'
+          }
         },
         { $unwind: '$user' },
         {
@@ -193,9 +193,9 @@ router.get(
             'user.email': 1,
             'user._id': 1,
             _id: 0,
-            messagesByDate: 1,
-          },
-        },
+            messagesByDate: 1
+          }
+        }
       ]);
 
       if (messages.length === 0) {
@@ -203,7 +203,7 @@ router.get(
           messagesByDate: [],
           user: await User.findById(req.params.id).select(
             'name email profile_picture register_date friends'
-          ),
+          )
         });
       }
 
@@ -229,31 +229,31 @@ router.get(
             {
               $or: [
                 { sender: getObjectId(req.params.id) },
-                { sender: getObjectId(req.user._id) },
-              ],
+                { sender: getObjectId(req.user._id) }
+              ]
             },
             {
               $or: [
                 { reciever: getObjectId(req.params.id) },
-                { reciever: getObjectId(req.user._id) },
-              ],
-            },
-          ],
-        },
+                { reciever: getObjectId(req.user._id) }
+              ]
+            }
+          ]
+        }
       },
       {
         $group: {
           _id: {
             date: {
-              $dateToString: { format: '%Y-%m-%d', date: { $toDate: '$date' } },
+              $dateToString: { format: '%Y-%m-%d', date: { $toDate: '$date' } }
             },
             user: {
               $cond: {
                 if: getConditionQuery(req.user._id),
                 then: '$reciever',
-                else: '$sender',
-              },
-            },
+                else: '$sender'
+              }
+            }
           },
           messages: {
             $push: {
@@ -261,27 +261,27 @@ router.get(
                 $cond: {
                   if: getConditionQuery(req.user._id),
                   then: '$reciever',
-                  else: '$sender',
-                },
+                  else: '$sender'
+                }
               },
-              body: '$body',
-            },
-          },
-        },
+              body: '$body'
+            }
+          }
+        }
       },
       {
         $group: {
           _id: '$_id.user',
-          messages: { $push: { date: '$_id.date', messages: '$messages' } },
-        },
+          messages: { $push: { date: '$_id.date', messages: '$messages' } }
+        }
       },
       {
         $lookup: {
           from: 'users',
           localField: '_id',
           foreignField: '_id',
-          as: 'user',
-        },
+          as: 'user'
+        }
       },
       { $unwind: '$user' },
       {
@@ -293,9 +293,9 @@ router.get(
           'user.email': 1,
           'user._id': 1,
           _id: 0,
-          messages: 1,
-        },
-      },
+          messages: 1
+        }
+      }
     ]);
     res.json(messages[0]);
   }

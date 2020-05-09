@@ -6,11 +6,11 @@ import Rightsidebar from './HomeComponents/Rightsidebar';
 import Navbar from './Navbar';
 import Postarea from './HomeComponents/Postarea';
 import LoadingIndicator from './LoadingIndicator';
-import { getChats } from '../helpers';
+import { getChats, getPost } from '../helpers';
 import LeftSidebar from './HomeComponents/LeftSidebar';
 import { USER_CONNECTED, PRIVATE_MESSAGE } from '../helpers/socketTypes';
 import ChatBox from './ChatComponents/ChatBox';
-import { CREATE_MESSAGE } from '../helpers/actionTypes';
+import { CREATE_MESSAGE, POST_LOADING } from '../helpers/actionTypes';
 import '../styles/homepage.css';
 
 /**
@@ -37,6 +37,9 @@ const Homepage = (props) => {
       if (socket) {
         // if user is logged in
         if (user) {
+          // get all posts
+          dispatch({ type: POST_LOADING, payload: true });
+          dispatch(getPost());
           // tell server that this user is online
           socket.emit(USER_CONNECTED, user);
           // recieve all online users from server

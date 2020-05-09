@@ -3,11 +3,14 @@ const express = require('express');
 const path = require('path');
 const passport = require('passport');
 const mongoose = require('mongoose');
-const config = require('config');
 const cloudinary = require('cloudinary').v2;
 const socketio = require('socket.io');
 const cors = require('cors');
 const { getObjectId } = require('./helpers/index');
+
+// environment setup
+const dotenv = require('dotenv');
+dotenv.config();
 
 const Message = require('./models/Message');
 
@@ -22,9 +25,9 @@ const io = socketio(server);
 
 // setting up cloudinary
 cloudinary.config({
-  cloud_name: 'drhgwsxz0',
-  api_key: '269154181167999',
-  api_secret: 'kwgcJBhvxkcoDT53asrlm0w1VqE',
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: CLOUDINARY_API_SECRET
 });
 
 // setting up cors
@@ -32,7 +35,7 @@ const corsOptions = {
   credentials: true, // This is important.
   origin: (origin, callback) => {
     return callback(null, true);
-  },
+  }
 };
 app.use(cors(corsOptions));
 
@@ -47,10 +50,14 @@ app.use('/api/message', require('./routes/api/message'));
 app.use(express.json());
 app.use(passport.initialize());
 
-require('./passport_config/passport')(passport);
+// require passport service
+require('./services/passport')(passport);
+
+// require cache service
+// require('./services/cache');
 
 // setting up database
-const db = config.get('mongoURI');
+const db = process.env.MONGO_URI;
 
 // setting up mongoose
 mongoose
@@ -58,27 +65,27 @@ mongoose
     useUnifiedTopology: true,
     useNewUrlParser: true,
     useCreateIndex: true,
-    useFindAndModify: false,
+    useFindAndModify: false
   })
   .then(() => console.log('database connected'))
-  .catch((e) => console.log(`error => ${e}`));
+  .catch(e => console.log(`error => ${e}`));
 
 // socket.io management
 // all online users
 let onlineUsers = {};
 
-io.on('connection', (socket) => {
+io.on('connection', socket => {
   console.log('connected => ', socket.id);
   try {
     // user's online
-    socket.on('user_connected', (user) => {
+    socket.on('user_connected', user => {
       socket.user = user;
       onlineUsers[user._id] = socket;
       socket.broadcast.emit('online_users', Object.keys(onlineUsers));
       socket.emit('online_users', Object.keys(onlineUsers));
     });
 
-    socket.on('test', (data) => console.log(data));
+    socket.on('test', data => console.log(data));
 
     // user sending private message to somenone
     socket.on('private_message', async ({ reciever, body }, cb) => {
@@ -87,14 +94,14 @@ io.on('connection', (socket) => {
         sender: getObjectId(socket.user._id),
         reciever: getObjectId(reciever),
         body: body,
-        date: Date.now(),
+        date: Date.now()
       });
       const savedMessage = await newMessage.save();
 
       const message = {
         body: savedMessage.body,
         date: savedMessage.date,
-        sentBy: savedMessage.sender,
+        sentBy: savedMessage.sender
       };
       // check if reciever is online
       if (onlineUsers.hasOwnProperty(reciever)) {
@@ -107,7 +114,7 @@ io.on('connection', (socket) => {
     });
 
     // user's offline
-    socket.on('disconnect', (user) => {
+    socket.on('disconnect', user => {
       delete onlineUsers[user._id];
       socket.broadcast.emit('online_users', Object.keys(onlineUsers));
       socket.emit('online_users', Object.keys(onlineUsers));
@@ -124,14 +131,3 @@ if (process.env.NODE_ENV === 'production') {
     res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
   });
 }
-
-// test route
-app.get('/test', async (req, res) => {
-  const file = req.files.photo;
-  try {
-    const result = await cloudinary.uploader.upload(file.tempFilePath);
-    res.json(result.url);
-  } catch (err) {
-    console.error(err);
-  }
-});

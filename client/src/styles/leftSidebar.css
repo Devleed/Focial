@@ -39,7 +39,7 @@
 .left-sidebar .middle {
   width: 100%;
 }
-.left-sidebar .middle > li {
+.left-sidebar .middle > a {
   width: 100%;
   list-style-type: none;
   padding: 13px 10px;
@@ -56,7 +56,7 @@
   width: 30px;
   height: 30px;
 }
-.middle > li:hover {
+.left-sidebar .middle > a:hover {
   background-color: var(--extra);
 }
 .bottom {

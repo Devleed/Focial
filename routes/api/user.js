@@ -1,13 +1,11 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
-const config = require('config');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcryptjs');
 const cloudinary = require('cloudinary').v2;
 const fileUpload = require('express-fileupload');
-const { friendsFinder } = require('../../helpers/index');
 
 const router = express.Router();
 
@@ -31,7 +29,7 @@ router.get(
       let results = await User.find({ name: { $regex: regex } }).select(
         'name profile_picture email friends register_date'
       );
-      results = results.filter((user) => user.id !== req.user.id);
+      results = results.filter(user => user.id !== req.user.id);
       res.json({ searchResults: results });
     } catch (err) {
       return res.status(500).json({ msg: 'server error' });
@@ -73,15 +71,16 @@ router.post('/login', (req, res, next) => {
     async (err, user, info) => {
       if (err) next(err);
       if (!user) generateError(res, 401, 'email or password is incorrect');
+
       await User.populate(user, {
         path: 'friends',
-        select: 'name profile_picture',
+        select: 'name profile_picture'
       });
-      jwt.sign({ id: user.id }, config.get('jwtSecret'), (err, token) => {
+      jwt.sign({ id: user.id }, process.env.JWT_SECRET, (err, token) => {
         if (err) generateError(res, 500, 'server error, try again later');
         res.json({
           token: `Bearer ${token}`,
-          user,
+          user
         });
       });
     }
@@ -99,16 +98,16 @@ router.post('/register', async (req, res) => {
       const newUser = new User({
         name: req.body.name,
         email: req.body.email,
-        password: hashedPassword,
+        password: hashedPassword
       });
       const savedUser = await newUser.save();
 
       await User.populate(savedUser, {
         path: 'friends',
-        select: 'name profile_picture',
+        select: 'name profile_picture'
       });
 
-      jwt.sign({ id: savedUser.id }, config.get('jwtSecret'), (err, token) => {
+      jwt.sign({ id: savedUser.id }, process.env.JWT_SECRET, (err, token) => {
         if (err) generateError(res, 400, 'server error, try again later');
         res.json({
           token: `Bearer ${token}`,
@@ -117,8 +116,8 @@ router.post('/register', async (req, res) => {
             friends: savedUser.friends,
             _id: savedUser.id,
             name: savedUser.name,
-            email: savedUser.email,
-          },
+            email: savedUser.email
+          }
         });
       });
     }
@@ -133,8 +132,8 @@ router.get('/reset', async (req, res) => {
     const user = await User.findOne({
       passwordResetToken: req.query.token,
       passwordResetTokenExpiry: {
-        $gt: Date.now(),
-      },
+        $gt: Date.now()
+      }
     });
 
     // if no user found then send error
@@ -143,7 +142,7 @@ router.get('/reset', async (req, res) => {
     // send response
     res.json({
       msg: 'Token is valid',
-      email: user.email,
+      email: user.email
     });
   } catch (error) {
     generateError(res, 500, 'an error occured try again later');
@@ -197,17 +196,17 @@ router.post('/forget-password', async (req, res) => {
     const transporter = nodemailer.createTransport({
       service: 'Gmail',
       auth: {
-        user: config.get('senderEmail'),
-        pass: config.get('senderPassword'),
-      },
+        user: process.env.SENDER_EMAIL,
+        pass: process.env.SENDER_PASSWORD
+      }
     });
 
     // set up mail options
     const mailOptions = {
-      from: config.get('senderEmail'),
+      from: process.env.SENDER_EMAIL,
       to: `${user.email}`,
       subject: 'Link to reset password',
-      text: `You are recieving this because, you ( or someone else ) has requested to reset your password,click the following link to complete the process http://localhost:3000/reset/${token}`,
+      text: `You are recieving this because, you ( or someone else ) has requested to reset your password,click the following link to complete the process http://localhost:3000/reset/${token}`
     };
 
     // send the mail to the given candidate
@@ -217,7 +216,7 @@ router.post('/forget-password', async (req, res) => {
         res.json({
           msg:
             'recovery email sent, you can close this window and follow procedure from you gmail account',
-          res: response,
+          res: response
         });
       }
     });
@@ -231,14 +230,14 @@ router.get('/', (req, res, next) => {
   passport.authenticate(
     'jwt',
     {
-      session: false,
+      session: false
     },
     async (err, user, info) => {
       if (err) return next(err);
       if (!user) return res.status(401).json({ msg: "your're not logged in" });
       await User.populate(user, {
         path: 'friends',
-        select: 'name profile_picture',
+        select: 'name profile_picture'
       });
       return res.json(user);
     }
@@ -270,13 +269,13 @@ router.post('/unfriend', async (req, res) => {
 
     await User.findByIdAndUpdate(req.body.visitedUserID, {
       $pull: {
-        friends: req.body.loggedUserID,
-      },
+        friends: req.body.loggedUserID
+      }
     });
     await User.findByIdAndUpdate(req.body.loggedUserID, {
       $pull: {
-        friends: req.body.visitedUserID,
-      },
+        friends: req.body.visitedUserID
+      }
     });
 
     return res.json({ msg: 'success' });
@@ -298,7 +297,7 @@ router.put(
       const user = await User.findByIdAndUpdate(
         req.user._id,
         {
-          $set: { profile_picture: url },
+          $set: { profile_picture: url }
         },
         { new: true }
       );
@@ -322,7 +321,7 @@ router.get('/get-friends/:id/:limit', async (req, res) => {
 
     // find friends information
     const friends = await Promise.all(
-      user.friends.map(async (friend) => {
+      user.friends.map(async friend => {
         return await User.findById(friend).select('name email profile_picture');
       })
     );

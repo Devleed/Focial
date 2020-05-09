@@ -3,6 +3,7 @@ import { Dropdown } from 'semantic-ui-react';
 import { useSelector } from 'react-redux';
 
 import ChatListRenderer from './ChatComponents/ChatListRenderer';
+import { NavLink } from 'react-router-dom';
 
 /**
  * MAIN COMPONENT
@@ -35,6 +36,16 @@ const ChatManager = () => {
         >
           <Dropdown.Header content="Messages" />
           <ChatListRenderer chats={chats} />
+          <NavLink
+            to="/chats"
+            style={{
+              color: 'var(--primary)',
+              textAlign: 'center',
+              padding: '0 43%',
+            }}
+          >
+            view all
+          </NavLink>
         </Dropdown.Menu>
       </Dropdown>
       {/* {unseen > 0 ? (

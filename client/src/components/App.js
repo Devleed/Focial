@@ -14,6 +14,8 @@ import ProfileDisplay from './ProfileDisplay';
 import PostDisplay from './HomeComponents/Post Components/PostDisplay';
 import Auth from './Auth';
 import Chat from './ChatComponents/Chat';
+import StillWorking from './StillWorking';
+import FeaturesList from './FeasturesList';
 
 let socket;
 
@@ -52,6 +54,8 @@ const App = () => {
         <Route path="/user/:id" exact component={ProfileDisplay} />
         <Route path="/post/:id" exact component={PostDisplay} />
         <Route path="/chats" exact component={Chat} />
+        <Route path="/about" exact component={FeaturesList} />
+        <Route path="*" exact component={StillWorking} />
       </Switch>
     </BrowserRouter>
   );
