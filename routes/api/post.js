@@ -149,7 +149,6 @@ router.get(
   '/getposts/:limit/:skip',
   passport.authenticate('jwt', { session: false }),
   async (req, res) => {
-    console.log('fetching');
     try {
       let skip, limit;
       skip = Number(req.params.skip);
@@ -539,34 +538,3 @@ router.patch(
 );
 
 module.exports = router;
-
-/**
- * {
-    "stats": {
-        "likes": 0,
-        "comments": 0,
-        "shares": 0
-    },
-    "content": "",
-    "date_shared": "2020-03-30T16:49:33.850Z",
-    "_id": "5e8224088457f422acfe5819",
-    "author": {
-        "profile_picture": "",
-        "_id": "5e81ac1c9ea2e525e0ef821c",
-        "name": "shikan ji",
-        "email": "s@gmail.com"
-    },
-    "post": {
-        "_id": "5e8223688457f422acfe5816",
-        "author": {
-            "profile_picture": "",
-            "_id": "5e81abd79ea2e525e0ef821b",
-            "name": "Ellen james",
-            "email": "e@gmail.com"
-        },
-        "body": "first post"
-    },
-    "__v": 0,
-    "likes": []
-}
- */

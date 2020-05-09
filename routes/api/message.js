@@ -10,7 +10,6 @@ const User = require('../../models/User');
 
 const getConditionQuery = id => ({ $eq: ['$sender', getObjectId(id)] });
 
-console.log(require('../../server'));
 // check for messages
 router.get(
   '/',
